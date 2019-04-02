@@ -9,13 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\OrderProcessing;
 
 use Sylius\Component\Addressing\Matcher\ZoneMatcherInterface;
 use Sylius\Component\Addressing\Model\ZoneInterface;
-use Sylius\Component\Core\Model\Scope;
 use Sylius\Component\Core\Model\AdjustmentInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\Scope;
 use Sylius\Component\Core\Provider\ZoneProviderInterface;
 use Sylius\Component\Core\Taxation\Exception\UnsupportedTaxCalculationStrategyException;
 use Sylius\Component\Core\Taxation\Strategy\TaxCalculationStrategyInterface;
@@ -24,33 +26,17 @@ use Sylius\Component\Order\Processor\OrderProcessorInterface;
 use Sylius\Component\Registry\PrioritizedServiceRegistryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Mark McKelvie <mark.mckelvie@reiss.com>
- */
 final class OrderTaxesProcessor implements OrderProcessorInterface
 {
-    /**
-     * @var ZoneProviderInterface
-     */
+    /** @var ZoneProviderInterface */
     private $defaultTaxZoneProvider;
 
-    /**
-     * @var ZoneMatcherInterface
-     */
+    /** @var ZoneMatcherInterface */
     private $zoneMatcher;
 
-    /**
-     * @var PrioritizedServiceRegistryInterface
-     */
+    /** @var PrioritizedServiceRegistryInterface */
     private $strategyRegistry;
 
-    /**
-     * @param ZoneProviderInterface $defaultTaxZoneProvider
-     * @param ZoneMatcherInterface $zoneMatcher
-     * @param PrioritizedServiceRegistryInterface $strategyRegistry
-     */
     public function __construct(
         ZoneProviderInterface $defaultTaxZoneProvider,
         ZoneMatcherInterface $zoneMatcher,
@@ -64,7 +50,7 @@ final class OrderTaxesProcessor implements OrderProcessorInterface
     /**
      * {@inheritdoc}
      */
-    public function process(BaseOrderInterface $order)
+    public function process(BaseOrderInterface $order): void
     {
         /** @var OrderInterface $order */
         Assert::isInstanceOf($order, OrderInterface::class);
@@ -84,6 +70,7 @@ final class OrderTaxesProcessor implements OrderProcessorInterface
         foreach ($this->strategyRegistry->all() as $strategy) {
             if ($strategy->supports($order, $zone)) {
                 $strategy->applyTaxes($order, $zone);
+
                 return;
             }
         }
@@ -91,12 +78,7 @@ final class OrderTaxesProcessor implements OrderProcessorInterface
         throw new UnsupportedTaxCalculationStrategyException();
     }
 
-    /**
-     * @param OrderInterface $order
-     *
-     * @return ZoneInterface|null
-     */
-    private function getTaxZone(OrderInterface $order)
+    private function getTaxZone(OrderInterface $order): ?ZoneInterface
     {
         $shippingAddress = $order->getShippingAddress();
         $zone = null;
@@ -108,10 +90,7 @@ final class OrderTaxesProcessor implements OrderProcessorInterface
         return $zone ?: $this->defaultTaxZoneProvider->getZone($order);
     }
 
-    /**
-     * @param BaseOrderInterface $order
-     */
-    private function clearTaxes(BaseOrderInterface $order)
+    private function clearTaxes(BaseOrderInterface $order): void
     {
         $order->removeAdjustments(AdjustmentInterface::TAX_ADJUSTMENT);
         foreach ($order->getItems() as $item) {

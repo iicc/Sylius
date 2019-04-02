@@ -9,40 +9,29 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Review\Model;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
+use Doctrine\Common\Collections\Collection;
+
 interface ReviewableInterface
 {
     /**
      * @return string
      */
-    public function getName();
+    public function getName(): ?string;
 
     /**
-     * @return ReviewInterface[]
+     * @return Collection|ReviewInterface[]
      */
-    public function getReviews();
+    public function getReviews(): Collection;
 
-    /**
-     * @param ReviewInterface $review
-     */
-    public function addReview(ReviewInterface $review);
+    public function addReview(ReviewInterface $review): void;
 
-    /**
-     * @param ReviewInterface $review
-     */
-    public function removeReview(ReviewInterface $review);
+    public function removeReview(ReviewInterface $review): void;
 
-    /**
-     * @return float
-     */
-    public function getAverageRating();
+    public function getAverageRating(): ?float;
 
-    /**
-     * @param float $averageRating
-     */
-    public function setAverageRating($averageRating);
+    public function setAverageRating(float $averageRating): void;
 }

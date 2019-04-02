@@ -9,41 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture\Factory;
 
 use Sylius\Component\Core\Factory\PromotionActionFactoryInterface;
-use Sylius\Component\Core\Promotion\Action\FixedDiscountPromotionActionCommand;
 use Sylius\Component\Core\Promotion\Action\PercentageDiscountPromotionActionCommand;
-use Sylius\Component\Core\Promotion\Action\ShippingPercentageDiscountPromotionActionCommand;
-use Sylius\Component\Core\Promotion\Action\UnitFixedDiscountPromotionActionCommand;
-use Sylius\Component\Core\Promotion\Action\UnitPercentageDiscountPromotionActionCommand;
 use Sylius\Component\Promotion\Model\PromotionActionInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class PromotionActionExampleFactory extends AbstractExampleFactory implements ExampleFactoryInterface
 {
-    /**
-     * @var PromotionActionFactoryInterface
-     */
+    /** @var PromotionActionFactoryInterface */
     private $promotionActionFactory;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @var OptionsResolver
-     */
+    /** @var OptionsResolver */
     private $optionsResolver;
 
-    /**
-     * @param PromotionActionFactoryInterface $promotionActionFactory
-     */
     public function __construct(PromotionActionFactoryInterface $promotionActionFactory)
     {
         $this->promotionActionFactory = $promotionActionFactory;
@@ -57,7 +43,7 @@ class PromotionActionExampleFactory extends AbstractExampleFactory implements Ex
     /**
      * {@inheritdoc}
      */
-    public function create(array $options = [])
+    public function create(array $options = []): PromotionActionInterface
     {
         $options = $this->optionsResolver->resolve($options);
 
@@ -72,7 +58,7 @@ class PromotionActionExampleFactory extends AbstractExampleFactory implements Ex
     /**
      * {@inheritdoc}
      */
-    protected function configureOptions(OptionsResolver $resolver)
+    protected function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setDefault('type', PercentageDiscountPromotionActionCommand::TYPE)
@@ -80,10 +66,10 @@ class PromotionActionExampleFactory extends AbstractExampleFactory implements Ex
             ->setDefault('configuration', [
                 'percentage' => $this->faker->randomNumber(2),
             ])
-            ->setNormalizer('configuration', function (Options $options, $configuration) {
+            ->setNormalizer('configuration', function (Options $options, $configuration): array {
                 foreach ($configuration as $channelCode => $channelConfiguration) {
                     if (isset($channelConfiguration['amount'])) {
-                        $configuration[$channelCode]['amount'] *= 100;
+                        $configuration[$channelCode]['amount'] = (int) ($configuration[$channelCode]['amount'] * 100);
                     }
 
                     if (isset($channelConfiguration['percentage'])) {

@@ -9,29 +9,30 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\Extension;
 
 use Sylius\Bundle\AddressingBundle\Form\Type\ZoneChoiceType;
 use Sylius\Bundle\ChannelBundle\Form\Type\ChannelType;
 use Sylius\Bundle\CoreBundle\Form\EventSubscriber\AddBaseCurrencySubscriber;
 use Sylius\Bundle\CoreBundle\Form\EventSubscriber\ChannelFormSubscriber;
+use Sylius\Bundle\CoreBundle\Form\Type\ShopBillingDataType;
 use Sylius\Bundle\CoreBundle\Form\Type\TaxCalculationStrategyChoiceType;
 use Sylius\Bundle\CurrencyBundle\Form\Type\CurrencyChoiceType;
 use Sylius\Bundle\LocaleBundle\Form\Type\LocaleChoiceType;
 use Sylius\Bundle\ThemeBundle\Form\Type\ThemeNameChoiceType;
 use Symfony\Component\Form\AbstractTypeExtension;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class ChannelTypeExtension extends AbstractTypeExtension
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
@@ -68,6 +69,21 @@ final class ChannelTypeExtension extends AbstractTypeExtension
                 'label' => 'sylius.form.channel.contact_email',
                 'required' => false,
             ])
+            ->add('skippingShippingStepAllowed', CheckboxType::class, [
+                'label' => 'sylius.form.channel.skipping_shipping_step_allowed',
+                'required' => false,
+            ])
+            ->add('skippingPaymentStepAllowed', CheckboxType::class, [
+                'label' => 'sylius.form.channel.skipping_payment_step_allowed',
+                'required' => false,
+            ])
+            ->add('accountVerificationRequired', CheckboxType::class, [
+                'label' => 'sylius.form.channel.account_verification_required',
+                'required' => false,
+            ])
+            ->add('shopBillingData', ShopBillingDataType::class, [
+                'label' => 'sylius.form.channel.shop_billing_data',
+            ])
             ->addEventSubscriber(new AddBaseCurrencySubscriber())
             ->addEventSubscriber(new ChannelFormSubscriber())
         ;
@@ -76,7 +92,7 @@ final class ChannelTypeExtension extends AbstractTypeExtension
     /**
      * {@inheritdoc}
      */
-    public function getExtendedType()
+    public function getExtendedType(): string
     {
         return ChannelType::class;
     }

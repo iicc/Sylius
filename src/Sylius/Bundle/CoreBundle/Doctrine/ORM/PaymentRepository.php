@@ -9,9 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Repository\PaymentRepositoryInterface;
 
 class PaymentRepository extends EntityRepository implements PaymentRepositoryInterface
@@ -19,15 +23,21 @@ class PaymentRepository extends EntityRepository implements PaymentRepositoryInt
     /**
      * {@inheritdoc}
      */
-    public function findOneByOrderId($id, $orderId)
+    public function createListQueryBuilder(): QueryBuilder
     {
-        $queryBuilder = $this->createQueryBuilder('o');
+        return $this->createQueryBuilder('o');
+    }
 
-        return $queryBuilder
-            ->where('o.order = :orderId')
-            ->andWhere('o.id = :id')
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByOrderId($paymentId, $orderId): ?PaymentInterface
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.id = :paymentId')
+            ->andWhere('o.order = :orderId')
+            ->setParameter('paymentId', $paymentId)
             ->setParameter('orderId', $orderId)
-            ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult()
         ;

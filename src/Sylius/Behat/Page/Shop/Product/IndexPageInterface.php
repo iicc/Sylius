@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Shop\Product;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-interface IndexPageInterface
+use FriendsOfBehat\PageObjectExtension\Page\PageInterface;
+
+interface IndexPageInterface extends PageInterface
 {
     /**
      * @return int
@@ -58,11 +58,10 @@ interface IndexPageInterface
 
     /**
      * @param string $productName
-     * @param string $productPrice
      *
-     * @return bool
+     * @return string
      */
-    public function isProductWithPriceOnList($productName, $productPrice);
+    public function getProductPrice($productName);
 
     /**
      * @param string $name
@@ -72,8 +71,6 @@ interface IndexPageInterface
     public function isProductOnPageWithName($name);
 
     /**
-     * @param array $productNames
-     *
      * @return bool
      */
     public function hasProductsInOrder(array $productNames);

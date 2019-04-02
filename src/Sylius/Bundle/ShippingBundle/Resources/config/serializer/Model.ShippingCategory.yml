@@ -30,9 +30,7 @@ Sylius\Component\Shipping\Model\ShippingCategory:
     relations:
         - rel: self
           href:
-            route: sylius_api_shipping_category_show
+            route: sylius_admin_api_shipping_category_show
             parameters:
-                id: expr(object.getId())
+                code: expr(object.getCode())
                 version: 1
-            exclusion:
-                groups: [Detailed]

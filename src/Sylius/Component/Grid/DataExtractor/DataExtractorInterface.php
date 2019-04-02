@@ -9,20 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Grid\DataExtractor;
 
 use Sylius\Component\Grid\Definition\Field;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface DataExtractorInterface
 {
-    /**
-     * @param Field $field
-     * @param mixed $data
-     *
-     * @return mixed
-     */
     public function get(Field $field, $data);
 }

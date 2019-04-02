@@ -9,20 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Shop\Product;
 
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class IndexPage extends SymfonyPage implements IndexPageInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return 'sylius_shop_product_index';
     }
@@ -34,7 +32,7 @@ class IndexPage extends SymfonyPage implements IndexPageInterface
     {
         $productsList = $this->getDocument()->find('css', '#products');
 
-        $products = $productsList->findAll('css', '.column > .card');
+        $products = $productsList->findAll('css', '.card');
 
         return count($products);
     }
@@ -46,7 +44,7 @@ class IndexPage extends SymfonyPage implements IndexPageInterface
     {
         $productsList = $this->getDocument()->find('css', '#products');
 
-        return $productsList->find('css', '.column:first-child .content > a')->getText();
+        return $productsList->find('css', '.card:first-child .content > a')->getText();
     }
 
     /**
@@ -56,7 +54,7 @@ class IndexPage extends SymfonyPage implements IndexPageInterface
     {
         $productsList = $this->getDocument()->find('css', '#products');
 
-        return $productsList->find('css', '.column:last-child .content > a')->getText();
+        return $productsList->find('css', '.card:last-child .content > a')->getText();
     }
 
     /**
@@ -100,11 +98,11 @@ class IndexPage extends SymfonyPage implements IndexPageInterface
     /**
      * {@inheritdoc}
      */
-    public function isProductWithPriceOnList($productName, $productPrice)
+    public function getProductPrice($productName)
     {
         $container = $this->getDocument()->find('css', sprintf('.sylius-product-name:contains("%s")', $productName))->getParent();
 
-        return $productPrice === $container->find('css', '.sylius-product-price')->getText();
+        return $container->find('css', '.sylius-product-price')->getText();
     }
 
     /**
@@ -121,7 +119,7 @@ class IndexPage extends SymfonyPage implements IndexPageInterface
     public function hasProductsInOrder(array $productNames)
     {
         $productsList = $this->getDocument()->find('css', '#products');
-        $products = $productsList->findAll('css', '.column  .content > .sylius-product-name');
+        $products = $productsList->findAll('css', '.card  .content > .sylius-product-name');
 
         foreach ($productNames as $key => $value) {
             if ($products[$key]->getText() !== $value) {

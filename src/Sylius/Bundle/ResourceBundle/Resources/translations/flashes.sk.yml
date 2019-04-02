@@ -6,6 +6,7 @@ sylius:
         create: '%resource% bol úspešne vytvorený.'
         update: '%resource% bol úspešne aktualizovaný.'
         delete: '%resource% bol úspešne odstránený.'
+        bulk_delete: '%resources% bol úspešne odstránený.'
         move: '%resource% bol úspešne premiestnený.'
         generate: '% resource% boli úspešne vytvorené.'
         revert: '%resource% bol úspešne navrátený.'
@@ -13,3 +14,5 @@ sylius:
         enable: '%resource% bol úspešne aktivovaný.'
         disable: '%resource% bol úspešne deaktivovaný.'
         delete_error: 'Nie je možné odstrániť, %resource% sa používa.'
+        race_condition_error: 'Nemôžete aktualizovať, %resource% bol zmenený.'
+        something_went_wrong_error: 'Niečo sa pokazilo, skúste to prosím znova.'

@@ -9,28 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\DataTransformer;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Core\Model\TaxonInterface;
-use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
 use Symfony\Component\Form\DataTransformerInterface;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class TaxonsToCodesTransformer implements DataTransformerInterface
 {
-    /**
-     * @var TaxonRepositoryInterface
-     */
+    /** @var TaxonRepositoryInterface */
     private $taxonRepository;
 
-    /**
-     * @param TaxonRepositoryInterface $taxonRepository
-     */
     public function __construct(TaxonRepositoryInterface $taxonRepository)
     {
         $this->taxonRepository = $taxonRepository;
@@ -38,12 +32,12 @@ final class TaxonsToCodesTransformer implements DataTransformerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \InvalidArgumentException
      */
-    public function transform($value)
+    public function transform($value): Collection
     {
-        if (!is_array($value) && !is_null($value)) {
-            throw new UnexpectedTypeException($value, 'array');
-        }
+        Assert::nullOrIsArray($value);
 
         if (empty($value)) {
             return new ArrayCollection();
@@ -54,24 +48,19 @@ final class TaxonsToCodesTransformer implements DataTransformerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \InvalidArgumentException
      */
-    public function reverseTransform($taxons)
+    public function reverseTransform($taxons): array
     {
-        if (!$taxons instanceof Collection) {
-            throw new UnexpectedTypeException($taxons, Collection::class);
-        }
+        Assert::isInstanceOf($taxons, Collection::class);
 
         if (null === $taxons) {
             return [];
         }
 
-        $taxonCodes = [];
-
-        /** @var TaxonInterface $taxon */
-        foreach ($taxons as $taxon) {
-            $taxonCodes[] = $taxon->getCode();
-        }
-
-        return $taxonCodes;
+        return array_map(function (TaxonInterface $taxon) {
+            return $taxon->getCode();
+        }, $taxons->toArray());
     }
 }

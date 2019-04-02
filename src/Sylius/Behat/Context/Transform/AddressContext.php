@@ -9,51 +9,31 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
-use Sylius\Bundle\CoreBundle\Fixture\Factory\AddressExampleFactory;
 use Sylius\Bundle\CoreBundle\Fixture\Factory\ExampleFactoryInterface;
 use Sylius\Component\Addressing\Converter\CountryNameConverterInterface;
-use Sylius\Component\Addressing\Model\CountryInterface;
-use Sylius\Component\Addressing\Model\ProvinceInterface;
-use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Core\Repository\AddressRepositoryInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class AddressContext implements Context
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $addressFactory;
 
-    /**
-     * @var CountryNameConverterInterface
-     */
+    /** @var CountryNameConverterInterface */
     private $countryNameConverter;
 
-    /**
-     * @var AddressRepositoryInterface
-     */
+    /** @var AddressRepositoryInterface */
     private $addressRepository;
 
-    /**
-     * @var ExampleFactoryInterface
-     */
+    /** @var ExampleFactoryInterface */
     private $exampleAddressFactory;
 
-    /**
-     * @param FactoryInterface $addressFactory
-     * @param CountryNameConverterInterface $countryNameConverter
-     * @param AddressRepositoryInterface $addressRepository
-     * @param ExampleFactoryInterface $exampleAddressFactory
-     */
     public function __construct(
         FactoryInterface $addressFactory,
         CountryNameConverterInterface $countryNameConverter,
@@ -69,6 +49,7 @@ final class AddressContext implements Context
     /**
      * @Transform /^to "([^"]+)"$/
      * @Transform /^"([^"]+)" based \w+ address$/
+     * @Transform /^"([^"]+)" based address$/
      */
     public function createNewAddress($countryName)
     {
@@ -83,7 +64,7 @@ final class AddressContext implements Context
      */
     public function createNewAddressWith($city, $street, $postcode, $countryName, $customerName)
     {
-        list($firstName, $lastName) = explode(' ', $customerName);
+        [$firstName, $lastName] = explode(' ', $customerName);
 
         return $this->exampleAddressFactory->create([
             'country_code' => $this->countryNameConverter->convertToCode($countryName),
@@ -116,7 +97,7 @@ final class AddressContext implements Context
      */
     public function createNewAddressWithNameAndProvince($name, $street, $postcode, $city, $countryName, $provinceName)
     {
-        list($firstName, $lastName) = explode(' ', $name);
+        [$firstName, $lastName] = explode(' ', $name);
 
         return $this->exampleAddressFactory->create([
             'country_code' => $this->countryNameConverter->convertToCode($countryName),
@@ -140,7 +121,7 @@ final class AddressContext implements Context
      */
     public function createNewAddressWithName($name, $street, $postcode, $city, $countryName)
     {
-        list($firstName, $lastName) = explode(' ', $name);
+        [$firstName, $lastName] = explode(' ', $name);
 
         return $this->exampleAddressFactory->create([
             'country_code' => $this->countryNameConverter->convertToCode($countryName),

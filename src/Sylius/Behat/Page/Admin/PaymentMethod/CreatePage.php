@@ -9,102 +9,96 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\PaymentMethod;
 
+use Behat\Mink\Element\NodeElement;
 use Sylius\Behat\Behaviour\ChecksCodeImmutability;
 use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Behaviour\Toggles;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class CreatePage extends BaseCreatePage implements CreatePageInterface
 {
     use ChecksCodeImmutability;
     use Toggles;
     use SpecifiesItsCode;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function nameIt($name, $languageCode)
+    public function nameIt(string $name, string $languageCode): void
     {
         $this->getDocument()->fillField(
             sprintf('sylius_payment_method_translations_%s_name', $languageCode), $name
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function chooseGateway($gateway)
-    {
-        $this->getElement('gateway')->selectOption($gateway);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function checkChannel($channelName)
+    public function checkChannel(string $channelName): void
     {
         $this->getDocument()->checkField($channelName);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function describeIt($description, $languageCode)
+    public function describeIt(string $description, string $languageCode): void
     {
         $this->getDocument()->fillField(
             sprintf('sylius_payment_method_translations_%s_description', $languageCode), $description
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setInstructions($instructions, $languageCode)
+    public function setInstructions(string $instructions, string $languageCode): void
     {
         $this->getDocument()->fillField(
             sprintf('sylius_payment_method_translations_%s_instructions', $languageCode), $instructions
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isPaymentMethodEnabled()
+    public function setPaypalGatewayUsername(string $username): void
+    {
+        $this->getDocument()->fillField('Username', $username);
+    }
+
+    public function setPaypalGatewayPassword(string $password): void
+    {
+        $this->getDocument()->fillField('Password', $password);
+    }
+
+    public function setPaypalGatewaySignature(string $signature): void
+    {
+        $this->getDocument()->fillField('Signature', $signature);
+    }
+
+    public function setStripeSecretKey(string $secretKey): void
+    {
+        $this->getDocument()->fillField('Secret key', $secretKey);
+    }
+
+    public function setStripePublishableKey(string $publishableKey): void
+    {
+        $this->getDocument()->fillField('Publishable key', $publishableKey);
+    }
+
+    public function isPaymentMethodEnabled(): bool
     {
         return (bool) $this->getToggleableElement()->getValue();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getCodeElement()
+    protected function getCodeElement(): NodeElement
     {
         return $this->getElement('code');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getToggleableElement()
+    protected function getToggleableElement(): NodeElement
     {
         return $this->getElement('enabled');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'code' => '#sylius_payment_method_code',
             'enabled' => '#sylius_payment_method_enabled',
-            'gateway' => '#sylius_payment_method_gateway',
+            'gateway_name' => '#sylius_payment_method_gatewayConfig_gatewayName',
             'name' => '#sylius_payment_method_translations_en_US_name',
+            'paypal_password' => '#sylius_payment_method_gatewayConfig_config_password',
         ]);
     }
 }

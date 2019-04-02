@@ -9,67 +9,37 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Customer;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
-    public function enable();
-    public function disable();
+    public function enable(): void;
 
-    /**
-     * @return string
-     */
-    public function getFullName();
-    
-    /**
-     * @param string $firstName
-     */
-    public function changeFirstName($firstName);
+    public function disable(): void;
 
-    /**
-     * @return string
-     */
-    public function getFirstName();
+    public function getFullName(): string;
 
-    /**
-     * @param string $lastName
-     */
-    public function changeLastName($lastName);
+    public function changeFirstName(string $firstName): void;
 
-    /**
-     * @return string
-     */
-    public function getLastName();
+    public function getFirstName(): string;
 
-    /**
-     * @param string $email
-     */
-    public function changeEmail($email);
+    public function changeLastName(string $lastName): void;
 
-    /**
-     * @param string $password
-     */
-    public function changePassword($password);
+    public function getLastName(): string;
 
-    /**
-     * @return string
-     */
-    public function getPassword();
+    public function changeEmail(string $email): void;
 
-    public function subscribeToTheNewsletter();
+    public function changePassword(string $password): void;
 
-    /**
-     * @return bool
-     */
-    public function isSubscribedToTheNewsletter();
+    public function getPassword(): string;
 
-    /**
-     * @return string
-     */
-    public function getGroupName();
+    public function subscribeToTheNewsletter(): void;
+
+    public function isSubscribedToTheNewsletter(): bool;
+
+    public function getGroupName(): string;
 }

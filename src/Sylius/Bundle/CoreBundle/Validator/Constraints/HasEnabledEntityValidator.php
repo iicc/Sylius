@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Validator\Constraints;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -19,26 +21,16 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Gustavo Perdomo <gperdomor@gmail.com>
- */
 final class HasEnabledEntityValidator extends ConstraintValidator
 {
-    /**
-     * @var ManagerRegistry
-     */
+    /** @var ManagerRegistry */
     private $registry;
 
-    /**
-     * @var PropertyAccessor
-     */
+    /** @var PropertyAccessor */
     private $accessor;
 
-    /**
-     * @param ManagerRegistry $registry
-     */
     public function __construct(ManagerRegistry $registry)
     {
         $this->registry = $registry;
@@ -46,17 +38,15 @@ final class HasEnabledEntityValidator extends ConstraintValidator
     }
 
     /**
-     * @param object $entity
-     * @param Constraint $constraint
+     * {@inheritdoc}
      *
-     * @throws UnexpectedTypeException
+     * @throws \InvalidArgumentException
      * @throws ConstraintDefinitionException
      */
-    public function validate($entity, Constraint $constraint)
+    public function validate($entity, Constraint $constraint): void
     {
-        if (!$constraint instanceof HasEnabledEntity) {
-            throw new UnexpectedTypeException($constraint, __NAMESPACE__.'\HasEnabledEntity');
-        }
+        /** @var HasEnabledEntity $constraint */
+        Assert::isInstanceOf($constraint, HasEnabledEntity::class);
 
         $enabled = $this->accessor->getValue($entity, $constraint->enabledPath);
 
@@ -96,22 +86,17 @@ final class HasEnabledEntityValidator extends ConstraintValidator
      *
      * @param array|\Iterator $result
      * @param object $entity
-     *
-     * @return bool
      */
-    private function isLastEnabledEntity($result, $entity)
+    private function isLastEnabledEntity($result, $entity): bool
     {
         return !$result || 0 === count($result)
         || (1 === count($result) && $entity === ($result instanceof \Iterator ? $result->current() : current($result)));
     }
 
     /**
-     * @param string $manager
      * @param object $entity
-     *
-     * @return ObjectManager|null
      */
-    private function getProperObjectManager($manager, $entity)
+    private function getProperObjectManager(?string $manager, $entity): ?ObjectManager
     {
         if ($manager) {
             $objectManager = $this->registry->getManager($manager);
@@ -133,10 +118,9 @@ final class HasEnabledEntityValidator extends ConstraintValidator
     }
 
     /**
-     * @param ObjectManager|null $objectManager
-     * @param string $exceptionMessage
+     * @throws ConstraintDefinitionException
      */
-    private function validateObjectManager($objectManager, $exceptionMessage)
+    private function validateObjectManager(?ObjectManager $objectManager, string $exceptionMessage): void
     {
         if (!$objectManager) {
             throw new ConstraintDefinitionException($exceptionMessage);
@@ -144,13 +128,13 @@ final class HasEnabledEntityValidator extends ConstraintValidator
     }
 
     /**
-     * @param ObjectManager $objectManager
      * @param object $entity
-     * @param string $enabledPropertyPath
+     *
+     * @throws ConstraintDefinitionException
      */
-    private function ensureEntityHasProvidedEnabledField(ObjectManager $objectManager, $entity, $enabledPropertyPath)
+    private function ensureEntityHasProvidedEnabledField(ObjectManager $objectManager, $entity, string $enabledPropertyPath): void
     {
-        /* @var ClassMetadata $class */
+        /** @var ClassMetadata $class */
         $class = $objectManager->getClassMetadata(get_class($entity));
 
         if (!$class->hasField($enabledPropertyPath) && !$class->hasAssociation($enabledPropertyPath)) {

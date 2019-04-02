@@ -9,22 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Currency\Repository;
 
-use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Currency\Model\ExchangeRateInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 interface ExchangeRateRepositoryInterface extends RepositoryInterface
 {
-    /**
-     * @param string $firstCurrencyCode
-     * @param string $secondCurrencyCode
-     *
-     * @return ExchangeRateInterface|null
-     */
-    public function findOneWithCurrencyPair($firstCurrencyCode, $secondCurrencyCode);
+    public function findOneWithCurrencyPair(string $firstCurrencyCode, string $secondCurrencyCode): ?ExchangeRateInterface;
 }

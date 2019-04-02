@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Grid\Data;
 
 use Sylius\Component\Grid\Definition\Grid;
@@ -16,31 +18,17 @@ use Sylius\Component\Grid\Filtering\FiltersApplicatorInterface;
 use Sylius\Component\Grid\Parameters;
 use Sylius\Component\Grid\Sorting\SorterInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class DataProvider implements DataProviderInterface
 {
-    /**
-     * @var DataSourceProviderInterface
-     */
+    /** @var DataSourceProviderInterface */
     private $dataSourceProvider;
 
-    /**
-     * @var FiltersApplicatorInterface
-     */
+    /** @var FiltersApplicatorInterface */
     private $filtersApplicator;
 
-    /**
-     * @var SorterInterface
-     */
+    /** @var SorterInterface */
     private $sorter;
 
-    /**
-     * @param DataSourceProviderInterface $dataSourceProvider
-     * @param FiltersApplicatorInterface $filtersApplicator
-     * @param SorterInterface $sorter
-     */
     public function __construct(
         DataSourceProviderInterface $dataSourceProvider,
         FiltersApplicatorInterface $filtersApplicator,

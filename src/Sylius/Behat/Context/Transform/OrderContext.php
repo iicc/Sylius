@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
@@ -16,25 +18,14 @@ use Sylius\Component\Core\Repository\CustomerRepositoryInterface;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class OrderContext implements Context
 {
-    /**
-     * @var CustomerRepositoryInterface
-     */
+    /** @var CustomerRepositoryInterface */
     private $customerRepository;
 
-    /**
-     * @var OrderRepositoryInterface
-     */
+    /** @var OrderRepositoryInterface */
     private $orderRepository;
 
-    /**
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param OrderRepositoryInterface $orderRepository
-     */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
         OrderRepositoryInterface $orderRepository
@@ -54,6 +45,18 @@ final class OrderContext implements Context
         Assert::notNull($order, sprintf('Cannot find order with number %s', $orderNumber));
 
         return $order;
+    }
+
+    /**
+     * @Transform /^latest order$/
+     */
+    public function getLatestOrder()
+    {
+        $orders = $this->orderRepository->findLatest(1);
+
+        Assert::notEmpty($orders,'No order have been made');
+
+        return $orders[0];
     }
 
     /**

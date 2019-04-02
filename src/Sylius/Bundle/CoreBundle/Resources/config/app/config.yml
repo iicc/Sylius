@@ -23,35 +23,25 @@ imports:
     - { resource: "@SyliusCoreBundle/Resources/config/app/state_machine.yml" }
     - { resource: "@SyliusCoreBundle/Resources/config/app/fixtures.yml" }
 
+parameters:
+    sylius_core.public_dir: "%kernel.project_dir%/web"
+
 doctrine:
     orm:
         auto_generate_proxy_classes: "%kernel.debug%"
         entity_managers:
             default:
                 auto_mapping: true
-                mappings:
-                    SyliusResourceBundle:
-                        type: annotation
-                        prefix: Sylius\Bundle\ResourceBundle\Model
-                        dir: Model
-                        is_bundle: true
 
 doctrine_cache:
     providers:
         sylius_rbac: "%sylius.cache%"
 
-jms_serializer:
-    metadata:
-        directories:
-            sylius-core:
-                namespace_prefix: "Sylius\\Component\\Core"
-                path: "@SyliusCoreBundle/Resources/config/serializer"
-
 knp_gaufrette:
     adapters:
         sylius_image:
             local:
-                directory: "%kernel.root_dir%/../web/media/image"
+                directory: "%sylius_core.public_dir%/media/image"
                 create: true
     filesystems:
         sylius_image:
@@ -61,7 +51,12 @@ liip_imagine:
     loaders:
         default:
             filesystem:
-                data_root: "%kernel.root_dir%/../web/media/image"
+                data_root: "%sylius_core.public_dir%/media/image"
+    resolvers:
+        default:
+            web_path:
+                web_root: "%sylius_core.public_dir%"
+                cache_prefix: "media/cache"
     filter_sets:
         sylius_small:
             filters:
@@ -89,8 +84,6 @@ payum:
     gateways:
         offline:
             factory: offline
-        cash_on_delivery:
-            factory: offline
 
 stof_doctrine_extensions:
     default_locale: "%locale%"
@@ -105,10 +98,35 @@ stof_doctrine_extensions:
 twig:
     debug: "%kernel.debug%"
     strict_variables: "%kernel.debug%"
-    exception_controller: "FOS\\RestBundle\\Controller\\ExceptionController::showAction"
     globals:
         sylius: "@sylius.context.shopper"
+        sylius_base_locale: "%locale%"
+        sylius_meta:
+            version: !php/const Sylius\Bundle\CoreBundle\Application\Kernel::VERSION
 
-fos_rest:
-    body_listener:
-        array_normalizer: fos_rest.normalizer.camel_keys
+sonata_block:
+    blocks:
+        sonata.block.service.template:
+            settings:
+                address: ~
+                addresses: ~
+                cart: ~
+                channel: ~
+                customer: ~
+                form: ~
+                order: ~
+                order_item: ~
+                orders: ~
+                product: ~
+                product_review: ~
+                product_reviews: ~
+                products: ~
+                resource: ~
+                resources: ~
+                statistics: ~
+                taxon: ~
+
+sonata_core:
+    form:
+        mapping:
+            enabled: false # https://github.com/sonata-project/SonataCoreBundle/pull/462

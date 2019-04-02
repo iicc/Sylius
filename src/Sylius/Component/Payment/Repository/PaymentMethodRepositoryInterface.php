@@ -9,22 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Payment\Repository;
 
-use Doctrine\ORM\QueryBuilder;
 use Sylius\Component\Payment\Model\PaymentMethodInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Arnaud Langlade <arn0d.dev@gmail.com>
- */
 interface PaymentMethodRepositoryInterface extends RepositoryInterface
 {
     /**
-     * @param string $name
-     * @param string $locale
-     *
      * @return PaymentMethodInterface[]
      */
-    public function findByName($name, $locale);
+    public function findByName(string $name, string $locale): array;
 }

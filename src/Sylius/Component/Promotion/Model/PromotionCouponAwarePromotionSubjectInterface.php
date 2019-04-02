@@ -9,15 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Model;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 interface PromotionCouponAwarePromotionSubjectInterface extends PromotionSubjectInterface
 {
-    /**
-     * @return null|PromotionCouponInterface
-     */
-    public function getPromotionCoupon();
+    public function getPromotionCoupon(): ?PromotionCouponInterface;
 }

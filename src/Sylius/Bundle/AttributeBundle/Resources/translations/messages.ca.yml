@@ -7,3 +7,6 @@ sylius:
             code: Codi
             name: Nom
             type: Tipus
+        attribute_type:
+            configuration: Configuració
+            select: Tria

@@ -9,42 +9,39 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PromotionBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 final class RegisterPromotionActionsPass implements CompilerPassInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition('sylius.registry_promotion_action')) {
+        if (!$container->has('sylius.registry_promotion_action') || !$container->has('sylius.form_registry.promotion_action')) {
             return;
         }
 
-        $registry = $container->getDefinition('sylius.registry_promotion_action');
-        $actions = [];
+        $promotionActionRegistry = $container->getDefinition('sylius.registry_promotion_action');
+        $promotionActionFormTypeRegistry = $container->getDefinition('sylius.form_registry.promotion_action');
 
-        $actionsServices = $container->findTaggedServiceIds('sylius.promotion_action');
-        ksort($actionsServices);
-
-        foreach ($actionsServices as $id => $attributes) {
-            if (!isset($attributes[0]['type']) || !isset($attributes[0]['label'])) {
-                throw new \InvalidArgumentException('Tagged promotion action needs to have `type` and `label` attributes.');
+        $promotionActionTypeToLabelMap = [];
+        foreach ($container->findTaggedServiceIds('sylius.promotion_action') as $id => $attributes) {
+            if (!isset($attributes[0]['type'], $attributes[0]['label'], $attributes[0]['form_type'])) {
+                throw new \InvalidArgumentException('Tagged promotion action `' . $id . '` needs to have `type`, `form_type` and `label` attributes.');
             }
 
-            $actions[$attributes[0]['type']] = $attributes[0]['label'];
-
-            $registry->addMethodCall('register', [$attributes[0]['type'], new Reference($id)]);
+            $promotionActionTypeToLabelMap[$attributes[0]['type']] = $attributes[0]['label'];
+            $promotionActionRegistry->addMethodCall('register', [$attributes[0]['type'], new Reference($id)]);
+            $promotionActionFormTypeRegistry->addMethodCall('add', [$attributes[0]['type'], 'default', $attributes[0]['form_type']]);
         }
 
-        $container->setParameter('sylius.promotion_actions', $actions);
+        $container->setParameter('sylius.promotion_actions', $promotionActionTypeToLabelMap);
     }
 }

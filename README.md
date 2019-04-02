@@ -1,72 +1,75 @@
-![Sylius](http://demo.sylius.org/assets/shop/img/logo.png)
+<h1 align="center">
+    <a href="http://sylius.com" target="_blank">
+        <img src="https://demo.sylius.com/assets/shop/img/logo.png" />
+    </a>
+</h1>
 
-[![License](https://img.shields.io/packagist/l/Sylius/Sylius.svg)](https://packagist.org/packages/sylius/sylius)
-[![Version](https://img.shields.io/packagist/vpre/Sylius/Sylius.svg)](https://packagist.org/packages/sylius/sylius)
-[![Build status on Linux](https://img.shields.io/travis/Sylius/Sylius/master.svg)](http://travis-ci.org/Sylius/Sylius)
-[![Scrutinizer Quality Score](https://img.shields.io/scrutinizer/g/Sylius/Sylius.svg)](https://scrutinizer-ci.com/g/Sylius/Sylius/)
-[![Total Downloads](https://poser.pugx.org/sylius/sylius/downloads)](https://packagist.org/packages/sylius/sylius)
+Sylius is an Open Source eCommerce Framework on top of [**Symfony**](https://symfony.com). 
 
-Sylius is the first decoupled eCommerce framework based on [**Symfony**](http://symfony.com) and [**Doctrine**](http://doctrine-project.org). 
 The highest quality of code, strong testing culture, built-in Agile (BDD) workflow and exceptional flexibility make it the best solution for application tailored to your business requirements. 
+Powerful REST API allows for easy integrations and creating unique customer experience on any device.
+
+We're using full-stack Behavior-Driven-Development, with [phpspec](http://phpspec.net) and [Behat](http://behat.org).
+
 Enjoy being an eCommerce Developer again!
-
-We're using full-stack Behavior-Driven-Development, with [phpspec](http://phpspec.net) and [Behat](http://behat.org)
-
-Documentation
--------------
-
-Documentation is available at [docs.sylius.org](http://docs.sylius.org).
 
 Installation
 ------------
 
-```bash
-$ wget http://getcomposer.org/composer.phar
-$ php composer.phar create-project -s beta sylius/sylius-standard project
-$ cd project
-$ npm install
-$ npm run gulp
-$ php bin/console sylius:install
-$ php bin/console server:start
-$ open http://localhost:8000/
-```
+[Install Sylius](http://docs.sylius.com/en/latest/book/installation/installation.html) with Composer (see [requirements details](http://docs.sylius.com/en/latest/book/installation/requirements.html)).
 
-To use Vagrant, see [this repository](http://github.com/Sylius/Vagrant).
+Documentation
+-------------
+ 
+Documentation is available at [docs.sylius.com](http://docs.sylius.com).
 
-Troubleshooting
----------------
+Roadmap
+-------
 
-If something goes wrong, errors & exceptions are logged at the application level:
+Our roadmap is available to browse, vote and comment as a [Github project](https://github.com/orgs/Sylius/projects/2). 
+You can also see all roadmap related issues by filtering [those labeled with "Roadmap"](https://github.com/Sylius/Sylius/labels/Roadmap).
 
-```bash
-$ tail -f var/logs/prod.log
-$ tail -f var/logs/dev.log
-```
+Community
+---------
 
-If you are using the supplied Vagrant development environment, please see the related [Troubleshooting guide](http://github.com/Sylius/Vagrant/README.md#Troubleshooting) for more information.
+[Get Sylius support](http://docs.sylius.com/en/latest/support/index.html) on [Slack](https://sylius.com/slack), [Forum](https://forum.sylius.com/) or [Stack Overflow](https://stackoverflow.com/questions/tagged/sylius).
+
+Stay updated by following our [Twitter](https://twitter.com/Sylius) and [Facebook](https://www.facebook.com/SyliusEcommerce/).
+
+Official plugins
+----------------
+
+This is the list of officially supported Sylius plugins:
+
+ - [Admin Order Creation Plugin](https://github.com/Sylius/AdminOrderCreationPlugin) - 
+   allows creating orders directly from the administrator panel
+ - [Customer Order Cancellation Plugin](https://github.com/Sylius/CustomerOrderCancellationPlugin) -
+   allows customer to cancel a placed order which has not been processed yet
+ - [Customer Reorder Plugin](https://github.com/Sylius/CustomerReorderPlugin) - 
+   allows customer to copy items from the already placed order to the current cart
+ - [Invoicing Plugin](https://github.com/Sylius/InvoicingPlugin) -
+   generates an invoice for every placed order
+ - [Refund Plugin](https://github.com/Sylius/RefundPlugin) -
+   allows administrator to refund items from paid order
+ - [Shop API Plugin](https://github.com/Sylius/SyliusShopApiPlugin) - 
+   provides customer-level API for the shop functionalities
+   
+You can find other plugins on [our ecosystem website](https://sylius.com/plugins/) or by looking for 
+[packages marked as *sylius-plugin*](https://packagist.org/explore/?type=sylius-plugin).
 
 Contributing
 ------------
 
-Would like to help us and build the most developer-friendly eCommerce platform? Start from reading our [Contributing Guide](http://docs.sylius.org/en/latest/contributing/index.html)!
+Would like to help us and build the most developer-friendly eCommerce platform? Start from reading our [Contributing Guide](http://docs.sylius.com/en/latest/contributing/index.html)!
 
-Stay Updated
-------------
+Security issues
+---------------
 
-If you want to keep up with the updates, [follow the official Sylius account on Twitter](http://twitter.com/Sylius) and [like us on Facebook](https://www.facebook.com/SyliusEcommerce/).
+If you think that you have found a security issue in Sylius, please do not use the issue tracker and do not post it publicly. 
+Instead, all security issues must be sent to `security@sylius.com`.
 
-Bug Tracking
-------------
-
-If you want to report a bug or suggest an idea, please use [GitHub issues](https://github.com/Sylius/Sylius/issues).
-
-Community Support
------------------
-
-Have a question? Join our [Slack](https://slackinvite.me/to/sylius-devs) or post it on [StackOverflow](http://stackoverflow.com) tagged with "sylius". You can also join our [group on Facebook](https://www.facebook.com/groups/sylius/)!
-
-MIT License
------------
+License
+-------
 
 Sylius is completely free and released under the [MIT License](https://github.com/Sylius/Sylius/blob/master/LICENSE).
 

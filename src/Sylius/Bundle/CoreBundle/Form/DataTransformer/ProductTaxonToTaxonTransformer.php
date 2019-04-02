@@ -9,36 +9,43 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\DataTransformer;
 
+use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\ProductTaxonInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class ProductTaxonToTaxonTransformer implements DataTransformerInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productTaxonFactory;
 
-    /**
-     * @param FactoryInterface $productTaxonFactory
-     */
-    public function __construct(FactoryInterface $productTaxonFactory)
-    {
+    /** @var RepositoryInterface */
+    private $productTaxonRepository;
+
+    /** @var ProductInterface */
+    private $product;
+
+    public function __construct(
+        FactoryInterface $productTaxonFactory,
+        RepositoryInterface $productTaxonRepository,
+        ProductInterface $product
+    ) {
         $this->productTaxonFactory = $productTaxonFactory;
+        $this->productTaxonRepository = $productTaxonRepository;
+        $this->product = $product;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function transform($productTaxon)
+    public function transform($productTaxon): ?TaxonInterface
     {
         if (null === $productTaxon) {
             return null;
@@ -52,7 +59,7 @@ final class ProductTaxonToTaxonTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public function reverseTransform($taxon)
+    public function reverseTransform($taxon): ?ProductTaxonInterface
     {
         if (null === $taxon) {
             return null;
@@ -60,19 +67,23 @@ final class ProductTaxonToTaxonTransformer implements DataTransformerInterface
 
         $this->assertTransformationValueType($taxon, TaxonInterface::class);
 
-        $productTaxon = $this->productTaxonFactory->createNew();
-        $productTaxon->setTaxon($taxon);
+        /** @var ProductTaxonInterface $productTaxon */
+        $productTaxon = $this->productTaxonRepository->findOneBy(['taxon' => $taxon, 'product' => $this->product]);
+
+        if (null === $productTaxon) {
+            /** @var ProductTaxonInterface $productTaxon */
+            $productTaxon = $this->productTaxonFactory->createNew();
+            $productTaxon->setProduct($this->product);
+            $productTaxon->setTaxon($taxon);
+        }
 
         return $productTaxon;
     }
 
     /**
-     * @param string $value
-     * @param string $expectedType
-     *
      * @throws TransformationFailedException
      */
-    private function assertTransformationValueType($value, $expectedType)
+    private function assertTransformationValueType($value, string $expectedType): void
     {
         if (!($value instanceof $expectedType)) {
             throw new TransformationFailedException(

@@ -9,50 +9,58 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\Type\Taxon;
 
 use Sylius\Bundle\CoreBundle\Form\DataTransformer\ProductTaxonToTaxonTransformer;
 use Sylius\Bundle\ResourceBundle\Form\DataTransformer\RecursiveTransformer;
 use Sylius\Bundle\ResourceBundle\Form\Type\ResourceAutocompleteChoiceType;
+use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class ProductTaxonAutocompleteChoiceType extends AbstractType
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productTaxonFactory;
 
-    /**
-     * @param FactoryInterface $productTaxonFactory
-     */
-    public function __construct(FactoryInterface $productTaxonFactory)
+    /** @var RepositoryInterface */
+    private $productTaxonRepository;
+
+    public function __construct(FactoryInterface $productTaxonFactory, RepositoryInterface $productTaxonRepository)
     {
         $this->productTaxonFactory = $productTaxonFactory;
+        $this->productTaxonRepository = $productTaxonRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if ($options['multiple']) {
             $builder->addModelTransformer(
                 new RecursiveTransformer(
-                    new ProductTaxonToTaxonTransformer($this->productTaxonFactory)
+                    new ProductTaxonToTaxonTransformer(
+                        $this->productTaxonFactory,
+                        $this->productTaxonRepository,
+                        $options['product']
+                    )
                 )
             );
         }
 
         if (!$options['multiple']) {
             $builder->addModelTransformer(
-                new ProductTaxonToTaxonTransformer($this->productTaxonFactory)
+                new ProductTaxonToTaxonTransformer(
+                    $this->productTaxonFactory,
+                    $this->productTaxonRepository,
+                    $options['product']
+                )
             );
         }
     }
@@ -60,19 +68,24 @@ final class ProductTaxonAutocompleteChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'resource' => 'sylius.taxon',
             'choice_name' => 'name',
-            'choice_value' => 'id',
+            'choice_value' => 'code',
         ]);
+
+        $resolver
+            ->setRequired('product')
+            ->setAllowedTypes('product', ProductInterface::class)
+        ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
         return ResourceAutocompleteChoiceType::class;
     }
@@ -80,7 +93,7 @@ final class ProductTaxonAutocompleteChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_product_taxon_autocomplete_choice';
     }

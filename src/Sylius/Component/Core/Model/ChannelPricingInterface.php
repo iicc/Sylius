@@ -1,32 +1,40 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
-use Sylius\Component\Channel\Model\ChannelAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-interface ChannelPricingInterface extends ResourceInterface, ChannelAwareInterface
+interface ChannelPricingInterface extends ResourceInterface
 {
-    /**
-     * @return ProductVariantInterface
-     */
-    public function getProductVariant();
+    public function getProductVariant(): ?ProductVariantInterface;
+
+    public function setProductVariant(?ProductVariantInterface $productVariant): void;
+
+    public function getPrice(): ?int;
+
+    public function setPrice(?int $price): void;
 
     /**
-     * @param ProductVariantInterface|null $productVariant
+     * @return string
      */
-    public function setProductVariant(ProductVariantInterface $productVariant = null);
+    public function getChannelCode(): ?string;
 
-    /**
-     * @return int
-     */
-    public function getPrice();
+    public function setChannelCode(?string $channelCode): void;
 
-    /**
-     * @param int $price
-     */
-    public function setPrice($price);
+    public function getOriginalPrice(): ?int;
+
+    public function setOriginalPrice(?int $originalPrice): void;
+
+    public function isPriceReduced(): bool;
 }

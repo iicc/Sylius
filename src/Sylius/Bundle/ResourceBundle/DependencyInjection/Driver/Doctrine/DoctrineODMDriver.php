@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection\Driver\Doctrine;
 
 use Sylius\Bundle\ResourceBundle\Doctrine\ODM\MongoDB\TranslatableRepository;
@@ -20,16 +22,14 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Arnaud Langlade <aRn0D.dev@gmail.com>
- */
+@trigger_error(sprintf('The "%s" class is deprecated since Sylius 1.3. Doctrine MongoDB and PHPCR support will no longer be supported in Sylius 2.0.', DoctrineODMDriver::class), \E_USER_DEPRECATED);
+
 final class DoctrineODMDriver extends AbstractDoctrineDriver
 {
     /**
      * {@inheritdoc}
      */
-    public function getType()
+    public function getType(): string
     {
         return SyliusResourceBundle::DRIVER_DOCTRINE_MONGODB_ODM;
     }
@@ -37,7 +37,7 @@ final class DoctrineODMDriver extends AbstractDoctrineDriver
     /**
      * {@inheritdoc}
      */
-    protected function addRepository(ContainerBuilder $container, MetadataInterface $metadata)
+    protected function addRepository(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         $modelClass = $metadata->getClass('model');
 
@@ -69,7 +69,7 @@ final class DoctrineODMDriver extends AbstractDoctrineDriver
     /**
      * {@inheritdoc}
      */
-    protected function getManagerServiceId(MetadataInterface $metadata)
+    protected function getManagerServiceId(MetadataInterface $metadata): string
     {
         if ($objectManagerName = $this->getObjectManagerName($metadata)) {
             return sprintf('doctrine_mongodb.odm.%s_document_manager', $objectManagerName);
@@ -81,7 +81,7 @@ final class DoctrineODMDriver extends AbstractDoctrineDriver
     /**
      * {@inheritdoc}
      */
-    protected function getClassMetadataClassname()
+    protected function getClassMetadataClassname(): string
     {
         return 'Doctrine\\ODM\\MongoDB\\Mapping\\ClassMetadata';
     }

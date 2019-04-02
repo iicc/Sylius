@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
@@ -21,37 +23,20 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Review\Model\ReviewInterface;
 
-/**
- * @author Magdalena Banasiak <magdalena.banasiak@lakion.com>
- */
 final class ProductReviewContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productReviewFactory;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $productReviewRepository;
 
-    /**
-     * @var StateMachineFactoryInterface
-     */
+    /** @var StateMachineFactoryInterface */
     private $stateMachineFactory;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param FactoryInterface $productReviewFactory
-     * @param RepositoryInterface $productReviewRepository
-     * @param StateMachineFactoryInterface $stateMachineFactory
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         FactoryInterface $productReviewFactory,
@@ -65,11 +50,11 @@ final class ProductReviewContext implements Context
     }
 
     /**
-     * @Given /^(this product) has one review$/
+     * @Given /^(this product) has one review from (customer "[^"]+")$/
      */
-    public function productHasAReview(ProductInterface $product)
+    public function productHasAReview(ProductInterface $product, CustomerInterface $customer)
     {
-        $review = $this->createProductReview($product, 'Title', 5, 'Comment');
+        $review = $this->createProductReview($product, 'Title', 5, 'Comment', $customer);
 
         $this->productReviewRepository->add($review);
     }
@@ -86,7 +71,7 @@ final class ProductReviewContext implements Context
     ) {
         $review = $this->createProductReview($product, $title, $rating, $title, $customer);
         if (null !== $daysSinceCreation) {
-            $review->setCreatedAt(new \DateTime('-'.$daysSinceCreation.' days'));
+            $review->setCreatedAt(new \DateTime('-' . $daysSinceCreation . ' days'));
         }
 
         $this->productReviewRepository->add($review);
@@ -129,7 +114,7 @@ final class ProductReviewContext implements Context
     {
         $customer = $this->sharedStorage->get('customer');
         foreach ($rates as $key => $rate) {
-            $review = $this->createProductReview($product, 'Title '.$key, $rate, 'Comment '.$key, $customer);
+            $review = $this->createProductReview($product, 'Title ' . $key, $rate, 'Comment ' . $key, $customer);
             $this->productReviewRepository->add($review);
         }
     }
@@ -155,11 +140,9 @@ final class ProductReviewContext implements Context
     }
 
     /**
-     * @param ProductInterface $product
      * @param string $title
      * @param int $rating
      * @param string $comment
-     * @param CustomerInterface|null $customer
      * @param string $transition
      *
      * @return ReviewInterface
@@ -175,7 +158,7 @@ final class ProductReviewContext implements Context
         /** @var ReviewInterface $review */
         $review = $this->productReviewFactory->createNew();
         $review->setTitle($title);
-        $review->setRating($rating);
+        $review->setRating((int) $rating);
         $review->setComment($comment);
         $review->setReviewSubject($product);
         $review->setAuthor($customer);

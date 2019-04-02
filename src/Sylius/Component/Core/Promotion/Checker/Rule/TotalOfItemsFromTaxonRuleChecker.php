@@ -9,32 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Promotion\Checker\Rule;
 
-use Sylius\Bundle\CoreBundle\Form\Type\Promotion\Rule\TotalOfItemsFromTaxonConfigurationType;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Promotion\Checker\Rule\RuleCheckerInterface;
+use Sylius\Component\Promotion\Exception\UnsupportedTypeException;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
-use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
-use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-final class TotalOfItemsFromTaxonRuleChecker implements RuleCheckerInterface, ChannelBasedRuleCheckerInterface
+final class TotalOfItemsFromTaxonRuleChecker implements RuleCheckerInterface
 {
-    const TYPE = 'total_of_items_from_taxon';
+    public const TYPE = 'total_of_items_from_taxon';
 
-    /**
-     * @var TaxonRepositoryInterface
-     */
+    /** @var TaxonRepositoryInterface */
     private $taxonRepository;
 
-    /**
-     * @param TaxonRepositoryInterface $taxonRepository
-     */
     public function __construct(TaxonRepositoryInterface $taxonRepository)
     {
         $this->taxonRepository = $taxonRepository;
@@ -42,10 +34,14 @@ final class TotalOfItemsFromTaxonRuleChecker implements RuleCheckerInterface, Ch
 
     /**
      * {@inheritdoc}
+     *
+     * @throws UnsupportedTypeException
      */
-    public function isEligible(PromotionSubjectInterface $subject, array $configuration)
+    public function isEligible(PromotionSubjectInterface $subject, array $configuration): bool
     {
-        Assert::isInstanceOf($subject, OrderInterface::class);
+        if (!$subject instanceof OrderInterface) {
+            throw new UnsupportedTypeException($subject, OrderInterface::class);
+        }
 
         $channelCode = $subject->getChannel()->getCode();
         if (!isset($configuration[$channelCode])) {
@@ -67,19 +63,11 @@ final class TotalOfItemsFromTaxonRuleChecker implements RuleCheckerInterface, Ch
 
         /** @var OrderItemInterface $item */
         foreach ($subject->getItems() as $item) {
-            if (!$item->getProduct()->filterProductTaxonsByTaxon($targetTaxon)->isEmpty()) {
+            if ($item->getProduct()->hasTaxon($targetTaxon)) {
                 $itemsWithTaxonTotal += $item->getTotal();
             }
         }
 
         return $itemsWithTaxonTotal >= $configuration['amount'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return TotalOfItemsFromTaxonConfigurationType::class;
     }
 }

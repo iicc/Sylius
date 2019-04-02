@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Processor;
 
 use Sylius\Component\Promotion\Action\PromotionApplicatorInterface;
@@ -16,31 +18,17 @@ use Sylius\Component\Promotion\Checker\Eligibility\PromotionEligibilityCheckerIn
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Sylius\Component\Promotion\Provider\PreQualifiedPromotionsProviderInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 final class PromotionProcessor implements PromotionProcessorInterface
 {
-    /**
-     * @var PreQualifiedPromotionsProviderInterface
-     */
+    /** @var PreQualifiedPromotionsProviderInterface */
     private $preQualifiedPromotionsProvider;
 
-    /**
-     * @var PromotionEligibilityCheckerInterface
-     */
+    /** @var PromotionEligibilityCheckerInterface */
     private $promotionEligibilityChecker;
 
-    /**
-     * @var PromotionApplicatorInterface
-     */
+    /** @var PromotionApplicatorInterface */
     private $promotionApplicator;
 
-    /**
-     * @param PreQualifiedPromotionsProviderInterface $preQualifiedPromotionsProvider
-     * @param PromotionEligibilityCheckerInterface $promotionEligibilityChecker
-     * @param PromotionApplicatorInterface $promotionApplicator
-     */
     public function __construct(
         PreQualifiedPromotionsProviderInterface $preQualifiedPromotionsProvider,
         PromotionEligibilityCheckerInterface $promotionEligibilityChecker,
@@ -54,30 +42,26 @@ final class PromotionProcessor implements PromotionProcessorInterface
     /**
      * {@inheritdoc}
      */
-    public function process(PromotionSubjectInterface $subject)
+    public function process(PromotionSubjectInterface $subject): void
     {
         foreach ($subject->getPromotions() as $promotion) {
             $this->promotionApplicator->revert($subject, $promotion);
         }
 
-        $eligiblePromotions = [];
+        $preQualifiedPromotions = $this->preQualifiedPromotionsProvider->getPromotions($subject);
 
-        foreach ($this->preQualifiedPromotionsProvider->getPromotions($subject) as $promotion) {
-            if (!$this->promotionEligibilityChecker->isEligible($subject, $promotion)) {
-                continue;
-            }
-
-            if ($promotion->isExclusive()) {
+        foreach ($preQualifiedPromotions as $promotion) {
+            if ($promotion->isExclusive() && $this->promotionEligibilityChecker->isEligible($subject, $promotion)) {
                 $this->promotionApplicator->apply($subject, $promotion);
 
                 return;
             }
-
-            $eligiblePromotions[] = $promotion;
         }
 
-        foreach ($eligiblePromotions as $promotion) {
-            $this->promotionApplicator->apply($subject, $promotion);
+        foreach ($preQualifiedPromotions as $promotion) {
+            if (!$promotion->isExclusive() && $this->promotionEligibilityChecker->isEligible($subject, $promotion)) {
+                $this->promotionApplicator->apply($subject, $promotion);
+            }
         }
     }
 }

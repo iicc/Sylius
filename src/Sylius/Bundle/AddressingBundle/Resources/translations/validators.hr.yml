@@ -32,10 +32,11 @@ sylius:
     country:
         code:
             not_blank: Unesite ISO kod (oznaku) države.
+            regex: Pozivni broj za zemlju se može sastojati samo od slova, brojeva, povlaka i podvlaka.
             unique: ISO kod (oznaka) države mora biti jedinstvena.
     province:
         code:
-            min_length: Kod pokrajine mora sadržavati minimalno 5 znakova|Kod pokrajine mora sadržavati minimalno 5 znakova. 
+            min_length: Kod pokrajine mora sadržavati minimalno 5 znakova|Kod pokrajine mora sadržavati minimalno 5 znakova.
             not_blank: Unesite kod (oznaku) pokrajine.
             regex: Kod (oznaka) provincije mora biti u formatu XX-XX (npr. US_FL).
             unique: Kod (oznaka) pokrajine mora biti jedinstvena.
@@ -45,8 +46,11 @@ sylius:
             not_blank: Unesite naziv pokrajine.
             unique: Naziv pokrajine mora biti jedinstven.
     zone:
+        scope:
+            not_blank: Molimo unesite sve što je obuhvaćeno.
         code:
             not_blank: Unesite kod područja (zone).
+            regex: Kod zone se može sastojati samo od slova, brojeva, povlaka i podvlaka.
             unique: Kod područja (zone) mora biti jedinstven.
         members:
             min_count: Dodajte barem {{ limit }} člana u područje (zonu).
@@ -57,4 +61,5 @@ sylius:
     zone_member:
         code:
             not_blank: Odaberite člana područja (zone).
+            regex: Kod člana zone se može sastojati samo od slova, brojeva, povlaka i podvlaka.
         unique: Odabrani član već postoji u području (zoni).

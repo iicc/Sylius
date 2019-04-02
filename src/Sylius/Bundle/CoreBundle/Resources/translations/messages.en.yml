@@ -22,20 +22,31 @@ sylius:
             name: Name
             roles: Roles
         channel:
-            taxonomies: Taxonomies
+            billing_data:
+                city: City
+                company: Company
+                country: Country
+                postcode: Postcode
+                street: Street
+                tax_id: Tax ID
+            contact_email: Contact email
+            currencies: Currencies
+            currency_base: Base currency
+            account_verification_required: Is account verification required?
+            hostname: Hostname
             locale_default: Default locale
             locales: Locales
-            contact_email: Contact email
-            currency_base: Base currency
-            currencies: Currencies
-            shipping_methods: Shipping Methods
             payment_methods: Payment Methods
+            shipping_methods: Shipping Methods
+            shop_billing_data: Shop billing data
+            skipping_shipping_step_allowed: Skip shipping step if only one shipping method is available?
+            skipping_payment_step_allowed: Skip payment step if only one payment method is available?
             tax_calculation_strategy: Tax calculation strategy
             tax_zone_default: Default tax zone
+            taxonomies: Taxonomies
             theme: Theme
-            hostname: Hostname
         image:
-            code: Code
+            type: Type
             file: Image
         locale:
             code: Code
@@ -104,6 +115,7 @@ sylius:
             on_hand: Current stock
             price: Price
             sku: SKU
+            shipping_required: Is shipping required?
             weight: Weight
             width: Width
         attribute:

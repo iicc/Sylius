@@ -9,25 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Shop;
 
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Page\Shop\HomePageInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class HomepageContext implements Context
 {
-    /**
-     * @var HomePageInterface
-     */
+    /** @var HomePageInterface */
     private $homePage;
 
-    /**
-     * @param HomePageInterface $homepage
-     */
     public function __construct(HomePageInterface $homepage)
     {
         $this->homePage = $homepage;
@@ -42,16 +36,18 @@ final class HomepageContext implements Context
     }
 
     /**
+     * @Then I should be redirected to the homepage
+     */
+    public function iShouldBeRedirectedToTheHomepage()
+    {
+        $this->homePage->verify();
+    }
+
+    /**
      * @Then I should see :numberOfProducts products in the list
      */
     public function iShouldSeeProductsInTheList($numberOfProducts)
     {
-        $foundProductsNames = $this->homePage->getLatestProductsNames();
-
-        Assert::same(
-            (int) $numberOfProducts,
-            count($foundProductsNames),
-            '%d rows with products should appear on page, %d rows has been found'
-        );
+        Assert::same(count($this->homePage->getLatestProductsNames()), (int) $numberOfProducts);
     }
 }

@@ -9,51 +9,41 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Shop\Checkout;
 
+use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Session;
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 use Sylius\Behat\Service\Accessor\TableAccessorInterface;
 use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\ShippingMethodInterface;
-use Sylius\Component\Payment\Model\PaymentMethodInterface;
 use Symfony\Component\Intl\Intl;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 class CompletePage extends SymfonyPage implements CompletePageInterface
 {
-    /**
-     * @var TableAccessorInterface
-     */
+    /** @var TableAccessorInterface */
     private $tableAccessor;
 
-    /**
-     * @param Session $session
-     * @param array $parameters
-     * @param RouterInterface $router
-     * @param TableAccessorInterface $tableAccessor
-     */
     public function __construct(
         Session $session,
-        array $parameters,
+        $minkParameters,
         RouterInterface $router,
         TableAccessorInterface $tableAccessor
     ) {
-        parent::__construct($session, $parameters, $router);
+        parent::__construct($session, $minkParameters, $router);
 
         $this->tableAccessor = $tableAccessor;
     }
 
-
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return 'sylius_shop_checkout_complete';
     }
@@ -187,7 +177,6 @@ class CompletePage extends SymfonyPage implements CompletePageInterface
         return false !== stripos($this->getElement('promotion_shipping_discounts')->getText(), $promotionName);
     }
 
-
     /**
      * {@inheritdoc}
      */
@@ -227,6 +216,14 @@ class CompletePage extends SymfonyPage implements CompletePageInterface
     /**
      * {@inheritdoc}
      */
+    public function getValidationErrors()
+    {
+        return $this->getElement('validation_errors')->getText();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasLocale($localeName)
     {
         return false !== strpos($this->getElement('locale')->getText(), $localeName);
@@ -240,9 +237,12 @@ class CompletePage extends SymfonyPage implements CompletePageInterface
         return false !== strpos($this->getElement('currency')->getText(), $currencyCode);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function confirmOrder()
     {
-        $this->getDocument()->pressButton('Place order');
+        $this->getElement('confirm_button')->press();
     }
 
     public function changeAddress()
@@ -291,17 +291,37 @@ class CompletePage extends SymfonyPage implements CompletePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    public function tryToOpen(array $urlParameters = []): void
+    {
+        if ($this->getDriver() instanceof Selenium2Driver) {
+            $start = microtime(true);
+            $end = $start + 15;
+            do {
+                parent::tryToOpen($urlParameters);
+                sleep(3);
+            } while (!$this->isOpen() && microtime(true) < $end);
+
+            return;
+        }
+
+        parent::tryToOpen($urlParameters);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'addressing_step_label' => '.steps a:contains("Address")',
+            'base_order_total' => '#base-total',
             'billing_address' => '#sylius-billing-address',
+            'confirm_button' => 'form button',
             'currency' => '#sylius-order-currency-code',
-            'extra_notes' =>'#sylius_checkout_complete_notes',
+            'extra_notes' => '#sylius_checkout_complete_notes',
             'items_table' => '#sylius-order',
             'locale' => '#sylius-order-locale-name',
             'order_total' => 'td:contains("Total")',
-            'base_order_total' => '#base-total',
             'payment_method' => '#sylius-payment-method',
             'payment_step_label' => '.steps a:contains("Payment")',
             'product_row' => 'tbody tr:contains("%name%")',
@@ -318,8 +338,6 @@ class CompletePage extends SymfonyPage implements CompletePageInterface
     }
 
     /**
-     * @param ProductInterface $product
-     *
      * @return NodeElement
      */
     private function getProductRowElement(ProductInterface $product)
@@ -329,7 +347,6 @@ class CompletePage extends SymfonyPage implements CompletePageInterface
 
     /**
      * @param string $displayedAddress
-     * @param AddressInterface $address
      *
      * @return bool
      */
@@ -373,14 +390,9 @@ class CompletePage extends SymfonyPage implements CompletePageInterface
         return strtoupper(Intl::getRegionBundle()->getCountryName($countryCode, 'en'));
     }
 
-    /**
-     * @param string $price
-     *
-     * @return int
-     */
-    private function getPriceFromString($price)
+    private function getPriceFromString(string $price): int
     {
-        return (int) round(str_replace(['€', '£', '$'], '', $price) * 100, 2);
+        return (int) round((float) str_replace(['€', '£', '$'], '', $price) * 100, 2);
     }
 
     /**

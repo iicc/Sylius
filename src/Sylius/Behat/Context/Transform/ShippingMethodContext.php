@@ -9,25 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
 use Sylius\Component\Shipping\Repository\ShippingMethodRepositoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class ShippingMethodContext implements Context
 {
-    /**
-     * @var ShippingMethodRepositoryInterface
-     */
+    /** @var ShippingMethodRepositoryInterface */
     private $shippingMethodRepository;
 
-    /**
-     * @param ShippingMethodRepositoryInterface $shippingMethodRepository
-     */
     public function __construct(ShippingMethodRepositoryInterface $shippingMethodRepository)
     {
         $this->shippingMethodRepository = $shippingMethodRepository;
@@ -43,8 +37,8 @@ final class ShippingMethodContext implements Context
         $shippingMethods = $this->shippingMethodRepository->findByName($shippingMethodName, 'en_US');
 
         Assert::eq(
-            1,
             count($shippingMethods),
+            1,
             sprintf('%d shipping methods have been found with name "%s".', count($shippingMethods), $shippingMethodName)
         );
 

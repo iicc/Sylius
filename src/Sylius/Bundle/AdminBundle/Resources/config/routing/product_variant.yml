@@ -4,7 +4,7 @@ sylius_admin_product_variant_index:
     defaults:
         _controller: sylius.controller.product_variant:indexAction
         _sylius:
-            template: "@SyliusAdmin/Crud/index.html.twig"
+            template: "@SyliusAdmin/ProductVariant/index.html.twig"
             grid: sylius_admin_product_variant
             section: admin
             permission: true
@@ -26,7 +26,7 @@ sylius_admin_product_variant_create:
             factory:
                 method: createForProduct
                 arguments:
-                  - expr:service('sylius.repository.product').find($productId)
+                  - expr:notFoundOnNull(service('sylius.repository.product').find($productId))
             template: "@SyliusAdmin/Crud/create.html.twig"
             grid: sylius_admin_product_variant
             section: admin
@@ -41,6 +41,7 @@ sylius_admin_product_variant_create:
                 templates:
                     form: "@SyliusAdmin/ProductVariant/_form.html.twig"
                     breadcrumb: "@SyliusAdmin/ProductVariant/Create/_breadcrumb.html.twig"
+                    header_title: "@SyliusAdmin/ProductVariant/Create/_headerTitle.html.twig"
 
 sylius_admin_product_variant_update:
     path: /{id}/edit
@@ -55,6 +56,11 @@ sylius_admin_product_variant_update:
                 route: sylius_admin_product_variant_index
                 parameters: { productId: $productId }
             permission: true
+            repository:
+                method: findOneByIdAndProductId
+                arguments:
+                    id: $id
+                    productId: $productId
             vars:
                 route:
                     parameters:
@@ -63,7 +69,19 @@ sylius_admin_product_variant_update:
                 templates:
                     form: "@SyliusAdmin/ProductVariant/_form.html.twig"
                     breadcrumb: "@SyliusAdmin/ProductVariant/Update/_breadcrumb.html.twig"
+
+sylius_admin_product_variant_bulk_delete:
+    path: /bulk-delete
+    methods: [DELETE]
+    defaults:
+        _controller: sylius.controller.product_variant:bulkDeleteAction
+        _sylius:
+            section: admin
+            redirect: referer
             permission: true
+            repository:
+                method: findById
+                arguments: [$ids]
 
 sylius_admin_product_variant_delete:
     path: /{id}
@@ -71,8 +89,14 @@ sylius_admin_product_variant_delete:
     defaults:
         _controller: sylius.controller.product_variant:deleteAction
         _sylius:
+            section: admin
             redirect: referer
             permission: true
+            repository:
+                method: findOneByIdAndProductId
+                arguments:
+                    id: $id
+                    productId: $productId
 
 sylius_admin_product_variant_generate:
     path: /generate
@@ -82,6 +106,7 @@ sylius_admin_product_variant_generate:
         _sylius:
             template: "@SyliusAdmin/ProductVariant/generate.html.twig"
             section: admin
+            permission: true
             redirect:
                 route: sylius_admin_product_variant_index
                 parameters: { productId: $productId }

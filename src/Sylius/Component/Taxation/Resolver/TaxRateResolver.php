@@ -9,19 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxation\Resolver;
 
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Taxation\Model\TaxableInterface;
+use Sylius\Component\Taxation\Model\TaxRateInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class TaxRateResolver implements TaxRateResolverInterface
 {
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     protected $taxRateRepository;
 
     /**
@@ -35,7 +33,7 @@ class TaxRateResolver implements TaxRateResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function resolve(TaxableInterface $taxable, array $criteria = [])
+    public function resolve(TaxableInterface $taxable, array $criteria = []): ?TaxRateInterface
     {
         if (null === $category = $taxable->getTaxCategory()) {
             return null;

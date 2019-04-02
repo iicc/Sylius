@@ -9,105 +9,91 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxonomy\Model;
 
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
+use Sylius\Component\Resource\Model\ResourceInterface;
+use Sylius\Component\Resource\Model\SlugAwareInterface;
 use Sylius\Component\Resource\Model\TranslatableInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
-interface TaxonInterface extends
-    CodeAwareInterface,
-    TaxonTranslationInterface,
-    TranslatableInterface
+interface TaxonInterface extends CodeAwareInterface, TranslatableInterface, ResourceInterface, SlugAwareInterface
 {
-    /**
-     * @return bool
-     */
-    public function isRoot();
+    public function isRoot(): bool;
 
     /**
-     * @return TaxonInterface
+     * @return TaxonInterface|null
      */
-    public function getRoot();
+    public function getRoot(): ?self;
 
     /**
-     * @return TaxonInterface
+     * @return TaxonInterface|null
      */
-    public function getParent();
+    public function getParent(): ?self;
 
     /**
-     * @param null|TaxonInterface $taxon
+     * @param TaxonInterface|null $taxon
      */
-    public function setParent(TaxonInterface $taxon = null);
-
-    /**
-     * @return TaxonInterface[]
-     */
-    public function getParents();
+    public function setParent(?self $taxon): void;
 
     /**
      * @return Collection|TaxonInterface[]
      */
-    public function getChildren();
+    public function getAncestors(): Collection;
 
     /**
-     * @param TaxonInterface $taxon
-     *
-     * @return bool
+     * @return Collection|TaxonInterface[]
      */
-    public function hasChild(TaxonInterface $taxon);
-
-    /**
-     * @param TaxonInterface $taxon
-     */
-    public function addChild(TaxonInterface $taxon);
+    public function getChildren(): Collection;
 
     /**
      * @param TaxonInterface $taxon
      */
-    public function removeChild(TaxonInterface $taxon);
+    public function hasChild(self $taxon): bool;
+
+    public function hasChildren(): bool;
 
     /**
-     * @return int
+     * @param TaxonInterface $taxon
      */
-    public function getLeft();
+    public function addChild(self $taxon): void;
 
     /**
-     * @param int $left
+     * @param TaxonInterface $taxon
      */
-    public function setLeft($left);
+    public function removeChild(self $taxon): void;
+
+    public function getName(): ?string;
+
+    public function setName(?string $name): void;
+
+    public function getFullname(string $pathDelimiter = ' / '): ?string;
+
+    public function getDescription(): ?string;
+
+    public function setDescription(?string $description): void;
+
+    public function getLeft(): ?int;
+
+    public function setLeft(?int $left): void;
+
+    public function getRight(): ?int;
+
+    public function setRight(?int $right): void;
+
+    public function getLevel(): ?int;
+
+    public function setLevel(?int $level): void;
+
+    public function getPosition(): ?int;
+
+    public function setPosition(?int $position): void;
 
     /**
-     * @return int
+     * @return TaxonTranslationInterface
      */
-    public function getRight();
-
-    /**
-     * @param int $right
-     */
-    public function setRight($right);
-
-    /**
-     * @return int
-     */
-    public function getLevel();
-
-    /**
-     * @param int $level
-     */
-    public function setLevel($level);
-
-    /**
-     * @return int
-     */
-    public function getPosition();
-
-    /**
-     * @param int $position
-     */
-    public function setPosition($position);
+    public function getTranslation(?string $locale = null): TranslationInterface;
 }

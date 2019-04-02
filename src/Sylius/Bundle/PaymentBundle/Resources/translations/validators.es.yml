@@ -21,7 +21,7 @@ sylius:
             not_blank: Por favor, seleccione el año de caducidad.
     payment:
         currency_code:
-            not_valid: El código de moneda introducido no es válido.
+            not_valid: El código de la moneda que introdujo no es válido.
         method:
             not_blank: 'Por favor, seleccione un método de pago.'
     payment_method:
@@ -42,4 +42,4 @@ sylius:
         code:
             not_blank: 'Por favor, introduzca el código de método de pago.'
             regex: 'El código de método de pago solo puede contener letras, números, guiones y guiones bajos.'
-            unique: 'Ya existe un método de pago con el código introducido.'
+            unique: 'Ya existe un método de pago con ese código.'

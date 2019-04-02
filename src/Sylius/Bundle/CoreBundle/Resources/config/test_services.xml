@@ -16,11 +16,10 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services
                                http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
+        <defaults public="true" />
+
         <!--Paypal-->
-        <service id="sylius.invoice_number_generator" class="Sylius\Component\Core\Test\Services\RandomInvoiceNumberGenerator" />
-        <service id="sylius.payment_method_name_to_gateway_converter" class="Sylius\Bundle\CoreBundle\Test\Services\PaymentMethodNameToGatewayConverter">
-            <argument type="service" id="payum" />
-        </service>
+        <service id="sylius.invoice_number_generator" class="Sylius\Component\Core\Payment\RandomInvoiceNumberGenerator" />
 
         <service id="sylius.behat.email_checker" class="Sylius\Component\Core\Test\Services\EmailChecker">
             <argument>%kernel.cache_dir%/spool</argument>
@@ -53,6 +52,19 @@
         <service id="sylius.test.factory.promotion" class="Sylius\Component\Core\Test\Factory\TestPromotionFactory">
             <argument type="service" id="sylius.factory.promotion" />
         </service>
-    </services>
 
+        <service id="sylius.liip.filter_service" alias="liip_imagine.service.filter" public="true" />
+
+        <service id="sylius.test.oauth.user_provider" class="Sylius\Bundle\CoreBundle\OAuth\UserProvider" public="true">
+            <argument type="string" id="%sylius.model.shop_user.class%" />
+            <argument type="service" id="sylius.factory.customer" />
+            <argument type="service" id="sylius.factory.shop_user" />
+            <argument type="service" id="sylius.repository.shop_user" />
+            <argument type="service" id="sylius.factory.oauth_user" />
+            <argument type="service" id="sylius.repository.oauth_user" />
+            <argument type="service" id="sylius.manager.shop_user" />
+            <argument type="service" id="sylius.canonicalizer" />
+            <argument type="service" id="sylius.repository.customer" />
+        </service>
+    </services>
 </container>

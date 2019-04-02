@@ -9,21 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Grid\Parser;
 
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 interface OptionsParserInterface
 {
-    /**
-     * @param array $parameters
-     * @param Request $request
-     * @param mixed $data
-     *
-     * @return array
-     */
-    public function parseOptions(array $parameters, Request $request, $data = null);
+    public function parseOptions(array $parameters, Request $request, $data = null): array;
 }

@@ -9,31 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Review\Model;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 class Reviewer implements ReviewerInterface
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string|null */
     protected $email;
 
-    /**
-     * @var string
-     */
+    /** @var string|null */
     protected $firstName;
 
-    /**
-     * @var string
-     */
+    /** @var string|null */
     protected $lastName;
 
     /**
@@ -47,7 +38,7 @@ class Reviewer implements ReviewerInterface
     /**
      * {@inheritdoc}
      */
-    public function getEmail()
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -55,7 +46,7 @@ class Reviewer implements ReviewerInterface
     /**
      * {@inheritdoc}
      */
-    public function setEmail($email)
+    public function setEmail(?string $email): void
     {
         $this->email = $email;
     }
@@ -63,7 +54,7 @@ class Reviewer implements ReviewerInterface
     /**
      * {@inheritdoc}
      */
-    public function getFirstName()
+    public function getFirstName(): ?string
     {
         return $this->firstName;
     }
@@ -71,7 +62,7 @@ class Reviewer implements ReviewerInterface
     /**
      * {@inheritdoc}
      */
-    public function setFirstName($firstName)
+    public function setFirstName(?string $firstName): void
     {
         $this->firstName = $firstName;
     }
@@ -79,7 +70,7 @@ class Reviewer implements ReviewerInterface
     /**
      * {@inheritdoc}
      */
-    public function getLastName()
+    public function getLastName(): ?string
     {
         return $this->lastName;
     }
@@ -87,7 +78,7 @@ class Reviewer implements ReviewerInterface
     /**
      * {@inheritdoc}
      */
-    public function setLastName($lastName)
+    public function setLastName(?string $lastName): void
     {
         $this->lastName = $lastName;
     }

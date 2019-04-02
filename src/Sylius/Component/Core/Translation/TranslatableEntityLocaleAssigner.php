@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Translation;
 
 use Sylius\Component\Locale\Context\LocaleContextInterface;
@@ -17,25 +19,14 @@ use Sylius\Component\Resource\Model\TranslatableInterface;
 use Sylius\Component\Resource\Translation\Provider\TranslationLocaleProviderInterface;
 use Sylius\Component\Resource\Translation\TranslatableEntityLocaleAssignerInterface;
 
-/**
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 final class TranslatableEntityLocaleAssigner implements TranslatableEntityLocaleAssignerInterface
 {
-    /**
-     * @var LocaleContextInterface
-     */
+    /** @var LocaleContextInterface */
     private $localeContext;
 
-    /**
-     * @var TranslationLocaleProviderInterface
-     */
+    /** @var TranslationLocaleProviderInterface */
     private $translationLocaleProvider;
 
-    /**
-     * @param LocaleContextInterface $localeContext
-     * @param TranslationLocaleProviderInterface $translationLocaleProvider
-     */
     public function __construct(
         LocaleContextInterface $localeContext,
         TranslationLocaleProviderInterface $translationLocaleProvider
@@ -47,9 +38,10 @@ final class TranslatableEntityLocaleAssigner implements TranslatableEntityLocale
     /**
      * {@inheritdoc}
      */
-    public function assignLocale(TranslatableInterface $translatableEntity)
+    public function assignLocale(TranslatableInterface $translatableEntity): void
     {
         $fallbackLocale = $this->translationLocaleProvider->getDefaultLocaleCode();
+
         try {
             $currentLocale = $this->localeContext->getLocaleCode();
         } catch (LocaleNotFoundException $e) {

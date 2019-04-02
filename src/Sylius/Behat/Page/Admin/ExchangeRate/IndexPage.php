@@ -9,27 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\ExchangeRate;
 
 use Sylius\Behat\Page\Admin\Crud\IndexPage as BaseIndexPage;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class IndexPage extends BaseIndexPage implements IndexPageInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function chooseCurrencyFilter($currencyName)
+    public function chooseCurrencyFilter(string $currencyName): void
     {
         $this->getElement('filter_currency')->selectOption($currencyName);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'filter_currency' => '#criteria_currency',

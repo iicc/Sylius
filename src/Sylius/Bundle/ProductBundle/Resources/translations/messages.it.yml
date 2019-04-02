@@ -4,27 +4,26 @@
 sylius:
     form:
         product:
-            name: Nome
+            name: "Nome\n"
             description: Descrizione
             attributes: Attributi
             options: Opzioni
             meta_keywords: Meta keywords
             meta_description: Meta descrizione
             slug: Slug
+            taxons: Taxons
         product_variant:
-            available_on: Disponibile
-            available_until: Disponibile fino al
-            name: Nome
+            name: "Nome\n"
         association_type:
-            name: Nome
+            name: "Nome\n"
             translations: Traduzioni
         association:
             type: Tipo di associazione
             product: Prodotto associato
         variant:
-            name: Nome
+            name: "Nome\n"
         option:
-            name: Nome
+            name: "Nome\n"
             position: Posizione
             values: Valori possibili
         option_value:

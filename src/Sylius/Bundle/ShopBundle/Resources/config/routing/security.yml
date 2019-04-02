@@ -8,6 +8,7 @@ sylius_shop_login:
         _controller: sylius.controller.security:loginAction
         _sylius:
             template: "@SyliusShop/login.html.twig"
+            logged_in_route: sylius_shop_account_dashboard
 
 sylius_shop_login_check:
     path: /login-check
@@ -27,6 +28,23 @@ sylius_shop_register:
         _sylius:
             template: "@SyliusShop/register.html.twig"
             form: Sylius\Bundle\CoreBundle\Form\Type\Customer\CustomerRegistrationType
+            event: register
+            redirect:
+                route: sylius_shop_account_dashboard
+            flash: sylius.customer.register
+
+sylius_shop_register_after_checkout:
+    path: /register-after-checkout/{tokenValue}
+    methods: [GET]
+    defaults:
+        _controller: sylius.controller.customer:createAction
+        _sylius:
+            form: Sylius\Bundle\CoreBundle\Form\Type\Customer\CustomerRegistrationType
+            factory:
+                method: ['expr:service("sylius.factory.customer_after_checkout")', 'createAfterCheckout']
+                arguments:
+                    - 'expr:service("sylius.repository.order").findOneByTokenValue($tokenValue)'
+            template: "@SyliusShop/register.html.twig"
             event: register
             redirect:
                 route: sylius_shop_account_dashboard

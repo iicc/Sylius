@@ -9,57 +9,35 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Mailer\Model;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class Email implements EmailInterface
+final class Email implements EmailInterface
 {
-    /**
-     * @var mixed
-     */
-    protected $id;
+    /** @var mixed */
+    private $id;
 
-    /**
-     * @var string
-     */
-    protected $code;
+    /** @var string */
+    private $code;
 
-    /**
-     * @var bool
-     */
-    protected $enabled = true;
+    /** @var bool */
+    private $enabled = true;
 
-    /**
-     * @var string
-     */
-    protected $subject;
+    /** @var string */
+    private $subject;
 
-    /**
-     * @var string
-     */
-    protected $content;
+    /** @var string */
+    private $content;
 
-    /**
-     * @var string
-     */
-    protected $template;
+    /** @var string */
+    private $template;
 
-    /**
-     * @var string
-     */
-    protected $senderName;
+    /** @var string */
+    private $senderName;
 
-    /**
-     * @var string
-     */
-    protected $senderAddress;
-
-    public function __construct()
-    {
-        $this->createdAt = new \DateTime();
-    }
+    /** @var string */
+    private $senderAddress;
 
     /**
      * {@inheritdoc}
@@ -72,7 +50,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
@@ -80,7 +58,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function setCode($code)
+    public function setCode(string $code): void
     {
         $this->code = $code;
     }
@@ -88,25 +66,22 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return $this->enabled;
     }
 
-    /**
-     * @param bool $enabled
-     */
-    public function setEnabled($enabled)
+    public function setEnabled(bool $enabled): void
     {
-        $this->enabled = (bool) $enabled;
+        $this->enabled = $enabled;
     }
 
-    public function enable()
+    public function enable(): void
     {
         $this->enabled = true;
     }
 
-    public function disable()
+    public function disable(): void
     {
         $this->enabled = false;
     }
@@ -114,7 +89,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function getSubject()
+    public function getSubject(): ?string
     {
         return $this->subject;
     }
@@ -122,7 +97,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function setSubject($subject)
+    public function setSubject(string $subject): void
     {
         $this->subject = $subject;
     }
@@ -130,7 +105,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function getContent()
+    public function getContent(): ?string
     {
         return $this->content;
     }
@@ -138,7 +113,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function setContent($content)
+    public function setContent(string $content): void
     {
         $this->content = $content;
     }
@@ -146,7 +121,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function getTemplate()
+    public function getTemplate(): ?string
     {
         return $this->template;
     }
@@ -154,7 +129,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function setTemplate($template)
+    public function setTemplate(string $template): void
     {
         $this->template = $template;
     }
@@ -162,7 +137,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function getSenderName()
+    public function getSenderName(): ?string
     {
         return $this->senderName;
     }
@@ -170,7 +145,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function setSenderName($senderName)
+    public function setSenderName(string $senderName): void
     {
         $this->senderName = $senderName;
     }
@@ -178,7 +153,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function getSenderAddress()
+    public function getSenderAddress(): ?string
     {
         return $this->senderAddress;
     }
@@ -186,7 +161,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function setSenderAddress($senderAddress)
+    public function setSenderAddress(string $senderAddress): void
     {
         $this->senderAddress = $senderAddress;
     }

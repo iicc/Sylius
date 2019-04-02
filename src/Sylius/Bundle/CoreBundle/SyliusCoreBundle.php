@@ -9,29 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle;
 
+use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\IgnoreAnnotationsPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\LazyCacheWarmupPass;
-use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\RegisterCurrencyHandlersPass;
-use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\RegisterLocaleHandlersPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\RegisterTaxCalculationStrategiesPass;
-use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\RoutingRepositoryPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\TranslatableEntityLocalePass;
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- * @author Mark McKelvie <mark.mckelvie@reiss.com>
- */
 final class SyliusCoreBundle extends AbstractResourceBundle
 {
     /**
      * {@inheritdoc}
      */
-    public function getSupportedDrivers()
+    public function getSupportedDrivers(): array
     {
         return [
             SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
@@ -41,22 +36,20 @@ final class SyliusCoreBundle extends AbstractResourceBundle
     /**
      * {@inheritdoc}
      */
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         parent::build($container);
 
-        $container->addCompilerPass(new RoutingRepositoryPass());
         $container->addCompilerPass(new LazyCacheWarmupPass());
         $container->addCompilerPass(new RegisterTaxCalculationStrategiesPass());
-        $container->addCompilerPass(new RegisterCurrencyHandlersPass());
-        $container->addCompilerPass(new RegisterLocaleHandlersPass());
         $container->addCompilerPass(new TranslatableEntityLocalePass());
+        $container->addCompilerPass(new IgnoreAnnotationsPass());
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getModelNamespace()
+    protected function getModelNamespace(): string
     {
         return 'Sylius\Component\Core\Model';
     }

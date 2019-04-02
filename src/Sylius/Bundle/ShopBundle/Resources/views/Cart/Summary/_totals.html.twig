@@ -2,6 +2,9 @@
 
 <div class="ui segment">
     <h2 class="ui dividing header">{{ 'sylius.ui.summary'|trans }}</h2>
+
+    {{ sonata_block_render_event('sylius.shop.cart.summary.totals', {'cart': cart}) }}
+
     <table class="ui very basic table">
         <tbody>
         <tr>
@@ -18,7 +21,7 @@
             <td id="sylius-cart-promotion-total" class="right aligned">{{ money.convertAndFormat(cart.orderPromotionTotal) }}</td>
         </tr>
         {% endif %}
-        <tr style="font-size: 2em;">
+        <tr class="ui large header">
             <td>{{ 'sylius.ui.order_total'|trans }}:</td>
             <td id="sylius-cart-grand-total" class="right aligned">{{ money.convertAndFormat(cart.total) }}</td>
         </tr>

@@ -9,17 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\User\Security\Checker;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 interface UniquenessCheckerInterface
 {
-    /**
-     * @param string $token
-     *
-     * @return bool
-     */
-    public function isUnique($token);
+    public function isUnique(string $token): bool;
 }

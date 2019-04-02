@@ -9,7 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace spec\Sylius\Behat;
+declare(strict_types=1);
+
+namespace spec\Sylius\Behat\Service\Setter;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Behat\Service\Setter\ChannelContextSetter;
@@ -17,9 +19,6 @@ use Sylius\Behat\Service\Setter\ChannelContextSetterInterface;
 use Sylius\Behat\Service\Setter\CookieSetterInterface;
 use Sylius\Component\Channel\Model\ChannelInterface;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class ChannelContextSetterSpec extends ObjectBehavior
 {
     function let(CookieSetterInterface $cookieSetter)

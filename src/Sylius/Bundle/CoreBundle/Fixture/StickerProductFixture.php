@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture;
 
 use Sylius\Bundle\FixturesBundle\Fixture\AbstractFixture;
@@ -17,47 +19,26 @@ use Sylius\Component\Core\Model\ProductInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 class StickerProductFixture extends AbstractFixture
 {
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $taxonFixture;
 
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $productAttributeFixture;
 
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $productOptionFixture;
 
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $productFixture;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @var OptionsResolver
-     */
+    /** @var OptionsResolver */
     private $optionsResolver;
 
-    /**
-     * @param AbstractResourceFixture $taxonFixture
-     * @param AbstractResourceFixture $productAttributeFixture
-     * @param AbstractResourceFixture $productOptionFixture
-     * @param AbstractResourceFixture $productFixture
-     */
     public function __construct(
         AbstractResourceFixture $taxonFixture,
         AbstractResourceFixture $productAttributeFixture,
@@ -80,7 +61,7 @@ class StickerProductFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'sticker_product';
     }
@@ -88,7 +69,7 @@ class StickerProductFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    public function load(array $options)
+    public function load(array $options): void
     {
         $options = $this->optionsResolver->resolve($options);
 
@@ -98,9 +79,16 @@ class StickerProductFixture extends AbstractFixture
             'children' => [
                 [
                     'code' => 'stickers',
-                    'name' => 'Stickers',
-                ]
-            ]
+                    'translations' => [
+                        'en_US' => [
+                            'name' => 'Stickers',
+                        ],
+                        'fr_FR' => [
+                            'name' => 'Étiquettes',
+                        ],
+                    ],
+                ],
+            ],
         ]]]);
 
         $this->productAttributeFixture->load(['custom' => [
@@ -113,7 +101,7 @@ class StickerProductFixture extends AbstractFixture
                 'name' => 'Sticker size',
                 'code' => 'sticker_size',
                 'values' => [
-                    'sticker_size-3' => '3"',
+                    'sticker_size_3' => '3"',
                     'sticker_size_5' => '5"',
                     'sticker_size_7' => '7"',
                 ],
@@ -135,8 +123,14 @@ class StickerProductFixture extends AbstractFixture
                 ],
                 'product_options' => ['sticker_size'],
                 'images' => [
-                    'main' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'stickers.jpg'),
-                    'thumbnail' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'stickers.jpg'),
+                    [
+                        'path' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'stickers.jpg'),
+                        'type' => 'main',
+                    ],
+                    [
+                        'path' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'stickers.jpg'),
+                        'type' => 'thumbnail',
+                    ],
                 ],
             ];
         }
@@ -147,7 +141,7 @@ class StickerProductFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    protected function configureOptionsNode(ArrayNodeDefinition $optionsNode)
+    protected function configureOptionsNode(ArrayNodeDefinition $optionsNode): void
     {
         $optionsNode
             ->children()
@@ -155,12 +149,7 @@ class StickerProductFixture extends AbstractFixture
         ;
     }
 
-    /**
-     * @param int $amount
-     *
-     * @return string
-     */
-    private function getUniqueNames($amount)
+    private function getUniqueNames(int $amount): array
     {
         $productsNames = [];
 

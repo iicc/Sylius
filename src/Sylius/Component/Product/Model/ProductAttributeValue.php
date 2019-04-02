@@ -9,27 +9,32 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Model;
 
 use Sylius\Component\Attribute\Model\AttributeValue as BaseAttributeValue;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class ProductAttributeValue extends BaseAttributeValue implements ProductAttributeValueInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getProduct()
+    public function getProduct(): ?ProductInterface
     {
-        return parent::getSubject();
+        $subject = parent::getSubject();
+
+        /** @var ProductInterface|null $subject */
+        Assert::nullOrIsInstanceOf($subject, ProductInterface::class);
+
+        return $subject;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setProduct(ProductInterface $product = null)
+    public function setProduct(?ProductInterface $product): void
     {
         parent::setSubject($product);
     }

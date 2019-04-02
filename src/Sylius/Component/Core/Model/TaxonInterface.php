@@ -9,47 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
-use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Taxonomy\Model\TaxonInterface as BaseTaxonInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-interface TaxonInterface extends BaseTaxonInterface, ImageAwareInterface
+interface TaxonInterface extends BaseTaxonInterface, ImagesAwareInterface
 {
-    /**
-     * @return bool
-     */
-    public function hasImages();
-
-    /**
-     * @param ImageInterface $image
-     *
-     * @return bool
-     */
-    public function hasImage(ImageInterface $image);
-
-    /**
-     * @return Collection|ImageInterface[]
-     */
-    public function getImages();
-
-    /**
-     * @param string $code
-     *
-     * @return ImageInterface|null
-     */
-    public function getImageByCode($code);
-
-    /**
-     * @param ImageInterface $image
-     */
-    public function removeImage(ImageInterface $image);
-
-    /**
-     * @param ImageInterface $image
-     */
-    public function addImage(ImageInterface $image);
 }

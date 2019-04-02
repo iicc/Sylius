@@ -9,24 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Provider;
 
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Sylius\Component\Promotion\Repository\PromotionRepositoryInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-class ActivePromotionsProvider implements PreQualifiedPromotionsProviderInterface
+final class ActivePromotionsProvider implements PreQualifiedPromotionsProviderInterface
 {
-    /**
-     * @var PromotionRepositoryInterface
-     */
+    /** @var PromotionRepositoryInterface */
     private $promotionRepository;
 
-    /**
-     * @param PromotionRepositoryInterface $promotionRepository
-     */
     public function __construct(PromotionRepositoryInterface $promotionRepository)
     {
         $this->promotionRepository = $promotionRepository;
@@ -35,7 +29,7 @@ class ActivePromotionsProvider implements PreQualifiedPromotionsProviderInterfac
     /**
      * {@inheritdoc}
      */
-    public function getPromotions(PromotionSubjectInterface $subject)
+    public function getPromotions(PromotionSubjectInterface $subject): array
     {
         return $this->promotionRepository->findActive();
     }

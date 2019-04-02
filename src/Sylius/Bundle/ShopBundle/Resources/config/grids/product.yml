@@ -9,13 +9,16 @@ sylius_grid:
                 options:
                     class: "%sylius.model.product.class%"
                     repository:
-                        method: createQueryBuilderByChannelAndTaxonSlug
+                        method: createShopListQueryBuilder
                         arguments:
                             channel: "expr:service('sylius.context.channel').getChannel()"
-                            taxonId: $slug
-                            locale: "expr:service('sylius.context.channel').getChannel().getDefaultLocale().getCode()"
+                            taxon: "expr:notFoundOnNull(service('sylius.repository.taxon').findOneBySlug($slug, service('sylius.context.locale').getLocaleCode()))"
+                            locale: "expr:service('sylius.context.locale').getLocaleCode()"
+                            sorting: "expr:service('request_stack').getCurrentRequest().get('sorting', [])"
+                            includeAllDescendants: "expr:parameter('sylius_shop.product_grid.include_all_descendants')"
             sorting:
                 position: asc
+            limits: [9, 18, 27]
             fields:
                 createdAt:
                     type: datetime

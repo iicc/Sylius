@@ -9,25 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
 use Sylius\Component\Taxation\Repository\TaxCategoryRepositoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class TaxCategoryContext implements Context
 {
-    /**
-     * @var TaxCategoryRepositoryInterface
-     */
+    /** @var TaxCategoryRepositoryInterface */
     private $taxCategoryRepository;
 
-    /**
-     * @param TaxCategoryRepositoryInterface $taxCategoryRepository
-     */
     public function __construct(TaxCategoryRepositoryInterface $taxCategoryRepository)
     {
         $this->taxCategoryRepository = $taxCategoryRepository;
@@ -43,8 +37,8 @@ final class TaxCategoryContext implements Context
         $taxCategories = $this->taxCategoryRepository->findByName($taxCategoryName);
 
         Assert::eq(
-            1,
             count($taxCategories),
+            1,
             sprintf('%d tax categories has been found with name "%s".', count($taxCategories), $taxCategoryName)
         );
 

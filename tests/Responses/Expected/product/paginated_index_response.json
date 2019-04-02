@@ -24,92 +24,14 @@
         "items": [
             {
                 "id": @integer@,
-                "name": "Product 11",
-                "code": "PRODUCT_11",
-                "options": [],
-                "average_rating": 0,
-                "images": [],
-                "_links": {
-                    "self": {
-                        "href": "@string@"
-                    }
-                }
-            },
-            {
-                "id": @integer@,
-                "name": "Product 12",
-                "code": "PRODUCT_12",
-                "options": [],
-                "average_rating": 0,
-                "images": [],
-                "_links": {
-                    "self": {
-                        "href": "@string@"
-                    }
-                }
-            },
-            {
-                "id": @integer@,
-                "name": "Product 13",
-                "code": "PRODUCT_13",
-                "options": [],
-                "average_rating": 0,
-                "images": [],
-                "_links": {
-                    "self": {
-                        "href": "@string@"
-                    }
-                }
-            },
-            {
-                "id": @integer@,
-                "name": "Product 14",
-                "code": "PRODUCT_14",
-                "options": [],
-                "average_rating": 0,
-                "images": [],
-                "_links": {
-                    "self": {
-                        "href": "@string@"
-                    }
-                }
-            },
-            {
-                "id": @integer@,
-                "name": "Product 15",
-                "code": "PRODUCT_15",
-                "options": [],
-                "average_rating": 0,
-                "images": [],
-                "_links": {
-                    "self": {
-                        "href": "@string@"
-                    }
-                }
-            },
-            {
-                "id": @integer@,
-                "name": "Product 16",
-                "code": "PRODUCT_16",
-                "options": [],
-                "average_rating": 0,
-                "images": [],
-                "_links": {
-                    "self": {
-                        "href": "@string@"
-                    }
-                }
-            },
-            {
-                "id": @integer@,
                 "name": "Product 17",
                 "code": "PRODUCT_17",
                 "options": [],
-                "average_rating": 0,
+                "averageRating": 0,
                 "images": [],
                 "_links": {
                     "self": {
-                        "href": "@string@"
+                        "href": "\/api\/v1\/products\/PRODUCT_17"
                     }
                 }
             },
@@ -118,11 +40,11 @@
                 "name": "Product 18",
                 "code": "PRODUCT_18",
                 "options": [],
-                "average_rating": 0,
+                "averageRating": 0,
                 "images": [],
                 "_links": {
                     "self": {
-                        "href": "@string@"
+                        "href": "\/api\/v1\/products\/PRODUCT_18"
                     }
                 }
             },
@@ -131,11 +53,11 @@
                 "name": "Product 19",
                 "code": "PRODUCT_19",
                 "options": [],
-                "average_rating": 0,
+                "averageRating": 0,
                 "images": [],
                 "_links": {
                     "self": {
-                        "href": "@string@"
+                        "href": "\/api\/v1\/products\/PRODUCT_19"
                     }
                 }
             },
@@ -144,11 +66,89 @@
                 "name": "Product 20",
                 "code": "PRODUCT_20",
                 "options": [],
-                "average_rating": 0,
+                "averageRating": 0,
                 "images": [],
                 "_links": {
                     "self": {
-                        "href": "@string@"
+                        "href": "\/api\/v1\/products\/PRODUCT_20"
+                    }
+                }
+            },
+            {
+                "id": @integer@,
+                "name": "Product 21",
+                "code": "PRODUCT_21",
+                "options": [],
+                "averageRating": 0,
+                "images": [],
+                "_links": {
+                    "self": {
+                        "href": "\/api\/v1\/products\/PRODUCT_21"
+                    }
+                }
+            },
+            {
+                "id": @integer@,
+                "name": "Product 22",
+                "code": "PRODUCT_22",
+                "options": [],
+                "averageRating": 0,
+                "images": [],
+                "_links": {
+                    "self": {
+                        "href": "\/api\/v1\/products\/PRODUCT_22"
+                    }
+                }
+            },
+            {
+                "id": @integer@,
+                "name": "Product 4",
+                "code": "PRODUCT_4",
+                "options": [],
+                "averageRating": 0,
+                "images": [],
+                "_links": {
+                    "self": {
+                        "href": "\/api\/v1\/products\/PRODUCT_4"
+                    }
+                }
+            },
+            {
+                "id": @integer@,
+                "name": "Product 5",
+                "code": "PRODUCT_5",
+                "options": [],
+                "averageRating": 0,
+                "images": [],
+                "_links": {
+                    "self": {
+                        "href": "\/api\/v1\/products\/PRODUCT_5"
+                    }
+                }
+            },
+            {
+                "id": @integer@,
+                "name": "Product 6",
+                "code": "PRODUCT_6",
+                "options": [],
+                "averageRating": 0,
+                "images": [],
+                "_links": {
+                    "self": {
+                        "href": "\/api\/v1\/products\/PRODUCT_6"
+                    }
+                }
+            },
+            {
+                "id": @integer@,
+                "name": "Product 7",
+                "code": "PRODUCT_7",
+                "options": [],
+                "averageRating": 0,
+                "images": [],
+                "_links": {
+                    "self": {
+                        "href": "\/api\/v1\/products\/PRODUCT_7"
                     }
                 }
             }

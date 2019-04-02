@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\DataTransformer\ResourceToIdentifierTransformer;
@@ -19,26 +21,14 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Alexandre Bacco <alexandre.bacco@gmail.com>
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class ResourceToIdentifierType extends AbstractType
 {
-    /**
-     * @var RepositoryInterface
-     */
-    protected $repository;
+    /** @var RepositoryInterface */
+    private $repository;
 
-    /**
-     * @var MetadataInterface
-     */
-    protected $metadata;
+    /** @var MetadataInterface */
+    private $metadata;
 
-    /**
-     * @param RepositoryInterface $repository
-     * @param MetadataInterface $metadata
-     */
     public function __construct(RepositoryInterface $repository, MetadataInterface $metadata)
     {
         $this->repository = $repository;
@@ -48,7 +38,7 @@ final class ResourceToIdentifierType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addModelTransformer(
             new ResourceToIdentifierTransformer($this->repository, $options['identifier'])
@@ -58,7 +48,7 @@ final class ResourceToIdentifierType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setDefaults([
@@ -71,7 +61,7 @@ final class ResourceToIdentifierType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
         return EntityType::class;
     }
@@ -79,7 +69,7 @@ final class ResourceToIdentifierType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return sprintf('%s_%s_to_identifier', $this->metadata->getApplicationName(), $this->metadata->getName());
     }

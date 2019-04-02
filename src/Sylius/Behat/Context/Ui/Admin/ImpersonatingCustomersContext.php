@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
@@ -18,31 +20,17 @@ use Sylius\Behat\Page\Shop\HomePageInterface;
 use Sylius\Component\Customer\Model\CustomerInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class ImpersonatingCustomersContext implements Context
 {
-    /**
-     * @var ShowPageInterface
-     */
+    /** @var ShowPageInterface */
     private $customerShowPage;
 
-    /**
-     * @var DashboardPageInterface
-     */
+    /** @var DashboardPageInterface */
     private $dashboardPage;
 
-    /**
-     * @var HomePageInterface
-     */
+    /** @var HomePageInterface */
     private $homePage;
 
-    /**
-     * @param ShowPageInterface $customerShowPage
-     * @param DashboardPageInterface $dashboardPage
-     * @param HomePageInterface $homePage
-     */
     public function __construct(
         ShowPageInterface $customerShowPage,
         DashboardPageInterface $dashboardPage,
@@ -101,10 +89,7 @@ final class ImpersonatingCustomersContext implements Context
      */
     public function iShouldBeUnableToImpersonateThem()
     {
-        Assert::false(
-            $this->customerShowPage->hasImpersonateButton(),
-            'I should not be able to impersonate this user.'
-        );
+        Assert::false($this->customerShowPage->hasImpersonateButton());
     }
 
     /**
@@ -120,15 +105,8 @@ final class ImpersonatingCustomersContext implements Context
      */
     public function iShouldBeLoggedInAs($fullName)
     {
-        Assert::true(
-            $this->homePage->hasLogoutButton(),
-            'I should be able to sign out.'
-        );
-        Assert::contains(
-            $this->homePage->getFullName(),
-            $fullName,
-            'The full name should be "%2$s", but is "%s" instead.'
-        );
+        Assert::true($this->homePage->hasLogoutButton());
+        Assert::contains($this->homePage->getFullName(), $fullName);
     }
 
     /**
@@ -138,14 +116,8 @@ final class ImpersonatingCustomersContext implements Context
     {
         $this->homePage->open();
 
-        Assert::false(
-            $this->homePage->hasLogoutButton(),
-            'I should not be logged in.'
-        );
-        Assert::false(
-            strpos($this->homePage->getFullName(), $fullName),
-            sprintf('I should not be logged in as %s.', $fullName)
-        );
+        Assert::false($this->homePage->hasLogoutButton());
+        Assert::false(strpos($this->homePage->getFullName(), $fullName));
     }
 
     /**
@@ -153,9 +125,6 @@ final class ImpersonatingCustomersContext implements Context
      */
     public function iShouldSeeThatImpersonatingWasSuccessful($email)
     {
-        Assert::contains(
-            $this->customerShowPage->getSuccessFlashMessage(),
-            $email
-        );
+        Assert::contains($this->customerShowPage->getSuccessFlashMessage(), $email);
     }
 }

@@ -9,53 +9,67 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Grid\Filter;
 
 use Sylius\Component\Grid\Data\DataSourceInterface;
 use Sylius\Component\Grid\Filtering\FilterInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class DateFilter implements FilterInterface
 {
-    const NAME = 'date';
+    public const NAME = 'date';
+    public const DEFAULT_INCLUSIVE_FROM = true;
+    public const DEFAULT_INCLUSIVE_TO = false;
 
     /**
      * {@inheritdoc}
      */
-    public function apply(DataSourceInterface $dataSource, $name, $data, array $options)
+    public function apply(DataSourceInterface $dataSource, string $name, $data, array $options): void
     {
         $expressionBuilder = $dataSource->getExpressionBuilder();
 
-        $field = isset($options['field']) ? $options['field'] : $name;
+        $field = (string) $this->getOption($options, 'field', $name);
 
-        $from = $this->getDateTime($data['from']);
+        $from = isset($data['from']) ? $this->getDateTime($data['from'], '00:00') : null;
         if (null !== $from) {
-            $expressionBuilder->greaterThanOrEqual($field, $from);
+            $inclusive = (bool) $this->getOption($options, 'inclusive_from', self::DEFAULT_INCLUSIVE_FROM);
+            if (true === $inclusive) {
+                $dataSource->restrict($expressionBuilder->greaterThanOrEqual($field, $from));
+            } else {
+                $dataSource->restrict($expressionBuilder->greaterThan($field, $from));
+            }
         }
 
-        $to = $this->getDateTime($data['to']);
+        $to = isset($data['to']) ? $this->getDateTime($data['to'], '23:59') : null;
         if (null !== $to) {
-            $expressionBuilder->lessThan($field, $to);
+            $inclusive = (bool) $this->getOption($options, 'inclusive_to', self::DEFAULT_INCLUSIVE_TO);
+            if (true === $inclusive) {
+                $dataSource->restrict($expressionBuilder->lessThanOrEqual($field, $to));
+            } else {
+                $dataSource->restrict($expressionBuilder->lessThan($field, $to));
+            }
         }
+    }
+
+    private function getOption(array $options, string $name, $default)
+    {
+        return $options[$name] ?? $default;
     }
 
     /**
      * @param string[] $data
-     *
-     * @return null|string
      */
-    private function getDateTime(array $data)
+    private function getDateTime(array $data, string $defaultTime): ?string
     {
         if (empty($data['date'])) {
             return null;
         }
 
         if (empty($data['time'])) {
-            return $data['date'];
+            $data['time'] = $defaultTime;
         }
 
-        return $data['date'].' '.$data['time'];
+        return $data['date'] . ' ' . $data['time'];
     }
 }

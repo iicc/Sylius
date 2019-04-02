@@ -9,64 +9,50 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture;
 
 use Sylius\Bundle\FixturesBundle\Fixture\AbstractFixture;
-use Sylius\Component\Attribute\AttributeType\TextAttributeType;
+use Sylius\Component\Attribute\AttributeType\SelectAttributeType;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 class MugProductFixture extends AbstractFixture
 {
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $taxonFixture;
 
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $productAttributeFixture;
 
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $productOptionFixture;
 
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $productFixture;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var string */
+    private $baseLocaleCode;
+
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @var OptionsResolver
-     */
+    /** @var OptionsResolver */
     private $optionsResolver;
 
-    /**
-     * @param AbstractResourceFixture $taxonFixture
-     * @param AbstractResourceFixture $productAttributeFixture
-     * @param AbstractResourceFixture $productOptionFixture
-     * @param AbstractResourceFixture $productFixture
-     */
     public function __construct(
         AbstractResourceFixture $taxonFixture,
         AbstractResourceFixture $productAttributeFixture,
         AbstractResourceFixture $productOptionFixture,
-        AbstractResourceFixture $productFixture
+        AbstractResourceFixture $productFixture,
+        string $baseLocaleCode
     ) {
         $this->taxonFixture = $taxonFixture;
         $this->productAttributeFixture = $productAttributeFixture;
         $this->productOptionFixture = $productOptionFixture;
         $this->productFixture = $productFixture;
+        $this->baseLocaleCode = $baseLocaleCode;
 
         $this->faker = \Faker\Factory::create();
         $this->optionsResolver =
@@ -79,7 +65,7 @@ class MugProductFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'mug_product';
     }
@@ -87,7 +73,7 @@ class MugProductFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    public function load(array $options)
+    public function load(array $options): void
     {
         $options = $this->optionsResolver->resolve($options);
 
@@ -97,13 +83,34 @@ class MugProductFixture extends AbstractFixture
             'children' => [
                 [
                     'code' => 'mugs',
-                    'name' => 'Mugs',
-                ]
-            ]
+                    'translations' => [
+                        'en_US' => [
+                            'name' => 'Mugs',
+                        ],
+                        'fr_FR' => [
+                            'name' => 'Tasses',
+                        ],
+                    ],
+                ],
+            ],
         ]]]);
 
+        $mugMaterials = [
+            $this->faker->uuid => [$this->baseLocaleCode => 'Invisible porcelain'],
+            $this->faker->uuid => [$this->baseLocaleCode => 'Banana skin'],
+            $this->faker->uuid => [$this->baseLocaleCode => 'Porcelain'],
+            $this->faker->uuid => [$this->baseLocaleCode => 'Centipede'],
+        ];
         $this->productAttributeFixture->load(['custom' => [
-            ['name' => 'Mug material', 'code' => 'mug_material', 'type' => TextAttributeType::TYPE],
+            [
+                'name' => 'Mug material',
+                'code' => 'mug_material',
+                'type' => SelectAttributeType::TYPE,
+                'configuration' => [
+                    'multiple' => false,
+                    'choices' => $mugMaterials,
+                ],
+            ],
         ]]);
 
         $this->productOptionFixture->load(['custom' => [
@@ -127,12 +134,18 @@ class MugProductFixture extends AbstractFixture
                 'main_taxon' => 'mugs',
                 'taxons' => ['mugs'],
                 'product_attributes' => [
-                    'mug_material' => $this->faker->randomElement(['Invisible porcelain', 'Banana skin', 'Porcelain', 'Centipede']),
+                    'mug_material' => [$this->faker->randomKey($mugMaterials)],
                 ],
                 'product_options' => ['mug_type'],
                 'images' => [
-                    'main' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'mugs.jpg'),
-                    'thumbnail' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'mugs.jpg'),
+                    [
+                        'path' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'mugs.jpg'),
+                        'type' => 'main',
+                    ],
+                    [
+                        'path' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'mugs.jpg'),
+                        'type' => 'thumbnail',
+                    ],
                 ],
             ];
         }
@@ -143,7 +156,7 @@ class MugProductFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    protected function configureOptionsNode(ArrayNodeDefinition $optionsNode)
+    protected function configureOptionsNode(ArrayNodeDefinition $optionsNode): void
     {
         $optionsNode
             ->children()
@@ -151,12 +164,7 @@ class MugProductFixture extends AbstractFixture
         ;
     }
 
-    /**
-     * @param int $amount
-     *
-     * @return string
-     */
-    private function getUniqueNames($amount)
+    private function getUniqueNames(int $amount): array
     {
         $productsNames = [];
 

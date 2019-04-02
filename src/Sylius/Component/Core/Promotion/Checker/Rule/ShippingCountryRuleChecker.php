@@ -9,9 +9,10 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Promotion\Checker\Rule;
 
-use Sylius\Bundle\CoreBundle\Form\Type\Promotion\Rule\ShippingCountryConfigurationType;
 use Sylius\Component\Addressing\Model\CountryInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Promotion\Checker\Rule\RuleCheckerInterface;
@@ -19,21 +20,13 @@ use Sylius\Component\Promotion\Exception\UnsupportedTypeException;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 final class ShippingCountryRuleChecker implements RuleCheckerInterface
 {
-    const TYPE = 'shipping_country';
+    public const TYPE = 'shipping_country';
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $countryRepository;
 
-    /**
-     * @param RepositoryInterface $countryRepository
-     */
     public function __construct(RepositoryInterface $countryRepository)
     {
         $this->countryRepository = $countryRepository;
@@ -41,8 +34,10 @@ final class ShippingCountryRuleChecker implements RuleCheckerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws UnsupportedTypeException
      */
-    public function isEligible(PromotionSubjectInterface $subject, array $configuration)
+    public function isEligible(PromotionSubjectInterface $subject, array $configuration): bool
     {
         if (!$subject instanceof OrderInterface) {
             throw new UnsupportedTypeException($subject, OrderInterface::class);
@@ -59,13 +54,5 @@ final class ShippingCountryRuleChecker implements RuleCheckerInterface
         }
 
         return $country->getCode() === $configuration['country'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return ShippingCountryConfigurationType::class;
     }
 }

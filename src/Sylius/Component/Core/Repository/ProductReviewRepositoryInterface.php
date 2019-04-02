@@ -9,31 +9,28 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Repository;
 
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Review\Model\ReviewInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 interface ProductReviewRepositoryInterface extends RepositoryInterface
 {
     /**
-     * @param int $productId
-     * @param int $count
-     *
-     * @return ReviewInterface[]
+     * @return array|ReviewInterface[]
      */
-    public function findLatestByProductId($productId, $count);
+    public function findLatestByProductId($productId, int $count): array;
 
     /**
-     * @param string $slug
-     * @param string $locale
-     * @param ChannelInterface $channel
-     *
-     * @return ReviewInterface[]
+     * @return array|ReviewInterface[]
      */
-    public function findAcceptedByProductSlugAndChannel($slug, $locale, ChannelInterface $channel);
+    public function findAcceptedByProductSlugAndChannel(string $slug, string $locale, ChannelInterface $channel): array;
+
+    public function createQueryBuilderByProductCode(string $locale, string $productCode): QueryBuilder;
+
+    public function findOneByIdAndProductCode($id, string $productCode): ?ReviewInterface;
 }

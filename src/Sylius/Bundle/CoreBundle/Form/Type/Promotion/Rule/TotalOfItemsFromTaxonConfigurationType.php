@@ -9,26 +9,36 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\Type\Promotion\Rule;
 
 use Sylius\Bundle\MoneyBundle\Form\Type\MoneyType;
-use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonCodeChoiceType;
+use Sylius\Bundle\ResourceBundle\Form\DataTransformer\ResourceToIdentifierTransformer;
+use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonAutocompleteChoiceType;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\ReversedTransformer;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class TotalOfItemsFromTaxonConfigurationType extends AbstractType
 {
+    /** @var RepositoryInterface */
+    private $taxonRepository;
+
+    public function __construct(RepositoryInterface $taxonRepository)
+    {
+        $this->taxonRepository = $taxonRepository;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('taxon', TaxonCodeChoiceType::class, [
+            ->add('taxon', TaxonAutocompleteChoiceType::class, [
                 'label' => 'sylius.form.promotion_rule.total_of_items_from_taxon.taxon',
             ])
             ->add('amount', MoneyType::class, [
@@ -36,26 +46,27 @@ final class TotalOfItemsFromTaxonConfigurationType extends AbstractType
                 'currency' => $options['currency'],
             ])
         ;
+
+        $builder->get('taxon')->addModelTransformer(
+            new ReversedTransformer(new ResourceToIdentifierTransformer($this->taxonRepository, 'code'))
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        parent::configureOptions($resolver);
-
         $resolver
-            ->setDefined(['currency'])
+            ->setRequired('currency')
             ->setAllowedTypes('currency', 'string')
-            ->setRequired(['currency'])
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_promotion_rule_total_of_items_from_taxon_configuration';
     }

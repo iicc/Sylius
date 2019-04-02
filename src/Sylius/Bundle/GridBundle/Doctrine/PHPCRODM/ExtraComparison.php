@@ -9,7 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\GridBundle\Doctrine\PHPCRODM;
+
+@trigger_error(sprintf('The "%s" class is deprecated since Sylius 1.3. Doctrine MongoDB and PHPCR support will no longer be supported in Sylius 2.0.', ExtraComparison::class), \E_USER_DEPRECATED);
 
 /**
  * Contains constants values for comparisons which are not supported
@@ -17,9 +21,9 @@ namespace Sylius\Bundle\GridBundle\Doctrine\PHPCRODM;
  */
 final class ExtraComparison
 {
-    const NOT_CONTAINS = 'NOT_CONTAINS';
-    const IS_NULL = 'IS_NULL';
-    const IS_NOT_NULL = 'IS_NOT_NULL';
+    public const NOT_CONTAINS = 'NOT_CONTAINS';
+    public const IS_NULL = 'IS_NULL';
+    public const IS_NOT_NULL = 'IS_NOT_NULL';
 
     private function __construct()
     {

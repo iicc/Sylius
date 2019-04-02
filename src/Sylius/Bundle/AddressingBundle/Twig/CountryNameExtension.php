@@ -9,46 +9,31 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AddressingBundle\Twig;
 
 use Sylius\Component\Addressing\Model\CountryInterface;
 use Symfony\Component\Intl\Intl;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 class CountryNameExtension extends \Twig_Extension
 {
     /**
      * {@inheritdoc}
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
-            new \Twig_SimpleFilter('sylius_country_name', [$this, 'translateCountryIsoCode']),
+            new \Twig_Filter('sylius_country_name', [$this, 'translateCountryIsoCode']),
         ];
     }
 
-    /**
-     * @param mixed  $country
-     * @param string $locale
-     *
-     * @return string
-     */
-    public function translateCountryIsoCode($country, $locale = null)
+    public function translateCountryIsoCode($country, ?string $locale = null): string
     {
         if ($country instanceof CountryInterface) {
             return Intl::getRegionBundle()->getCountryName($country->getCode(), $locale);
         }
 
         return Intl::getRegionBundle()->getCountryName($country, $locale);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'sylius_country_name';
     }
 }

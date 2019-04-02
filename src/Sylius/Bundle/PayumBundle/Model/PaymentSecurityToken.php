@@ -9,40 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PayumBundle\Model;
 
-use Payum\Core\Security\TokenInterface;
 use Payum\Core\Security\Util\Random;
-use Payum\Core\Storage\IdentityInterface;
-use Sylius\Component\Resource\Model\ResourceInterface;
 
-class PaymentSecurityToken implements
-    ResourceInterface,
-    TokenInterface
+class PaymentSecurityToken implements PaymentSecurityTokenInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $hash;
 
-    /**
-     * @var IdentityInterface
-     */
+    /** @var mixed */
     protected $details;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $afterUrl;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $targetUrl;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $gatewayName;
 
     public function __construct()
@@ -53,7 +40,7 @@ class PaymentSecurityToken implements
     /**
      * {@inheritdoc}
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->hash;
     }
@@ -61,15 +48,13 @@ class PaymentSecurityToken implements
     /**
      * {@inheritdoc}
      */
-    public function setDetails($details)
+    public function setDetails($details): void
     {
         $this->details = $details;
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @return IdentityInterface|null
      */
     public function getDetails()
     {
@@ -79,7 +64,7 @@ class PaymentSecurityToken implements
     /**
      * {@inheritdoc}
      */
-    public function getHash()
+    public function getHash(): string
     {
         return $this->hash;
     }
@@ -87,7 +72,7 @@ class PaymentSecurityToken implements
     /**
      * {@inheritdoc}
      */
-    public function setHash($hash)
+    public function setHash($hash): void
     {
         $this->hash = $hash;
     }
@@ -95,7 +80,7 @@ class PaymentSecurityToken implements
     /**
      * {@inheritdoc}
      */
-    public function getTargetUrl()
+    public function getTargetUrl(): string
     {
         return $this->targetUrl;
     }
@@ -103,7 +88,7 @@ class PaymentSecurityToken implements
     /**
      * {@inheritdoc}
      */
-    public function setTargetUrl($targetUrl)
+    public function setTargetUrl($targetUrl): void
     {
         $this->targetUrl = $targetUrl;
     }
@@ -111,7 +96,7 @@ class PaymentSecurityToken implements
     /**
      * {@inheritdoc}
      */
-    public function getAfterUrl()
+    public function getAfterUrl(): ?string
     {
         return $this->afterUrl;
     }
@@ -119,7 +104,7 @@ class PaymentSecurityToken implements
     /**
      * {@inheritdoc}
      */
-    public function setAfterUrl($afterUrl)
+    public function setAfterUrl($afterUrl): void
     {
         $this->afterUrl = $afterUrl;
     }
@@ -127,7 +112,7 @@ class PaymentSecurityToken implements
     /**
      * {@inheritdoc}
      */
-    public function getGatewayName()
+    public function getGatewayName(): string
     {
         return $this->gatewayName;
     }
@@ -135,7 +120,7 @@ class PaymentSecurityToken implements
     /**
      * {@inheritdoc}
      */
-    public function setGatewayName($gatewayName)
+    public function setGatewayName($gatewayName): void
     {
         $this->gatewayName = $gatewayName;
     }

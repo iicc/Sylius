@@ -9,11 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture\Factory;
 
 use Doctrine\Common\Collections\Collection;
 use Sylius\Bundle\CoreBundle\Fixture\OptionsResolver\LazyOption;
-use Sylius\Component\Addressing\Model\Country;
+use Sylius\Component\Addressing\Model\CountryInterface;
 use Sylius\Component\Addressing\Model\ProvinceInterface;
 use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
@@ -23,41 +25,23 @@ use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 class AddressExampleFactory extends AbstractExampleFactory
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $addressFactory;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $countryRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $customerRepository;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @var OptionsResolver
-     */
+    /** @var OptionsResolver */
     private $optionsResolver;
 
-    /**
-     * @param FactoryInterface $addressFactory
-     * @param RepositoryInterface $countryRepository
-     * @param RepositoryInterface $customerRepository
-     */
     public function __construct(
         FactoryInterface $addressFactory,
         RepositoryInterface $countryRepository,
@@ -76,31 +60,31 @@ class AddressExampleFactory extends AbstractExampleFactory
     /**
      * {@inheritdoc}
      */
-    protected function configureOptions(OptionsResolver $resolver)
+    protected function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
-            ->setDefault('first_name', function (Options $options) {
+            ->setDefault('first_name', function (Options $options): string {
                 return $this->faker->firstName;
             })
-            ->setDefault('last_name', function (Options $options) {
+            ->setDefault('last_name', function (Options $options): string {
                 return $this->faker->lastName;
             })
-            ->setDefault('phone_number', function (Options $options) {
-                return mt_rand(1, 100) > 50 ? $this->faker->phoneNumber : null;
+            ->setDefault('phone_number', function (Options $options): ?string {
+                return random_int(1, 100) > 50 ? $this->faker->phoneNumber : null;
             })
-            ->setDefault('company', function (Options $options) {
-                return mt_rand(1, 100) > 50 ? $this->faker->company : null;
+            ->setDefault('company', function (Options $options): ?string {
+                return random_int(1, 100) > 50 ? $this->faker->company : null;
             })
-            ->setDefault('street', function (Options $options) {
+            ->setDefault('street', function (Options $options): string {
                 return $this->faker->streetAddress;
             })
-            ->setDefault('city', function (Options $options) {
+            ->setDefault('city', function (Options $options): string {
                 return $this->faker->city;
             })
-            ->setDefault('postcode', function (Options $options) {
+            ->setDefault('postcode', function (Options $options): string {
                 return $this->faker->postcode;
             })
-            ->setDefault('country_code', function (Options $options) {
+            ->setDefault('country_code', function (Options $options): string {
                 $countries = $this->countryRepository->findAll();
                 shuffle($countries);
 
@@ -120,7 +104,7 @@ class AddressExampleFactory extends AbstractExampleFactory
     /**
      * {@inheritdoc}
      */
-    public function create(array $options = [])
+    public function create(array $options = []): AddressInterface
     {
         $options = $this->optionsResolver->resolve($options);
 
@@ -147,40 +131,34 @@ class AddressExampleFactory extends AbstractExampleFactory
     }
 
     /**
-     * @param string $code
+     * @throws \InvalidArgumentException
      */
-    private function assertCountryCodeIsValid($code)
+    private function assertCountryCodeIsValid(string $code): void
     {
         $country = $this->countryRepository->findOneBy(['code' => $code]);
         Assert::notNull($country);
     }
 
     /**
-     * @param string $provinceCode
-     * @param string $countryCode
+     * @throws \InvalidArgumentException
      */
-    private function assertProvinceCodeIsValid($provinceCode, $countryCode)
+    private function assertProvinceCodeIsValid(string $provinceCode, string $countryCode): void
     {
+        /** @var CountryInterface $country */
         $country = $this->countryRepository->findOneBy(['code' => $countryCode]);
 
-        /** @var ProvinceInterface $province */
         foreach ($country->getProvinces() as $province) {
             if ($province->getCode() === $provinceCode) {
                 return;
             }
         }
-        throw new \InvalidArgumentException('Provided province code is not valid for "%s"', $country->getName());
+
+        throw new \InvalidArgumentException(sprintf('Provided province code is not valid for "%s"', $country->getName()));
     }
 
-    /**
-     * @param array $options
-     * @param AddressInterface $address
-     *
-     * @return string
-     */
-    private function provideProvince(array $options, AddressInterface $address)
+    private function provideProvince(array $options, AddressInterface $address): void
     {
-        /** @var Country $country */
+        /** @var CountryInterface $country */
         $country = $this->countryRepository->findOneBy(['code' => $options['country_code']]);
 
         if ($country->hasProvinces()) {
@@ -193,12 +171,9 @@ class AddressExampleFactory extends AbstractExampleFactory
     }
 
     /**
-     * @param Collection $provinces
-     * @param string $provinceName
-     *
-     * @return string
+     * @throws \InvalidArgumentException
      */
-    private function getProvinceCode(Collection $provinces, $provinceName)
+    private function getProvinceCode(Collection $provinces, string $provinceName): string
     {
         /** @var ProvinceInterface $province */
         foreach ($provinces as $province) {
@@ -210,11 +185,7 @@ class AddressExampleFactory extends AbstractExampleFactory
         throw new \InvalidArgumentException(sprintf('Country has defined provinces, but %s is not one of them', $provinceName));
     }
 
-    /**
-     * @param array $options
-     * @param AddressInterface $address
-     */
-    private function resolveCountryProvince(array $options, AddressInterface $address)
+    private function resolveCountryProvince(array $options, AddressInterface $address): void
     {
         if (null !== $options['province_code']) {
             $this->assertProvinceCodeIsValid($options['province_code'], $options['country_code']);
@@ -223,7 +194,7 @@ class AddressExampleFactory extends AbstractExampleFactory
             return;
         }
 
-        if (null !== $options['province_name']){
+        if (null !== $options['province_name']) {
             $this->provideProvince($options, $address);
         }
     }

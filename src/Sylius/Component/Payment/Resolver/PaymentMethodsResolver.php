@@ -9,24 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Payment\Resolver;
 
 use Sylius\Component\Payment\Model\PaymentInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class PaymentMethodsResolver implements PaymentMethodsResolverInterface
 {
-    /**
-     * @var RepositoryInterface
-     */
-    protected $paymentMethodRepository;
+    /** @var RepositoryInterface */
+    private $paymentMethodRepository;
 
-    /**
-     * @param RepositoryInterface $paymentMethodRepository
-     */
     public function __construct(RepositoryInterface $paymentMethodRepository)
     {
         $this->paymentMethodRepository = $paymentMethodRepository;
@@ -35,7 +29,7 @@ final class PaymentMethodsResolver implements PaymentMethodsResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function getSupportedMethods(PaymentInterface $payment)
+    public function getSupportedMethods(PaymentInterface $payment): array
     {
         return $this->paymentMethodRepository->findBy(['enabled' => true]);
     }
@@ -43,7 +37,7 @@ final class PaymentMethodsResolver implements PaymentMethodsResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function supports(PaymentInterface $payment)
+    public function supports(PaymentInterface $payment): bool
     {
         return true;
     }

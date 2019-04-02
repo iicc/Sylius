@@ -9,20 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxation\Calculator;
 
 use Sylius\Component\Taxation\Model\TaxRateInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface CalculatorInterface
 {
-    /**
-     * @param float $base
-     * @param TaxRateInterface $rate
-     *
-     * @return float
-     */
-    public function calculate($base, TaxRateInterface $rate);
+    public function calculate(float $base, TaxRateInterface $rate): float;
 }

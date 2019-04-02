@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
@@ -16,25 +18,14 @@ use Sylius\Behat\Page\Admin\DashboardPageInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class LocaleContext implements Context
 {
-    /**
-     * @var DashboardPageInterface
-     */
+    /** @var DashboardPageInterface */
     private $dashboardPage;
 
-    /**
-     * @var TranslatorInterface
-     */
+    /** @var TranslatorInterface */
     private $translator;
 
-    /**
-     * @param DashboardPageInterface $dashboardPage
-     * @param TranslatorInterface $translator
-     */
     public function __construct(DashboardPageInterface $dashboardPage, TranslatorInterface $translator)
     {
         $this->dashboardPage = $dashboardPage;
@@ -50,14 +41,7 @@ final class LocaleContext implements Context
     {
         $this->dashboardPage->open();
 
-        $expectedSubHeader = $this->translate('sylius.ui.overview_of_your_store', $localeCode);
-        $actualSubHeader = $this->dashboardPage->getSubHeader();
-
-        Assert::same(
-            $actualSubHeader,
-            $expectedSubHeader,
-            sprintf('Dashboard header should say "%s", but says "%s" instead.', $expectedSubHeader, $actualSubHeader)
-        );
+        Assert::same($this->dashboardPage->getSubHeader(), $this->translate('sylius.ui.overview_of_your_store', $localeCode));
     }
 
     /**

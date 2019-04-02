@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -22,87 +24,54 @@ use Sylius\Component\Order\Model\Order as BaseOrder;
 use Sylius\Component\Payment\Model\PaymentInterface as BasePaymentInterface;
 use Sylius\Component\Promotion\Model\PromotionCouponInterface as BaseCouponInterface;
 use Sylius\Component\Promotion\Model\PromotionInterface as BasePromotionInterface;
+use Sylius\Component\User\Model\UserInterface as BaseUserInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 class Order extends BaseOrder implements OrderInterface
 {
-    /**
-     * @var BaseCustomerInterface
-     */
+    /** @var CustomerInterface */
     protected $customer;
 
-    /**
-     * @var ChannelInterface
-     */
+    /** @var ChannelInterface */
     protected $channel;
 
-    /**
-     * @var AddressInterface
-     */
+    /** @var AddressInterface */
     protected $shippingAddress;
 
-    /**
-     * @var AddressInterface
-     */
+    /** @var AddressInterface */
     protected $billingAddress;
 
-    /**
-     * @var Collection|BasePaymentInterface[]
-     */
+    /** @var Collection|BasePaymentInterface[] */
     protected $payments;
 
-    /**
-     * @var Collection|ShipmentInterface[]
-     */
+    /** @var Collection|ShipmentInterface[] */
     protected $shipments;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $currencyCode;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $localeCode;
 
-    /**
-     * @var BaseCouponInterface
-     */
+    /** @var BaseCouponInterface */
     protected $promotionCoupon;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $checkoutState = OrderCheckoutStates::STATE_CART;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $paymentState = OrderPaymentStates::STATE_CART;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $shippingState = OrderShippingStates::STATE_CART;
 
-    /**
-     * @var Collection|BasePromotionInterface[]
-     */
+    /** @var Collection|BasePromotionInterface[] */
     protected $promotions;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $tokenValue;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $customerIp;
 
     public function __construct()
@@ -117,7 +86,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getCustomer()
+    public function getCustomer(): ?BaseCustomerInterface
     {
         return $this->customer;
     }
@@ -125,15 +94,17 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setCustomer(BaseCustomerInterface $customer = null)
+    public function setCustomer(?BaseCustomerInterface $customer): void
     {
+        Assert::nullOrisInstanceOf($customer, CustomerInterface::class);
+
         $this->customer = $customer;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getChannel()
+    public function getChannel(): ?BaseChannelInterface
     {
         return $this->channel;
     }
@@ -141,7 +112,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setChannel(BaseChannelInterface $channel = null)
+    public function setChannel(?BaseChannelInterface $channel): void
     {
         $this->channel = $channel;
     }
@@ -149,7 +120,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getUser()
+    public function getUser(): ?BaseUserInterface
     {
         if (null === $this->customer) {
             return null;
@@ -161,7 +132,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getShippingAddress()
+    public function getShippingAddress(): ?AddressInterface
     {
         return $this->shippingAddress;
     }
@@ -169,7 +140,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setShippingAddress(AddressInterface $address)
+    public function setShippingAddress(?AddressInterface $address): void
     {
         $this->shippingAddress = $address;
     }
@@ -177,7 +148,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getBillingAddress()
+    public function getBillingAddress(): ?AddressInterface
     {
         return $this->billingAddress;
     }
@@ -185,7 +156,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setBillingAddress(AddressInterface $address)
+    public function setBillingAddress(?AddressInterface $address): void
     {
         $this->billingAddress = $address;
     }
@@ -193,7 +164,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getCheckoutState()
+    public function getCheckoutState(): ?string
     {
         return $this->checkoutState;
     }
@@ -201,7 +172,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setCheckoutState($checkoutState)
+    public function setCheckoutState(?string $checkoutState): void
     {
         $this->checkoutState = $checkoutState;
     }
@@ -209,7 +180,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getPaymentState()
+    public function getPaymentState(): ?string
     {
         return $this->paymentState;
     }
@@ -217,7 +188,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setPaymentState($paymentState)
+    public function setPaymentState(?string $paymentState): void
     {
         $this->paymentState = $paymentState;
     }
@@ -225,11 +196,11 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getItemUnits()
+    public function getItemUnits(): Collection
     {
         $units = new ArrayCollection();
 
-        /** @var $item OrderItem */
+        /** @var OrderItem $item */
         foreach ($this->getItems() as $item) {
             foreach ($item->getUnits() as $unit) {
                 $units->add($unit);
@@ -242,9 +213,9 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getItemUnitsByVariant(ProductVariantInterface $variant)
+    public function getItemUnitsByVariant(ProductVariantInterface $variant): Collection
     {
-        return $this->getItemUnits()->filter(function (OrderItemUnitInterface $itemUnit) use ($variant) {
+        return $this->getItemUnits()->filter(function (OrderItemUnitInterface $itemUnit) use ($variant): bool {
             return $variant === $itemUnit->getStockable();
         });
     }
@@ -252,7 +223,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getPayments()
+    public function getPayments(): Collection
     {
         return $this->payments;
     }
@@ -260,7 +231,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function hasPayments()
+    public function hasPayments(): bool
     {
         return !$this->payments->isEmpty();
     }
@@ -268,9 +239,11 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function addPayment(BasePaymentInterface $payment)
+    public function addPayment(BasePaymentInterface $payment): void
     {
-        /** @var $payment PaymentInterface */
+        /** @var PaymentInterface $payment */
+        Assert::isInstanceOf($payment, PaymentInterface::class);
+
         if (!$this->hasPayment($payment)) {
             $this->payments->add($payment);
             $payment->setOrder($this);
@@ -280,9 +253,11 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function removePayment(BasePaymentInterface $payment)
+    public function removePayment(BasePaymentInterface $payment): void
     {
-        /** @var $payment PaymentInterface */
+        /** @var PaymentInterface $payment */
+        Assert::isInstanceOf($payment, PaymentInterface::class);
+
         if ($this->hasPayment($payment)) {
             $this->payments->removeElement($payment);
             $payment->setOrder(null);
@@ -292,33 +267,42 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function hasPayment(BasePaymentInterface $payment)
+    public function hasPayment(BasePaymentInterface $payment): bool
     {
         return $this->payments->contains($payment);
     }
 
     /**
-     * @param string|null $state
-     *
-     * @return BasePaymentInterface|null
+     * {@inheritdoc}
      */
-    public function getLastPayment($state = null)
+    public function getLastPayment(?string $state = null): ?PaymentInterface
     {
         if ($this->payments->isEmpty()) {
             return null;
         }
 
-        $payment = $this->payments->filter(function (BasePaymentInterface $payment) use ($state) {
+        $payment = $this->payments->filter(function (BasePaymentInterface $payment) use ($state): bool {
             return null === $state || $payment->getState() === $state;
         })->last();
 
         return $payment !== false ? $payment : null;
     }
 
+    public function isShippingRequired(): bool
+    {
+        foreach ($this->getItems() as $orderItem) {
+            if ($orderItem->getVariant()->isShippingRequired()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function getShipments()
+    public function getShipments(): Collection
     {
         return $this->shipments;
     }
@@ -326,7 +310,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function hasShipments()
+    public function hasShipments(): bool
     {
         return !$this->shipments->isEmpty();
     }
@@ -334,7 +318,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function addShipment(ShipmentInterface $shipment)
+    public function addShipment(ShipmentInterface $shipment): void
     {
         if (!$this->hasShipment($shipment)) {
             $shipment->setOrder($this);
@@ -345,7 +329,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function removeShipment(ShipmentInterface $shipment)
+    public function removeShipment(ShipmentInterface $shipment): void
     {
         if ($this->hasShipment($shipment)) {
             $shipment->setOrder(null);
@@ -353,10 +337,7 @@ class Order extends BaseOrder implements OrderInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeShipments()
+    public function removeShipments(): void
     {
         $this->shipments->clear();
     }
@@ -364,7 +345,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function hasShipment(ShipmentInterface $shipment)
+    public function hasShipment(ShipmentInterface $shipment): bool
     {
         return $this->shipments->contains($shipment);
     }
@@ -372,7 +353,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getPromotionCoupon()
+    public function getPromotionCoupon(): ?BaseCouponInterface
     {
         return $this->promotionCoupon;
     }
@@ -380,7 +361,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setPromotionCoupon(BaseCouponInterface $coupon = null)
+    public function setPromotionCoupon(?BaseCouponInterface $coupon): void
     {
         $this->promotionCoupon = $coupon;
     }
@@ -388,7 +369,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getPromotionSubjectTotal()
+    public function getPromotionSubjectTotal(): int
     {
         return $this->getItemsTotal();
     }
@@ -396,7 +377,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getPromotionSubjectCount()
+    public function getPromotionSubjectCount(): int
     {
         return $this->getTotalQuantity();
     }
@@ -404,7 +385,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getCurrencyCode()
+    public function getCurrencyCode(): ?string
     {
         return $this->currencyCode;
     }
@@ -412,17 +393,15 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setCurrencyCode($currencyCode)
+    public function setCurrencyCode(?string $currencyCode): void
     {
-        Assert::string($currencyCode);
-
         $this->currencyCode = $currencyCode;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getLocaleCode()
+    public function getLocaleCode(): ?string
     {
         return $this->localeCode;
     }
@@ -430,7 +409,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setLocaleCode($localeCode)
+    public function setLocaleCode(?string $localeCode): void
     {
         Assert::string($localeCode);
 
@@ -440,7 +419,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getShippingState()
+    public function getShippingState(): ?string
     {
         return $this->shippingState;
     }
@@ -448,7 +427,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setShippingState($state)
+    public function setShippingState(?string $state): void
     {
         $this->shippingState = $state;
     }
@@ -456,7 +435,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function hasPromotion(BasePromotionInterface $promotion)
+    public function hasPromotion(BasePromotionInterface $promotion): bool
     {
         return $this->promotions->contains($promotion);
     }
@@ -464,7 +443,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function addPromotion(BasePromotionInterface $promotion)
+    public function addPromotion(BasePromotionInterface $promotion): void
     {
         if (!$this->hasPromotion($promotion)) {
             $this->promotions->add($promotion);
@@ -474,7 +453,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function removePromotion(BasePromotionInterface $promotion)
+    public function removePromotion(BasePromotionInterface $promotion): void
     {
         if ($this->hasPromotion($promotion)) {
             $this->promotions->removeElement($promotion);
@@ -484,7 +463,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getPromotions()
+    public function getPromotions(): Collection
     {
         return $this->promotions;
     }
@@ -494,7 +473,7 @@ class Order extends BaseOrder implements OrderInterface
      *
      * {@inheritdoc}
      */
-    public function getTaxTotal()
+    public function getTaxTotal(): int
     {
         $taxTotal = 0;
 
@@ -511,9 +490,9 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * Returns shipping fee together with taxes decreased by shipping discount.
      *
-     * @return int
+     * {@inheritdoc}
      */
-    public function getShippingTotal()
+    public function getShippingTotal(): int
     {
         $shippingTotal = $this->getAdjustmentsTotal(AdjustmentInterface::SHIPPING_ADJUSTMENT);
         $shippingTotal += $this->getAdjustmentsTotal(AdjustmentInterface::ORDER_SHIPPING_PROMOTION_ADJUSTMENT);
@@ -525,9 +504,9 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * Returns amount of order discount. Does not include order item and shipping discounts.
      *
-     * @return int
+     * {@inheritdoc}
      */
-    public function getOrderPromotionTotal()
+    public function getOrderPromotionTotal(): int
     {
         $orderPromotionTotal = 0;
 
@@ -541,7 +520,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getTokenValue()
+    public function getTokenValue(): ?string
     {
         return $this->tokenValue;
     }
@@ -549,7 +528,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setTokenValue($tokenValue)
+    public function setTokenValue(?string $tokenValue): void
     {
         $this->tokenValue = $tokenValue;
     }
@@ -557,7 +536,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getCustomerIp()
+    public function getCustomerIp(): ?string
     {
         return $this->customerIp;
     }
@@ -565,7 +544,7 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setCustomerIp($customerIp)
+    public function setCustomerIp(?string $customerIp): void
     {
         $this->customerIp = $customerIp;
     }

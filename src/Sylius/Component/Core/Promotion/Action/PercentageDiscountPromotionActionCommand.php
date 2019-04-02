@@ -9,39 +9,28 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Promotion\Action;
 
-use Sylius\Bundle\PromotionBundle\Form\Type\Action\PercentageDiscountConfigurationType;
 use Sylius\Component\Core\Distributor\ProportionalIntegerDistributorInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Promotion\Applicator\UnitsPromotionAdjustmentsApplicatorInterface;
 use Sylius\Component\Promotion\Action\PromotionActionCommandInterface;
 use Sylius\Component\Promotion\Model\PromotionInterface;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Saša Stamenković <umpirsky@gmail.com>
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class PercentageDiscountPromotionActionCommand extends DiscountPromotionActionCommand implements PromotionActionCommandInterface
 {
-    const TYPE = 'order_percentage_discount';
+    public const TYPE = 'order_percentage_discount';
 
-    /**
-     * @var ProportionalIntegerDistributorInterface
-     */
+    /** @var ProportionalIntegerDistributorInterface */
     private $distributor;
 
-    /**
-     * @var UnitsPromotionAdjustmentsApplicatorInterface
-     */
+    /** @var UnitsPromotionAdjustmentsApplicatorInterface */
     private $unitsPromotionAdjustmentsApplicator;
 
-    /**
-     * @param ProportionalIntegerDistributorInterface $distributor
-     * @param UnitsPromotionAdjustmentsApplicatorInterface $unitsPromotionAdjustmentsApplicator
-     */
     public function __construct(
         ProportionalIntegerDistributorInterface $distributor,
         UnitsPromotionAdjustmentsApplicatorInterface $unitsPromotionAdjustmentsApplicator
@@ -53,9 +42,11 @@ final class PercentageDiscountPromotionActionCommand extends DiscountPromotionAc
     /**
      * {@inheritdoc}
      */
-    public function execute(PromotionSubjectInterface $subject, array $configuration, PromotionInterface $promotion)
+    public function execute(PromotionSubjectInterface $subject, array $configuration, PromotionInterface $promotion): bool
     {
         /** @var OrderInterface $subject */
+        Assert::isInstanceOf($subject, OrderInterface::class);
+
         if (!$this->isSubjectValid($subject)) {
             return false;
         }
@@ -85,28 +76,14 @@ final class PercentageDiscountPromotionActionCommand extends DiscountPromotionAc
     /**
      * {@inheritdoc}
      */
-    public function getConfigurationFormType()
+    protected function isConfigurationValid(array $configuration): void
     {
-        return PercentageDiscountConfigurationType::class;
+        Assert::keyExists($configuration, 'percentage');
+        Assert::greaterThan($configuration['percentage'], 0);
+        Assert::lessThanEq($configuration['percentage'], 1);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function isConfigurationValid(array $configuration)
-    {
-        if (!isset($configuration['percentage']) || !is_float($configuration['percentage'])) {
-            throw new \InvalidArgumentException('"percentage" must be set and must be a float.');
-        }
-    }
-
-    /**
-     * @param int $promotionSubjectTotal
-     * @param int $percentage
-     *
-     * @return int
-     */
-    private function calculateAdjustmentAmount($promotionSubjectTotal, $percentage)
+    private function calculateAdjustmentAmount(int $promotionSubjectTotal, float $percentage): int
     {
         return -1 * (int) round($promotionSubjectTotal * $percentage);
     }

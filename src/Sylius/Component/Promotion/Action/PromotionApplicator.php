@@ -9,25 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Action;
 
 use Sylius\Component\Promotion\Model\PromotionInterface;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 final class PromotionApplicator implements PromotionApplicatorInterface
 {
-    /**
-     * @var ServiceRegistryInterface
-     */
+    /** @var ServiceRegistryInterface */
     private $registry;
 
-    /**
-     * @param ServiceRegistryInterface $registry
-     */
     public function __construct(ServiceRegistryInterface $registry)
     {
         $this->registry = $registry;
@@ -36,7 +30,7 @@ final class PromotionApplicator implements PromotionApplicatorInterface
     /**
      * {@inheritdoc}
      */
-    public function apply(PromotionSubjectInterface $subject, PromotionInterface $promotion)
+    public function apply(PromotionSubjectInterface $subject, PromotionInterface $promotion): void
     {
         $applyPromotion = false;
         foreach ($promotion->getActions() as $action) {
@@ -52,7 +46,7 @@ final class PromotionApplicator implements PromotionApplicatorInterface
     /**
      * {@inheritdoc}
      */
-    public function revert(PromotionSubjectInterface $subject, PromotionInterface $promotion)
+    public function revert(PromotionSubjectInterface $subject, PromotionInterface $promotion): void
     {
         foreach ($promotion->getActions() as $action) {
             $this->getActionCommandByType($action->getType())->revert($subject, $action->getConfiguration(), $promotion);
@@ -61,12 +55,7 @@ final class PromotionApplicator implements PromotionApplicatorInterface
         $subject->removePromotion($promotion);
     }
 
-    /**
-     * @param string $type
-     *
-     * @return PromotionActionCommandInterface
-     */
-    private function getActionCommandByType($type)
+    private function getActionCommandByType(string $type): PromotionActionCommandInterface
     {
         return $this->registry->get($type);
     }

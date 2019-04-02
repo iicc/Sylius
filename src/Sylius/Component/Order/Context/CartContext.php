@@ -9,23 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Order\Context;
 
+use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class CartContext implements CartContextInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $cartFactory;
 
-    /**
-     * @param FactoryInterface $cartFactory
-     */
     public function __construct(FactoryInterface $cartFactory)
     {
         $this->cartFactory = $cartFactory;
@@ -34,7 +29,7 @@ final class CartContext implements CartContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getCart()
+    public function getCart(): OrderInterface
     {
         return $this->cartFactory->createNew();
     }

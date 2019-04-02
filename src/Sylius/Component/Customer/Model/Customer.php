@@ -9,65 +9,44 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Customer\Model;
 
 use Sylius\Component\Resource\Model\TimestampableTrait;
 
-/**
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 class Customer implements CustomerInterface
 {
     use TimestampableTrait;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string|null */
     protected $email;
 
-    /**
-     * @var string
-     */
+    /** @var string|null */
     protected $emailCanonical;
 
-    /**
-     * @var string
-     */
+    /** @var string|null */
     protected $firstName;
 
-    /**
-     * @var string
-     */
+    /** @var string|null */
     protected $lastName;
 
-    /**
-     * @var \DateTime
-     */
+    /** @var \DateTimeInterface|null */
     protected $birthday;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $gender = CustomerInterface::UNKNOWN_GENDER;
 
-    /**
-     * @var CustomerGroupInterface
-     */
+    /** @var CustomerGroupInterface|null */
     protected $group;
 
-    /**
-     * @var string
-     */
+    /** @var string|null */
     protected $phoneNumber;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $subscribedToNewsletter = false;
 
     public function __construct()
@@ -75,12 +54,9 @@ class Customer implements CustomerInterface
         $this->createdAt = new \DateTime();
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->getEmail();
+        return (string) $this->getEmail();
     }
 
     /**
@@ -94,7 +70,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function getEmail()
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -102,7 +78,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function setEmail($email)
+    public function setEmail(?string $email): void
     {
         $this->email = $email;
     }
@@ -110,7 +86,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function getEmailCanonical()
+    public function getEmailCanonical(): ?string
     {
         return $this->emailCanonical;
     }
@@ -118,7 +94,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function setEmailCanonical($emailCanonical)
+    public function setEmailCanonical(?string $emailCanonical): void
     {
         $this->emailCanonical = $emailCanonical;
     }
@@ -126,7 +102,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function getFullName()
+    public function getFullName(): string
     {
         return trim(sprintf('%s %s', $this->firstName, $this->lastName));
     }
@@ -134,7 +110,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function getFirstName()
+    public function getFirstName(): ?string
     {
         return $this->firstName;
     }
@@ -142,7 +118,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function setFirstName($firstName)
+    public function setFirstName(?string $firstName): void
     {
         $this->firstName = $firstName;
     }
@@ -150,7 +126,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function getLastName()
+    public function getLastName(): ?string
     {
         return $this->lastName;
     }
@@ -158,7 +134,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function setLastName($lastName)
+    public function setLastName(?string $lastName): void
     {
         $this->lastName = $lastName;
     }
@@ -166,7 +142,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function getBirthday()
+    public function getBirthday(): ?\DateTimeInterface
     {
         return $this->birthday;
     }
@@ -174,7 +150,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function setBirthday(\DateTime $birthday = null)
+    public function setBirthday(?\DateTimeInterface $birthday): void
     {
         $this->birthday = $birthday;
     }
@@ -182,7 +158,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function getGender()
+    public function getGender(): string
     {
         return $this->gender;
     }
@@ -190,7 +166,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function setGender($gender)
+    public function setGender(?string $gender): void
     {
         $this->gender = $gender;
     }
@@ -198,7 +174,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function isMale()
+    public function isMale(): bool
     {
         return CustomerInterface::MALE_GENDER === $this->gender;
     }
@@ -206,7 +182,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function isFemale()
+    public function isFemale(): bool
     {
         return CustomerInterface::FEMALE_GENDER === $this->gender;
     }
@@ -214,7 +190,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function getGroup()
+    public function getGroup(): ?CustomerGroupInterface
     {
         return $this->group;
     }
@@ -222,7 +198,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function setGroup(CustomerGroupInterface $group = null)
+    public function setGroup(?CustomerGroupInterface $group): void
     {
         $this->group = $group;
     }
@@ -230,7 +206,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function getPhoneNumber()
+    public function getPhoneNumber(): ?string
     {
         return $this->phoneNumber;
     }
@@ -238,7 +214,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function setPhoneNumber($phoneNumber)
+    public function setPhoneNumber(?string $phoneNumber): void
     {
         $this->phoneNumber = $phoneNumber;
     }
@@ -246,7 +222,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function isSubscribedToNewsletter()
+    public function isSubscribedToNewsletter(): bool
     {
         return $this->subscribedToNewsletter;
     }
@@ -254,7 +230,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function setSubscribedToNewsletter($subscribedToNewsletter)
+    public function setSubscribedToNewsletter(bool $subscribedToNewsletter): void
     {
         $this->subscribedToNewsletter = $subscribedToNewsletter;
     }

@@ -9,34 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\InventoryBundle\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 final class InStock extends Constraint
 {
-    /**
-     * @var string
-     */
-    public $message = '%stockable% does not have sufficient stock.';
+    /** @var string */
+    public $message = 'sylius.cart_item.not_available';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $stockablePath = 'stockable';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $quantityPath = 'quantity';
 
     /**
      * {@inheritdoc}
      */
-    public function validatedBy()
+    public function validatedBy(): string
     {
         return 'sylius_in_stock';
     }
@@ -44,7 +37,7 @@ final class InStock extends Constraint
     /**
      * {@inheritdoc}
      */
-    public function getTargets()
+    public function getTargets(): string
     {
         return self::CLASS_CONSTRAINT;
     }

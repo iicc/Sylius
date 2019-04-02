@@ -9,32 +9,30 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Distributor;
 
 use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class ProportionalIntegerDistributor implements ProportionalIntegerDistributorInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function distribute(array $integers, $amount)
+    public function distribute(array $integers, int $amount): array
     {
         Assert::allInteger($integers);
-        Assert::integer($amount);
 
         $total = array_sum($integers);
         $distributedAmounts = [];
 
         foreach ($integers as $element) {
-            $distributedAmounts[] = (int) round(($element * $amount) / $total, 0, PHP_ROUND_HALF_DOWN);
+            $distributedAmounts[] = (int) round(($element * $amount) / $total, 0, \PHP_ROUND_HALF_DOWN);
         }
 
         $missingAmount = $amount - array_sum($distributedAmounts);
-        for ($i = 0; $i < abs($missingAmount); $i++) {
+        for ($i = 0, $iMax = abs($missingAmount); $i < $iMax; ++$i) {
             $distributedAmounts[$i] += $missingAmount >= 0 ? 1 : -1;
         }
 

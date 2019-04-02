@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
@@ -16,54 +18,44 @@ use Sylius\Behat\Page\Admin\Crud\IndexPageInterface;
 use Sylius\Behat\Page\Admin\ProductAttribute\CreatePageInterface;
 use Sylius\Behat\Page\Admin\ProductAttribute\UpdatePageInterface;
 use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
+use Sylius\Behat\Service\SharedSecurityServiceInterface;
+use Sylius\Component\Core\Model\AdminUserInterface;
 use Sylius\Component\Product\Model\ProductAttributeInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class ManagingProductAttributesContext implements Context
 {
-    /**
-     * @var CreatePageInterface
-     */
+    /** @var CreatePageInterface */
     private $createPage;
 
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $updatePage;
 
-    /**
-     * @var CurrentPageResolverInterface
-     */
+    /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
-    /**
-     * @param CreatePageInterface $createPage
-     * @param IndexPageInterface $indexPage
-     * @param UpdatePageInterface $updatePage
-     * @param CurrentPageResolverInterface $currentPageResolver
-     */
+    /** @var SharedSecurityServiceInterface */
+    private $sharedSecurityService;
+
     public function __construct(
         CreatePageInterface $createPage,
         IndexPageInterface $indexPage,
         UpdatePageInterface $updatePage,
-        CurrentPageResolverInterface $currentPageResolver
+        CurrentPageResolverInterface $currentPageResolver,
+        SharedSecurityServiceInterface $sharedSecurityService
     ) {
         $this->createPage = $createPage;
         $this->indexPage = $indexPage;
         $this->updatePage = $updatePage;
         $this->currentPageResolver = $currentPageResolver;
+        $this->sharedSecurityService = $sharedSecurityService;
     }
 
     /**
-     * @Given I want to create a new :type product attribute
+     * @When I want to create a new :type product attribute
      */
     public function iWantToCreateANewTextProductAttribute($type)
     {
@@ -76,7 +68,7 @@ final class ManagingProductAttributesContext implements Context
      */
     public function iSpecifyItsCodeAs($code = null)
     {
-        $this->createPage->specifyCode($code);
+        $this->createPage->specifyCode($code ?? '');
     }
 
     /**
@@ -97,16 +89,40 @@ final class ManagingProductAttributesContext implements Context
     }
 
     /**
+     * @When I( also) add value :value in :localeCode
+     */
+    public function iAddValue(string $value, string $localeCode): void
+    {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
+
+        $currentPage->addAttributeValue($value, $localeCode);
+    }
+
+    /**
+     * @When I delete value :value
+     */
+    public function iDeleteValue(string $value): void
+    {
+        $this->updatePage->deleteAttributeValue($value);
+    }
+
+    /**
+     * @When I change its value :oldValue to :newValue
+     */
+    public function iChangeItsValueTo(string $oldValue, string $newValue): void
+    {
+        $this->updatePage->changeAttributeValue($oldValue, $newValue);
+    }
+
+    /**
      * @Then I should see the product attribute :name in the list
      */
     public function iShouldSeeTheProductAttributeInTheList($name)
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['name' => $name]),
-            sprintf('The product attribute with name %s should appear on page, but it does not.', $name)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $name]));
     }
 
     /**
@@ -116,13 +132,10 @@ final class ManagingProductAttributesContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceWithSpecificElementOnPage(
-                ['name' => $name],
-                sprintf('td span.ui.label:contains("%s")', $type)
-            ),
-            sprintf('The product attribute with name %s and type %s should appear on page, but it does not.', $name, $type)
-        );
+        Assert::true($this->indexPage->isSingleResourceWithSpecificElementOnPage(
+            ['name' => $name],
+            sprintf('td span.ui.label:contains("%s")', $type)
+        ));
     }
 
     /**
@@ -134,7 +147,7 @@ final class ManagingProductAttributesContext implements Context
     }
 
     /**
-     * @When I change it name to :name in :language
+     * @When I change its name to :name in :language
      */
     public function iChangeItNameToIn($name, $language)
     {
@@ -155,10 +168,7 @@ final class ManagingProductAttributesContext implements Context
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeDisabled(),
-            'Code field should be disabled, but it does not.'
-        );
+        Assert::true($this->updatePage->isCodeDisabled());
     }
 
     /**
@@ -166,12 +176,10 @@ final class ManagingProductAttributesContext implements Context
      */
     public function theTypeFieldShouldBeDisabled()
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
-        Assert::true(
-            $currentPage->isTypeDisabled(),
-            'Type field should be disabled, but it does not.'
-        );
+        Assert::true($currentPage->isTypeDisabled());
     }
 
     /**
@@ -183,16 +191,13 @@ final class ManagingProductAttributesContext implements Context
     }
 
     /**
-     * @Given there should still be only one product attribute with code :code
+     * @Then there should still be only one product attribute with code :code
      */
     public function thereShouldStillBeOnlyOneProductAttributeWithCode($code)
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['code' => $code]),
-            sprintf('There should be only one product attribute with code %s, but it does not.', $code)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['code' => $code]));
     }
 
     /**
@@ -218,10 +223,7 @@ final class ManagingProductAttributesContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage([$elementName => $elementValue]),
-            sprintf('There should not be product attribute with %s %s, but it is.', $elementName, $elementValue)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage([$elementName => $elementValue]));
     }
 
     /**
@@ -233,6 +235,7 @@ final class ManagingProductAttributesContext implements Context
     }
 
     /**
+     * @When I browse product attributes
      * @When I want to see all product attributes in store
      */
     public function iWantToSeeAllProductAttributesInStore()
@@ -241,15 +244,99 @@ final class ManagingProductAttributesContext implements Context
     }
 
     /**
-     * @Then /^I should see (\d+) product attributes in the list$/
+     * @When /^(the administrator) changes (this product attribute)'s value "([^"]*)" to "([^"]*)"$/
      */
-    public function iShouldSeeCustomersInTheList($amountOfProductAttributes)
-    {
-        Assert::same(
-            (int) $amountOfProductAttributes,
-            $this->indexPage->countItems(),
-            sprintf('Amount of product attributes should be equal %s, but is not.', $amountOfProductAttributes)
+    public function theAdministratorChangesThisProductAttributesValueTo(
+        AdminUserInterface $user,
+        ProductAttributeInterface $productAttribute,
+        string $oldValue,
+        string $newValue
+    ): void {
+        $this->sharedSecurityService->performActionAsAdminUser(
+            $user,
+            function () use ($productAttribute, $oldValue, $newValue) {
+                $this->iWantToEditThisAttribute($productAttribute);
+                $this->iChangeItsValueTo($oldValue, $newValue);
+                $this->iSaveMyChanges();
+            }
         );
+    }
+
+    /**
+     * @When I specify its min length as :min
+     * @When I specify its min entries value as :min
+     */
+    public function iSpecifyItsMinValueAs(int $min): void
+    {
+        $this->createPage->specifyMinValue($min);
+    }
+
+    /**
+     * @When I specify its max length as :max
+     * @When I specify its max entries value as :max
+     */
+    public function iSpecifyItsMaxLengthAs(int $max): void
+    {
+        $this->createPage->specifyMaxValue($max);
+    }
+
+    /**
+     * @When I check multiple option
+     */
+    public function iCheckMultipleOption(): void
+    {
+        $this->createPage->checkMultiple();
+    }
+
+    /**
+     * @When I do not check multiple option
+     */
+    public function iDoNotCheckMultipleOption(): void
+    {
+        // Intentionally left blank to fulfill context expectation
+    }
+
+    /**
+     * @When /^(the administrator) deletes the value "([^"]+)" from (this product attribute)$/
+     */
+    public function theAdministratorDeletesTheValueFromThisProductAttribute(
+        AdminUserInterface $user,
+        string $value,
+        ProductAttributeInterface $productAttribute
+    ): void {
+        $this->sharedSecurityService->performActionAsAdminUser(
+            $user,
+            function () use ($productAttribute, $value) {
+                $this->iWantToEditThisAttribute($productAttribute);
+                $this->iDeleteValue($value);
+                $this->iSaveMyChanges();
+            }
+        );
+    }
+
+    /**
+     * @When I check (also) the :productAttributeName product attribute
+     */
+    public function iCheckTheProductAttribute(string $productAttributeName): void
+    {
+        $this->indexPage->checkResourceOnPage(['name' => $productAttributeName]);
+    }
+
+    /**
+     * @When I delete them
+     */
+    public function iDeleteThem(): void
+    {
+        $this->indexPage->bulkDelete();
+    }
+
+    /**
+     * @Then I should see a single product attribute in the list
+     * @Then I should see :amountOfProductAttributes product attributes in the list
+     */
+    public function iShouldSeeCustomersInTheList(int $amountOfProductAttributes = 1): void
+    {
+        Assert::same($this->indexPage->countItems(), $amountOfProductAttributes);
     }
 
     /**
@@ -266,10 +353,7 @@ final class ManagingProductAttributesContext implements Context
      */
     public function thisProductAttributeShouldNoLongerExistInTheRegistry(ProductAttributeInterface $productAttribute)
     {
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage(['code' => $productAttribute->getCode()]),
-            sprintf('Product attribute %s should no exist in the registry, but it does.', $productAttribute->getName())
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage(['code' => $productAttribute->getCode()]));
     }
 
     /**
@@ -277,14 +361,9 @@ final class ManagingProductAttributesContext implements Context
      */
     public function theFirstProductAttributeOnTheListShouldHave($name)
     {
-        $fields = $this->indexPage->getColumnFields('name');
-        $actualName = reset($fields);
+        $names = $this->indexPage->getColumnFields('name');
 
-        Assert::same(
-            $actualName,
-            $name,
-            sprintf('Expected first product attribute\'s name to be "%s", but it is "%s".', $name, $actualName)
-        );
+        Assert::same(reset($names), $name);
     }
 
     /**
@@ -292,25 +371,90 @@ final class ManagingProductAttributesContext implements Context
      */
     public function theLastProductAttributeOnTheListShouldHave($name)
     {
-        $fields = $this->indexPage->getColumnFields('name');
-        $actualName = end($fields);
+        $names = $this->indexPage->getColumnFields('name');
 
-        Assert::same(
-            $actualName,
-            $name,
-            sprintf('Expected last product attribute\'s name to be "%s", but it is "%s".', $name, $actualName)
+        Assert::same(end($names), $name);
+    }
+
+    /**
+     * @Then /^(this product attribute) should have value "([^"]*)"/
+     */
+    public function theSelectAttributeShouldHaveValue(ProductAttributeInterface $productAttribute, string $value): void
+    {
+        $this->iWantToEditThisAttribute($productAttribute);
+
+        Assert::true($this->updatePage->hasAttributeValue($value));
+    }
+
+    /**
+     * @Then I should be notified that max length must be greater or equal to the min length
+     */
+    public function iShouldBeNotifiedThatMaxLengthMustBeGreaterOrEqualToTheMinLength(): void
+    {
+        $this->assertValidationMessage(
+            'Configuration max length must be greater or equal to the min length.'
         );
     }
 
     /**
-     * @param string $element
-     * @param string $expectedMessage
+     * @Then I should be notified that max entries value must be greater or equal to the min entries value
      */
-    private function assertFieldValidationMessage($element, $expectedMessage)
+    public function iShouldBeNotifiedThatMaxEntriesValueMustBeGreaterOrEqualToTheMinEntriesValue(): void
+    {
+        $this->assertValidationMessage(
+            'Configuration max entries value must be greater or equal to the min entries value.'
+        );
+    }
+
+    /**
+     * @Then I should be notified that min entries value must be lower or equal to the number of added choices
+     */
+    public function iShouldBeNotifiedThatMinEntriesValueMustBeLowerOrEqualToTheNumberOfAddedChoices(): void
+    {
+        $this->assertValidationMessage(
+            'Configuration min entries value must be lower or equal to the number of added choices.'
+        );
+    }
+
+    /**
+     * @Then I should be notified that multiple must be true if min or max entries values are specified
+     */
+    public function iShouldBeNotifiedThatMultipleMustBeTrueIfMinOrMaxEntriesValuesAreSpecified(): void
+    {
+        $this->assertValidationMessage(
+            'Configuration multiple must be true if min or max entries values are specified.'
+        );
+    }
+
+    /**
+     * @Then /^(this product attribute) should not have value "([^"]*)"/
+     */
+    public function theSelectAttributeShouldNotHaveValue(ProductAttributeInterface $productAttribute, string $value): void
+    {
+        $this->iWantToEditThisAttribute($productAttribute);
+
+        Assert::false($this->updatePage->hasAttributeValue($value));
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    private function assertFieldValidationMessage(string $element, string $expectedMessage): void
     {
         /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         Assert::same($currentPage->getValidationMessage($element), $expectedMessage);
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    private function assertValidationMessage(string $expectedMessage): void
+    {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
+
+        Assert::same($currentPage->getValidationErrors(), $expectedMessage);
     }
 }

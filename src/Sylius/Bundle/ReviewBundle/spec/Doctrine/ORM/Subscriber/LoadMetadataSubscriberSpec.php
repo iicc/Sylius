@@ -9,24 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\ReviewBundle\Doctrine\ORM\Subscriber;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Sylius\Bundle\ReviewBundle\Doctrine\ORM\Subscriber\LoadMetadataSubscriber;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class LoadMetadataSubscriberSpec extends ObjectBehavior
 {
-    function let()
+    function let(): void
     {
         $this->beConstructedWith([
             'reviewable' => [
@@ -45,28 +42,23 @@ final class LoadMetadataSubscriberSpec extends ObjectBehavior
         ]);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType(LoadMetadataSubscriber::class);
-    }
-
-    function it_implements_event_subscriber()
+    function it_implements_event_subscriber(): void
     {
         $this->shouldImplement(EventSubscriber::class);
     }
 
-    function it_has_subscribed_events()
+    function it_has_subscribed_events(): void
     {
         $this->getSubscribedEvents()->shouldReturn(['loadClassMetadata']);
     }
 
     function it_maps_proper_relations_for_review_model(
         ClassMetadataFactory $metadataFactory,
-        ClassMetadataInfo $classMetadataInfo,
-        ClassMetadataInfo $metadata,
+        ClassMetadata $classMetadataInfo,
+        ClassMetadata $metadata,
         EntityManager $entityManager,
         LoadClassMetadataEventArgs $eventArguments
-    ) {
+    ): void {
         $eventArguments->getClassMetadata()->willReturn($metadata);
         $eventArguments->getEntityManager()->willReturn($entityManager);
         $entityManager->getMetadataFactory()->willReturn($metadataFactory);
@@ -80,25 +72,23 @@ final class LoadMetadataSubscriberSpec extends ObjectBehavior
             'fieldName' => 'reviewSubject',
             'targetEntity' => 'AcmeBundle\Entity\ReviewableModel',
             'inversedBy' => 'reviews',
-            'joinColumns' => [
-                [
-                    'name' => 'reviewable_id',
-                    'referencedColumnName' => 'id',
-                    'nullable' => false,
-                    'onDelete' => 'CASCADE',
-                ],
-            ],
+            'joinColumns' => [[
+                'name' => 'reviewable_id',
+                'referencedColumnName' => 'id',
+                'nullable' => false,
+                'onDelete' => 'CASCADE',
+            ]],
         ])->shouldBeCalled();
 
         $metadata->mapManyToOne([
             'fieldName' => 'author',
             'targetEntity' => 'AcmeBundle\Entity\ReviewerModel',
-            'joinColumn' => [
+            'joinColumns' => [[
                 'name' => 'author_id',
                 'referencedColumnName' => 'id',
                 'nullable' => false,
                 'onDelete' => 'CASCADE',
-            ],
+            ]],
             'cascade' => ['persist'],
         ])->shouldBeCalled();
 
@@ -107,10 +97,10 @@ final class LoadMetadataSubscriberSpec extends ObjectBehavior
 
     function it_maps_proper_relations_for_reviewable_model(
         ClassMetadataFactory $metadataFactory,
-        ClassMetadataInfo $metadata,
+        ClassMetadata $metadata,
         EntityManager $entityManager,
         LoadClassMetadataEventArgs $eventArguments
-    ) {
+    ): void {
         $eventArguments->getClassMetadata()->willReturn($metadata);
         $eventArguments->getEntityManager()->willReturn($entityManager);
         $entityManager->getMetadataFactory()->willReturn($metadataFactory);
@@ -128,10 +118,10 @@ final class LoadMetadataSubscriberSpec extends ObjectBehavior
 
     function it_skips_mapping_configuration_if_metadata_name_is_not_different(
         ClassMetadataFactory $metadataFactory,
-        ClassMetadataInfo $metadata,
+        ClassMetadata $metadata,
         EntityManager $entityManager,
         LoadClassMetadataEventArgs $eventArguments
-    ) {
+    ): void {
         $this->beConstructedWith([
             'reviewable' => [
                 'subject' => 'AcmeBundle\Entity\ReviewableModel',

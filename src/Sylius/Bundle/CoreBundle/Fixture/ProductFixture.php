@@ -9,19 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture;
 
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 class ProductFixture extends AbstractResourceFixture
 {
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'product';
     }
@@ -29,7 +28,7 @@ class ProductFixture extends AbstractResourceFixture
     /**
      * {@inheritdoc}
      */
-    protected function configureResourceNode(ArrayNodeDefinition $resourceNode)
+    protected function configureResourceNode(ArrayNodeDefinition $resourceNode): void
     {
         $resourceNode
             ->children()
@@ -39,12 +38,12 @@ class ProductFixture extends AbstractResourceFixture
                 ->scalarNode('short_description')->cannotBeEmpty()->end()
                 ->scalarNode('description')->cannotBeEmpty()->end()
                 ->scalarNode('main_taxon')->cannotBeEmpty()->end()
-                ->arrayNode('taxons')->prototype('scalar')->end()->end()
-                ->arrayNode('channels')->prototype('scalar')->end()->end()
-                ->arrayNode('product_attributes')->prototype('scalar')->end()->end()
-                ->arrayNode('product_reviews')->prototype('scalar')->end()->end()
-                ->arrayNode('product_options')->prototype('scalar')->end()->end()
-                ->arrayNode('images')->prototype('scalar')->end()->end()
+                ->arrayNode('taxons')->scalarPrototype()->end()->end()
+                ->arrayNode('channels')->scalarPrototype()->end()->end()
+                ->arrayNode('product_attributes')->scalarPrototype()->end()->end()
+                ->arrayNode('product_options')->scalarPrototype()->end()->end()
+                ->arrayNode('images')->variablePrototype()->end()->end()
+                ->booleanNode('shipping_required')->end()
         ;
     }
 }

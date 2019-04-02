@@ -9,21 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Shop\Checkout;
 
 use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return 'sylius_shop_checkout_select_shipping';
     }
@@ -56,6 +56,23 @@ class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterf
         }
 
         return $shippingMethods;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSelectedShippingMethodName(): ?string
+    {
+        $shippingMethods = $this->getSession()->getPage()->findAll('css', '#sylius-shipping-methods .item');
+
+        /** @var NodeElement $shippingMethod */
+        foreach ($shippingMethods as $shippingMethod) {
+            if (null !== $shippingMethod->find('css', 'input:checked')) {
+                return $shippingMethod->find('css', '.content label')->getText();
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -169,7 +186,7 @@ class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterf
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'address' => '.steps a:contains("Address")',
@@ -182,7 +199,7 @@ class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterf
             'shipping_method_fee' => '.item:contains("%shipping_method%") .fee',
             'shipping_method_select' => '.item:contains("%shipping_method%") > .field > .ui.radio.checkbox',
             'shipping_method_option' => '.item:contains("%shipping_method%") input',
-            'warning_no_shipping_methods' => '#sylius-order-cannot-be-shipped'
+            'warning_no_shipping_methods' => '#sylius-order-cannot-be-shipped',
         ]);
     }
 }

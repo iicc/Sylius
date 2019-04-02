@@ -9,21 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Mailer\Renderer\Adapter;
 
 use Sylius\Component\Mailer\Model\EmailInterface;
 use Sylius\Component\Mailer\Renderer\RenderedEmail;
 
-/**
- * @author Jérémy Leherpeur <jeremy@leherpeur.net>
- */
 interface AdapterInterface
 {
-    /**
-     * @param EmailInterface $email
-     * @param array $data
-     *
-     * @return RenderedEmail
-     */
-    public function render(EmailInterface $email, array $data = []);
+    public function render(EmailInterface $email, array $data = []): RenderedEmail;
 }

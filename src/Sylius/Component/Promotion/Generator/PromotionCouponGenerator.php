@@ -9,46 +9,32 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Generator;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Sylius\Component\Promotion\Exception\FailedGenerationException;
+use Sylius\Component\Promotion\Model\PromotionCouponInterface;
 use Sylius\Component\Promotion\Model\PromotionInterface;
 use Sylius\Component\Promotion\Repository\PromotionCouponRepositoryInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class PromotionCouponGenerator implements PromotionCouponGeneratorInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $couponFactory;
 
-    /**
-     * @var PromotionCouponRepositoryInterface
-     */
+    /** @var PromotionCouponRepositoryInterface */
     private $couponRepository;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $objectManager;
 
-    /**
-     * @var GenerationPolicyInterface
-     */
+    /** @var GenerationPolicyInterface */
     private $generationPolicy;
 
-    /**
-     * @param FactoryInterface $couponFactory
-     * @param PromotionCouponRepositoryInterface $couponRepository
-     * @param ObjectManager $objectManager
-     * @param GenerationPolicyInterface $generationPolicy
-     */
     public function __construct(
         FactoryInterface $couponFactory,
         PromotionCouponRepositoryInterface $couponRepository,
@@ -64,13 +50,15 @@ final class PromotionCouponGenerator implements PromotionCouponGeneratorInterfac
     /**
      * {@inheritdoc}
      */
-    public function generate(PromotionInterface $promotion, PromotionCouponGeneratorInstructionInterface $instruction)
+    public function generate(PromotionInterface $promotion, PromotionCouponGeneratorInstructionInterface $instruction): array
     {
         $generatedCoupons = [];
 
         $this->assertGenerationIsPossible($instruction);
         for ($i = 0, $amount = $instruction->getAmount(); $i < $amount; ++$i) {
             $code = $this->generateUniqueCode($instruction->getCodeLength(), $generatedCoupons);
+
+            /** @var PromotionCouponInterface $coupon */
             $coupon = $this->couponFactory->createNew();
             $coupon->setPromotion($promotion);
             $coupon->setCode($code);
@@ -88,32 +76,21 @@ final class PromotionCouponGenerator implements PromotionCouponGeneratorInterfac
     }
 
     /**
-     * @param int $codeLength
-     * @param array $generatedCoupons
-     *
-     * @return string
-     *
      * @throws \InvalidArgumentException
      */
-    private function generateUniqueCode($codeLength, array $generatedCoupons)
+    private function generateUniqueCode(int $codeLength, array $generatedCoupons): string
     {
         Assert::nullOrRange($codeLength, 1, 40, 'Invalid %d code length should be between %d and %d');
 
         do {
-            $hash = sha1(microtime(true));
+            $hash = bin2hex(random_bytes(20));
             $code = strtoupper(substr($hash, 0, $codeLength));
         } while ($this->isUsedCode($code, $generatedCoupons));
 
         return $code;
     }
 
-    /**
-     * @param string $code
-     * @param array $generatedCoupons
-     *
-     * @return bool
-     */
-    private function isUsedCode($code, array $generatedCoupons)
+    private function isUsedCode(string $code, array $generatedCoupons): bool
     {
         if (isset($generatedCoupons[$code])) {
             return true;
@@ -123,11 +100,9 @@ final class PromotionCouponGenerator implements PromotionCouponGeneratorInterfac
     }
 
     /**
-     * @param PromotionCouponGeneratorInstructionInterface $instruction
-     *
      * @throws FailedGenerationException
      */
-    private function assertGenerationIsPossible(PromotionCouponGeneratorInstructionInterface $instruction)
+    private function assertGenerationIsPossible(PromotionCouponGeneratorInstructionInterface $instruction): void
     {
         if (!$this->generationPolicy->isGenerationPossible($instruction)) {
             throw new FailedGenerationException($instruction);

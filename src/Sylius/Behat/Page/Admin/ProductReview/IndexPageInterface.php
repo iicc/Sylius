@@ -9,22 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\ProductReview;
 
 use Sylius\Behat\Page\Admin\Crud\IndexPageInterface as BaseIndexPageInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 interface IndexPageInterface extends BaseIndexPageInterface
 {
-    /**
-     * @param array $parameters
-     */
-    public function accept(array $parameters);
+    public function accept(array $parameters): void;
 
-    /**
-     * @param array $parameters
-     */
-    public function reject(array $parameters);
+    public function reject(array $parameters): void;
 }

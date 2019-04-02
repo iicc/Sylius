@@ -9,13 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Shop\Order;
 
-use Sylius\Behat\Page\SymfonyPageInterface;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface ShowPageInterface extends SymfonyPageInterface
 {
     /**
@@ -34,4 +33,6 @@ interface ShowPageInterface extends SymfonyPageInterface
      * @return string[]
      */
     public function getNotifications();
+
+    public function getNumberOfItems(): int;
 }

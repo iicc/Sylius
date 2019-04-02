@@ -9,35 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Addressing\Matcher;
 
-use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Addressing\Model\AddressInterface;
 use Sylius\Component\Addressing\Model\ZoneInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
 interface ZoneMatcherInterface
 {
     /**
      * Returns the best matching zone for given address.
-     *
-     * @param AddressInterface $address
-     * @param string|null      $scope
-     *
-     * @return ZoneInterface|null
      */
-    public function match(AddressInterface $address, $scope = null);
+    public function match(AddressInterface $address, ?string $scope = null): ?ZoneInterface;
 
     /**
      * Returns all matching zones for given address.
      *
-     * @param AddressInterface $address
-     * @param string|null      $scope
      *
-     * @return Collection|ZoneInterface[]
+     * @return array|ZoneInterface[]
      */
-    public function matchAll(AddressInterface $address, $scope = null);
+    public function matchAll(AddressInterface $address, ?string $scope = null): array;
 }

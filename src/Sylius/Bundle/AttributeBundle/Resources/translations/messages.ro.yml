@@ -8,7 +8,7 @@ sylius:
             add_attributes: Adaugă atribut
             choices: Opțiuni
             code: Cod
-            name: Nume
+            name: Nume produs
             translations: Traduceri
             type: Tip
         attribute_type:
@@ -18,8 +18,9 @@ sylius:
             datetime: Dată și Oră
             integer: Număr întreg
             percent: Procentaj
+            select: Selectaţi
             text: Text
-            textarea: Zonă de text
+            textarea: Text lung
             title: Tipuri de atribut
             validation: Validare
         attribute_type_configuration:
@@ -27,6 +28,12 @@ sylius:
                 format: Format
             date:
                 format: Format
+            select:
+                multiple: Multiple
+                values: Valori
+                choose: Alege o opțiune
+                min: Intrări minime
+                max: Intrări maxime
             text:
                 min: Lungime minimă
                 max: Lungime maximă

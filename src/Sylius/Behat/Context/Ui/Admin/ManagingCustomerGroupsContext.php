@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
@@ -18,31 +20,17 @@ use Sylius\Behat\Page\Admin\CustomerGroup\UpdatePageInterface;
 use Sylius\Component\Customer\Model\CustomerGroupInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class ManagingCustomerGroupsContext implements Context
 {
-    /**
-     * @var CreatePageInterface
-     */
+    /** @var CreatePageInterface */
     private $createPage;
 
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $updatePage;
 
-    /**
-     * @param CreatePageInterface $createPage
-     * @param IndexPageInterface $indexPage
-     * @param UpdatePageInterface $updatePage
-     */
     public function __construct(
         CreatePageInterface $createPage,
         IndexPageInterface $indexPage,
@@ -67,7 +55,7 @@ final class ManagingCustomerGroupsContext implements Context
      */
     public function iSpecifyItsCodeAs($code = null)
     {
-        $this->createPage->specifyCode($code);
+        $this->createPage->specifyCode($code ?? '');
     }
 
     /**
@@ -76,7 +64,7 @@ final class ManagingCustomerGroupsContext implements Context
      */
     public function iSpecifyItsNameAs($name = null)
     {
-        $this->createPage->nameIt($name);
+        $this->createPage->nameIt($name ?? '');
     }
 
     /**
@@ -95,10 +83,7 @@ final class ManagingCustomerGroupsContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['name' => $customerGroup->getName()]),
-            sprintf('Customer group with name %s should exist but it does not.', $customerGroup->getName())
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $customerGroup->getName()]));
     }
 
     /**
@@ -119,21 +104,34 @@ final class ManagingCustomerGroupsContext implements Context
     }
 
     /**
+     * @When I check (also) the :customerGroupName customer group
+     */
+    public function iCheckTheCustomerGroup(string $customerGroupName): void
+    {
+        $this->indexPage->checkResourceOnPage(['name' => $customerGroupName]);
+    }
+
+    /**
+     * @When I delete them
+     */
+    public function iDeleteThem(): void
+    {
+        $this->indexPage->bulkDelete();
+    }
+
+    /**
      * @Then this customer group with name :name should appear in the store
      * @Then I should see the customer group :name in the list
-     *
      */
     public function thisCustomerGroupWithNameShouldAppearInTheStore($name)
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['name' => $name]),
-            sprintf('The customer group with a name %s should exist, but it does not.', $name)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $name]));
     }
 
     /**
+     * @When I browse customer groups
      * @When I want to browse customer groups
      */
     public function iWantToBrowseCustomerGroups()
@@ -142,21 +140,14 @@ final class ManagingCustomerGroupsContext implements Context
     }
 
     /**
-     * @Then /^I should see (\d+) customer groups in the list$/
+     * @Then I should see a single customer group in the list
+     * @Then I should see :amountOfCustomerGroups customer groups in the list
      */
-    public function iShouldSeeCustomerGroupsInTheList($amountOfCustomerGroups)
+    public function iShouldSeeCustomerGroupsInTheList(int $amountOfCustomerGroups = 1): void
     {
         $this->indexPage->open();
 
-        Assert::same(
-            (int) $amountOfCustomerGroups,
-            $this->indexPage->countItems(),
-            sprintf(
-                'Amount of customer groups should be equal %s, but is %s.',
-                $amountOfCustomerGroups,
-                $this->indexPage->countItems()
-            )
-        );
+        Assert::same($this->indexPage->countItems(), (int) $amountOfCustomerGroups);
     }
 
     /**
@@ -166,10 +157,7 @@ final class ManagingCustomerGroupsContext implements Context
     {
         $this->iWantToBrowseCustomerGroups();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['name' => $customerGroup->getName()]),
-            sprintf('Customer group name %s has not been assigned properly.', $customerGroupName)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $customerGroupName]));
     }
 
     /**
@@ -196,10 +184,7 @@ final class ManagingCustomerGroupsContext implements Context
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeDisabled(),
-            'Code field should be disabled but it is not.'
-        );
+        Assert::true($this->updatePage->isCodeDisabled());
     }
 
     /**

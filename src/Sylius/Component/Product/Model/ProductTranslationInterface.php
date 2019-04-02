@@ -9,53 +9,29 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\SlugAwareInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-/**
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
-interface ProductTranslationInterface extends SlugAwareInterface, ResourceInterface
+interface ProductTranslationInterface extends SlugAwareInterface, ResourceInterface, TranslationInterface
 {
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getName(): ?string;
 
-    /**
-     * @param string $name
-     */
-    public function setName($name);
+    public function setName(?string $name): void;
 
-    /**
-     * @return string
-     */
-    public function getDescription();
+    public function getDescription(): ?string;
 
-    /**
-     * @param string $description
-     */
-    public function setDescription($description);
+    public function setDescription(?string $description): void;
 
-    /**
-     * @return string
-     */
-    public function getMetaKeywords();
+    public function getMetaKeywords(): ?string;
 
-    /**
-     * @param string $metaKeywords
-     */
-    public function setMetaKeywords($metaKeywords);
+    public function setMetaKeywords(?string $metaKeywords): void;
 
-    /**
-     * @return string
-     */
-    public function getMetaDescription();
+    public function getMetaDescription(): ?string;
 
-    /**
-     * @param string $metaDescription
-     */
-    public function setMetaDescription($metaDescription);
+    public function setMetaDescription(?string $metaDescription): void;
 }

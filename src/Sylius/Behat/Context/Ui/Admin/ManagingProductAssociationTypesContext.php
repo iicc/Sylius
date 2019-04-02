@@ -9,47 +9,32 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
-use Sylius\Behat\Page\Admin\ProductAssociationType\IndexPageInterface;
 use Sylius\Behat\Page\Admin\ProductAssociationType\CreatePageInterface;
+use Sylius\Behat\Page\Admin\ProductAssociationType\IndexPageInterface;
 use Sylius\Behat\Page\Admin\ProductAssociationType\UpdatePageInterface;
 use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Component\Product\Model\ProductAssociationTypeInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class ManagingProductAssociationTypesContext implements Context
 {
-    /**
-     * @var CreatePageInterface
-     */
+    /** @var CreatePageInterface */
     private $createPage;
 
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $updatePage;
 
-    /**
-     * @var CurrentPageResolverInterface
-     */
+    /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
-    /**
-     * @param CreatePageInterface $createPage
-     * @param IndexPageInterface $indexPage
-     * @param UpdatePageInterface $updatePage
-     * @param CurrentPageResolverInterface $currentPageResolver
-     */
     public function __construct(
         CreatePageInterface $createPage,
         IndexPageInterface $indexPage,
@@ -63,6 +48,7 @@ final class ManagingProductAssociationTypesContext implements Context
     }
 
     /**
+     * @When I browse product association types
      * @When I want to browse product association types
      */
     public function iWantToBrowseProductAssociationTypes()
@@ -108,7 +94,7 @@ final class ManagingProductAssociationTypesContext implements Context
      */
     public function iRenameItToInLanguage($name = null, $language)
     {
-        $this->updatePage->nameItIn($name, $language);
+        $this->updatePage->nameItIn($name ?? '', $language);
     }
 
     /**
@@ -117,7 +103,7 @@ final class ManagingProductAssociationTypesContext implements Context
      */
     public function iSpecifyItsCodeAs($code = null)
     {
-        $this->createPage->specifyCode($code);
+        $this->createPage->specifyCode($code ?? '');
     }
 
     /**
@@ -152,6 +138,22 @@ final class ManagingProductAssociationTypesContext implements Context
     }
 
     /**
+     * @When I check (also) the :productAssociationTypeName product association type
+     */
+    public function iCheckTheProductAssociationType(string $productAssociationTypeName): void
+    {
+        $this->indexPage->checkResourceOnPage(['name' => $productAssociationTypeName]);
+    }
+
+    /**
+     * @When I delete them
+     */
+    public function iDeleteThem(): void
+    {
+        $this->indexPage->bulkDelete();
+    }
+
+    /**
      * @When /^I filter product association types with (code|name) containing "([^"]+)"/
      */
     public function iFilterProductAssociationTypesWithFieldContaining($field, $value)
@@ -163,30 +165,23 @@ final class ManagingProductAssociationTypesContext implements Context
     }
 
     /**
-     * @Then I should see :amount product association types in the list
+     * @Then I should see a single product association type in the list
      * @Then I should see only one product association type in the list
+     * @Then I should see :amount product association types in the list
      */
     public function iShouldSeeProductAssociationTypesInTheList($amount = 1)
     {
-        Assert::same(
-            (int) $amount,
-            $this->indexPage->countItems(),
-            sprintf('Amount of product association types should be equal %s, but is not.', $amount)
-        );
+        Assert::same($this->indexPage->countItems(), (int) $amount);
     }
 
     /**
      * @Then I should see the product association type :name in the list
-     *
      */
     public function iShouldSeeTheProductAssociationTypeInTheList($name)
     {
         $this->iWantToBrowseProductAssociationTypes();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['name' => $name]),
-            sprintf('The product association type with a name %s should exist, but it does not.', $name)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $name]));
     }
 
     /**
@@ -196,13 +191,7 @@ final class ManagingProductAssociationTypesContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['name' => $productAssociationType->getName()]),
-            sprintf(
-                'Product association type with name %s should exist but it does not.',
-                $productAssociationType->getName()
-            )
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $productAssociationType->getName()]));
     }
 
     /**
@@ -215,15 +204,10 @@ final class ManagingProductAssociationTypesContext implements Context
     ) {
         $this->iWantToBrowseProductAssociationTypes();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(
-                [
-                    'code' => $productAssociationType->getCode(),
-                    'name' => $productAssociationTypeName,
-                ]
-            ),
-            sprintf('Product association type name %s has not been assigned properly.', $productAssociationTypeName)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([
+            'code' => $productAssociationType->getCode(),
+            'name' => $productAssociationTypeName,
+        ]));
     }
 
     /**
@@ -231,10 +215,7 @@ final class ManagingProductAssociationTypesContext implements Context
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeDisabled(),
-            'Code field should be disabled'
-        );
+        Assert::true($this->updatePage->isCodeDisabled());
     }
 
     /**
@@ -243,16 +224,10 @@ final class ManagingProductAssociationTypesContext implements Context
     public function thisProductAssociationTypeShouldNoLongerExistInTheRegistry(
         ProductAssociationTypeInterface $productAssociationType
     ) {
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage([
-                'code' => $productAssociationType->getCode(),
-                'name' => $productAssociationType->getName()]
-            ),
-            sprintf(
-                'Product association type %s should no longer exist in the registry',
-                $productAssociationType->getName()
-            )
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage([
+            'code' => $productAssociationType->getCode(),
+            'name' => $productAssociationType->getName(),
+        ]));
     }
 
     /**
@@ -273,10 +248,7 @@ final class ManagingProductAssociationTypesContext implements Context
     {
         $this->iWantToBrowseProductAssociationTypes();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage([$element => $code]),
-            sprintf('Association type with %s %s cannot be found.', $element, $code)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([$element => $code]));
     }
 
     /**
@@ -284,10 +256,7 @@ final class ManagingProductAssociationTypesContext implements Context
      */
     public function iShouldBeNotifiedThatIsRequired($element)
     {
-        $this->assertFieldValidationMessage(
-            $element,
-            sprintf('Please enter association type %s.', $element)
-        );
+        $this->assertFieldValidationMessage($element, sprintf('Please enter association type %s.', $element));
     }
 
     /**
@@ -297,10 +266,7 @@ final class ManagingProductAssociationTypesContext implements Context
     {
         $this->iWantToBrowseProductAssociationTypes();
 
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage([$element => $value]),
-            sprintf('Product association type with %s %s was created, but it should not.', $element, $value)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage([$element => $value]));
     }
 
     /**

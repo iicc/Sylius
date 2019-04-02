@@ -9,24 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Tests\Fixture;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Matthias\SymfonyConfigTest\PhpUnit\ConfigurationTestCaseTrait;
+use PHPUnit\Framework\TestCase;
 use Sylius\Bundle\CoreBundle\Fixture\ChannelFixture;
 use Sylius\Bundle\CoreBundle\Fixture\Factory\ExampleFactoryInterface;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
-final class ChannelFixtureTest extends \PHPUnit_Framework_TestCase
+final class ChannelFixtureTest extends TestCase
 {
     use ConfigurationTestCaseTrait;
 
     /**
      * @test
      */
-    public function channels_are_optional()
+    public function channels_are_optional(): void
     {
         $this->assertConfigurationIsValid([[]], 'custom');
     }
@@ -34,7 +34,7 @@ final class ChannelFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function channels_can_be_generated_randomly()
+    public function channels_can_be_generated_randomly(): void
     {
         $this->assertConfigurationIsValid([['random' => 4]], 'random');
         $this->assertPartialConfigurationIsInvalid([['random' => -1]], 'random');
@@ -43,7 +43,7 @@ final class ChannelFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function channel_code_is_optional()
+    public function channel_code_is_optional(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['code' => 'CUSTOM']]]], 'custom.*.code');
     }
@@ -51,7 +51,7 @@ final class ChannelFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function channel_hostname_is_optional()
+    public function channel_hostname_is_optional(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['hostname' => 'custom.localhost']]]], 'custom.*.hostname');
     }
@@ -59,7 +59,7 @@ final class ChannelFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function channel_color_is_optional()
+    public function channel_color_is_optional(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['color' => 'pink']]]], 'custom.*.color');
     }
@@ -67,7 +67,7 @@ final class ChannelFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function channel_may_be_toggled()
+    public function channel_may_be_toggled(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['enabled' => false]]]], 'custom.*.enabled');
     }
@@ -75,7 +75,7 @@ final class ChannelFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function channel_locales_are_optional()
+    public function channel_locales_are_optional(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['locales' => ['en_US', 'pl_PL']]]]], 'custom.*.locales');
     }
@@ -83,7 +83,7 @@ final class ChannelFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function channel_currencies_are_optional()
+    public function channel_currencies_are_optional(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['currencies' => ['USD', 'PLN']]]]], 'custom.*.currencies');
     }
@@ -91,7 +91,7 @@ final class ChannelFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function channel_contact_email_is_optional()
+    public function channel_contact_email_is_optional(): void
     {
         $this->assertConfigurationIsValid(
             [['custom' => [['contact_email' => 'contact@example.com']]]],
@@ -100,9 +100,17 @@ final class ChannelFixtureTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @test
+     */
+    public function authentication_required_may_be_toggled(): void
+    {
+        $this->assertConfigurationIsValid([['custom' => [['account_verification_required' => false]]]], 'custom.*.account_verification_required');
+    }
+
+    /**
      * {@inheritdoc}
      */
-    protected function getConfiguration()
+    protected function getConfiguration(): ChannelFixture
     {
         return new ChannelFixture(
             $this->getMockBuilder(ObjectManager::class)->getMock(),

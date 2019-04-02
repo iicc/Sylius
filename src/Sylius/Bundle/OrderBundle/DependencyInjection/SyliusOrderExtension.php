@@ -9,33 +9,45 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\OrderBundle\DependencyInjection;
 
+use Sylius\Bundle\OrderBundle\DependencyInjection\Compiler\RegisterCartContextsPass;
+use Sylius\Bundle\OrderBundle\DependencyInjection\Compiler\RegisterProcessorsPass;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
+use Sylius\Component\Order\Context\CartContextInterface;
+use Sylius\Component\Order\Processor\OrderProcessorInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class SyliusOrderExtension extends AbstractResourceExtension
 {
     /**
      * {@inheritdoc}
      */
-    public function load(array $config, ContainerBuilder $container)
+    public function load(array $config, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+
+        $loader->load(sprintf('services/integrations/%s.xml', $config['driver']));
 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
 
         $loader->load('services.xml');
-        $loader->load(sprintf('services/integrations/%s.xml', $config['driver']));
 
         $container->setParameter('sylius_order.cart_expiration_period', $config['expiration']['cart']);
         $container->setParameter('sylius_order.order_expiration_period', $config['expiration']['order']);
+
+        $container
+            ->registerForAutoconfiguration(CartContextInterface::class)
+            ->addTag(RegisterCartContextsPass::CART_CONTEXT_SERVICE_TAG)
+        ;
+        $container
+            ->registerForAutoconfiguration(OrderProcessorInterface::class)
+            ->addTag(RegisterProcessorsPass::PROCESSOR_SERVICE_TAG)
+        ;
     }
 }

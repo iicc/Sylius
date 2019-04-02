@@ -9,40 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Currency;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
-    public function enable();
-    public function disable();
+    public function enable(): void;
 
-    /**
-     * @return bool
-     */
-    public function canBeDisabled();
+    public function disable(): void;
 
-    /**
-     * @return bool
-     */
-    public function canHaveExchangeRateChanged();
+    public function canBeDisabled(): bool;
 
-    /**
-     * @param string $exchangeRate
-     */
-    public function changeExchangeRate($exchangeRate);
+    public function canHaveExchangeRateChanged(): bool;
 
-    /**
-     * @return string
-     */
-    public function getExchangeRateValue();
+    public function changeExchangeRate(string $exchangeRate): void;
 
-    /**
-     * @return string
-     */
-    public function getCodeDisabledAttribute();
+    public function getExchangeRateValue(): string;
+
+    public function getCodeDisabledAttribute(): string;
 }

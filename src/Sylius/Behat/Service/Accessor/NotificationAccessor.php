@@ -9,28 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Service\Accessor;
 
-use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Session;
-use Sylius\Behat\NotificationType;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class NotificationAccessor implements NotificationAccessorInterface
 {
-    const NOTIFICATION_ELEMENT_CSS = '.message';
-
-    /**
-     * @var Session
-     */
+    /** @var Session */
     private $session;
 
-    /**
-     * @param Session $session
-     */
     public function __construct(Session $session)
     {
         $this->session = $session;
@@ -39,40 +29,14 @@ final class NotificationAccessor implements NotificationAccessorInterface
     /**
      * {@inheritdoc}
      */
-    public function getMessage()
+    public function getMessageElements(): array
     {
-        return $this->getMessageElement()->getText();
-    }
+        $messageElements = $this->session->getPage()->findAll('css', '.sylius-flash-message');
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getType()
-    {
-        if ($this->getMessageElement()->hasClass('positive')) {
-            return NotificationType::success();
+        if (empty($messageElements)) {
+            throw new ElementNotFoundException($this->session->getDriver(), 'message element', 'css', '.sylius-flash-message');
         }
 
-        if ($this->getMessageElement()->hasClass('negative')) {
-            return NotificationType::failure();
-        }
-
-        throw new \RuntimeException('Cannot resolve notification type');
-    }
-
-    /**
-     * @return NodeElement
-     *
-     * @throws ElementNotFoundException
-     */
-    private function getMessageElement()
-    {
-        $messageElement = $this->session->getPage()->find('css', self::NOTIFICATION_ELEMENT_CSS);
-
-        if (null === $messageElement) {
-            throw new ElementNotFoundException($this->session->getDriver(), 'message element', 'css', self::NOTIFICATION_ELEMENT_CSS);
-        }
-
-        return $messageElement;
+        return $messageElements;
     }
 }

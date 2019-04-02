@@ -9,32 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Service\Resolver;
 
 use Behat\Mink\Session;
-use Sylius\Behat\Page\SymfonyPageInterface;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class CurrentPageResolver implements CurrentPageResolverInterface
 {
-    /**
-     * @var Session
-     */
+    /** @var Session */
     private $session;
 
-    /**
-     * @var UrlMatcherInterface
-     */
+    /** @var UrlMatcherInterface */
     private $urlMatcher;
 
-    /**
-     * @param Session $session
-     * @param UrlMatcherInterface $urlMatcher
-     */
     public function __construct(Session $session, UrlMatcherInterface $urlMatcher)
     {
         $this->session = $session;
@@ -48,8 +39,8 @@ final class CurrentPageResolver implements CurrentPageResolverInterface
      */
     public function getCurrentPageWithForm(array $pages)
     {
-        $routeParameters = $this->urlMatcher->match(parse_url($this->session->getCurrentUrl(), PHP_URL_PATH));
-        
+        $routeParameters = $this->urlMatcher->match(parse_url($this->session->getCurrentUrl(), \PHP_URL_PATH));
+
         Assert::allIsInstanceOf($pages, SymfonyPageInterface::class);
 
         foreach ($pages as $page) {

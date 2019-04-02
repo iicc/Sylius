@@ -9,24 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxonomy\Factory;
 
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class TaxonFactory implements TaxonFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $factory;
 
-    /**
-     * @param FactoryInterface $factory
-     */
     public function __construct(FactoryInterface $factory)
     {
         $this->factory = $factory;
@@ -35,7 +29,7 @@ final class TaxonFactory implements TaxonFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createNew()
+    public function createNew(): TaxonInterface
     {
         return $this->factory->createNew();
     }
@@ -43,7 +37,7 @@ final class TaxonFactory implements TaxonFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createForParent(TaxonInterface $parent)
+    public function createForParent(TaxonInterface $parent): TaxonInterface
     {
         $taxon = $this->createNew();
         $taxon->setParent($parent);

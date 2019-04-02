@@ -16,23 +16,38 @@ sylius:
             shipping_method: Fraktsätt
         promotion:
             channels: Kanaler
+        promotion_action:
+            add_product_configuration:
+                product: Produkt
+        promotion_coupon:
+            per_customer_usage_limit: Användningsbegränsning per kund
         group:
             name: Namn
             roles: Roller
         channel:
-            taxonomies: Taxonomier
+            billing_data:
+                city: Ort
+                company: Företag
+                country: Land
+                postcode: Postnummer
+                street: Gatuadress
+            contact_email: Kontakt e-post
+            currencies: Valutor
+            currency_base: Basvaluta
+            account_verification_required: Krävs kontoverifiering?
+            hostname: Värdnamn
             locale_default: Standardspråk
             locales: Språk
-            currency_base: Basvaluta
-            currencies: Valutor
-            shipping_methods: Leveransmetoder
             payment_methods: Betalningsmetoder
+            shipping_methods: Leveransmetoder
+            skipping_shipping_step_allowed: Hoppa över fraktsteget om endast en leveransmetod är tillgänglig?
+            skipping_payment_step_allowed: Hoppa över betalningssteget om endast en betalningsmetod är tillgänglig?
             tax_calculation_strategy: Skatteberäkningsstrategi
             tax_zone_default: Standardmomszon
+            taxonomies: Taxonomier
             theme: Tema
-            hostname: Värdnamn
         image:
-            code: Kod
+            type: Typ
             file: Bild
         locale:
             code: Kod
@@ -62,7 +77,7 @@ sylius:
             code: Kod
         product_variant:
             tax_category: Momskategori
-            shipping_category: Kategori
+            shipping_category: Fraktkategori
         shipment_filter:
             created_at_from: Från
             created_at_to: Till
@@ -73,6 +88,7 @@ sylius:
             created_at_from: Från
             created_at_to: Till
             number: Beställningsnummer
+            billing_address: Namn på faktura
             channel: Alla kanaler
         shipping_method:
             zone: Zon
@@ -100,6 +116,7 @@ sylius:
             on_hand: I lager
             price: Pris
             sku: SKU
+            shipping_required: Krävs frakt?
             weight: Vikt
             width: Bredd
         attribute:
@@ -113,7 +130,12 @@ sylius:
             type: Associationstyp
         product_association_type:
             name: Namn
+        promotion_filter:
+            products: Produktfilter
+            taxons: Taxons filter
         promotion_rule:
+            customer_group:
+                group: Kundgrupp
             has_taxon:
                 taxons: Taxa
             product:
@@ -123,6 +145,8 @@ sylius:
                 amount: Antal
         payment_method:
             channels: Kanaler
+        product_attribute:
+            position: Position
         zone:
             scopes:
                 shipping: Leverans
@@ -144,8 +168,8 @@ sylius:
             intl: Intl
             json_encode: JSON
             mbstring: Multibyte sträng
-            "off": false
-            "on": true
+            off: false
+            on: true
             pcre: PCRE
             pdo: PDO
             php_xml: PHP-XML
@@ -156,22 +180,26 @@ sylius:
             header: filsystem
             cache:
                 header: cache
+                help: "För att ställa in rättigheter kör: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%"
             exists: tillgängligt
             logs:
                 header: loggar
+                help: "För att ställa in rättigheter kör: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%"
             not_exists: ej tillgängligt
             not_writable: ej skrivbart
             parameters:
                 header: parameters.yml
+                help: "För att ställa in rättigheter kör: sudo chmod a+w %path%"
             vendors: vendors
             writable: skrivbar
         settings:
             header: PHP-version och inställningar
+            any: valfritt
             detect_unicode: detect_unicode
             magic_quotes_gpc: magic_quotes_gpc
             non_deprecated: inte utdaterad
-            "off": false
-            "on": true
+            off: false
+            on: true
             register_globals: register_globals
             session:
                 auto_start: session.auto_start
@@ -179,7 +207,7 @@ sylius:
             timezone: tidszon
             timezone_deprecated:
                 header: Utgången tidzon
-                help: 'Tidszonen %timezone% är utgången. Åtgärda din php.ini fil (lista med utgångna tidzoner http://php.net/manual/en/timezones.others.php).'
+                help: Tidszonen %timezone% är utgången. Åtgärda din php.ini fil (lista med utgångna tidzoner http://php.net/manual/en/timezones.others.php).
             version: PHP-version
             version_recommended: Rekommenderad PHP-version
     payum_gateway:

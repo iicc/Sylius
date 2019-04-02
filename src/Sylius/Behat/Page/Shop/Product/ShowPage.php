@@ -9,25 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Shop\Product;
 
 use Behat\Mink\Driver\Selenium2Driver;
-use Sylius\Behat\Page\SymfonyPage;
-use Sylius\Behat\Page\UnexpectedPageException;
+use Behat\Mink\Exception\ElementNotFoundException;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\UnexpectedPageException;
+use Sylius\Behat\Service\JQueryHelper;
 use Sylius\Component\Product\Model\ProductInterface;
 use Sylius\Component\Product\Model\ProductOptionInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 class ShowPage extends SymfonyPage implements ShowPageInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return 'sylius_shop_product_show';
     }
@@ -40,7 +40,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
         $this->getDocument()->pressButton('Add to cart');
 
         if ($this->getDriver() instanceof Selenium2Driver) {
-            sleep(3); #TODO Kopytko
+            JQueryHelper::waitForAsynchronousActionsToFinish($this->getSession());
         }
     }
 
@@ -53,7 +53,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
         $this->getDocument()->pressButton('Add to cart');
 
         if ($this->getDriver() instanceof Selenium2Driver) {
-            sleep(3); #TODO Kopytko
+            JQueryHelper::waitForAsynchronousActionsToFinish($this->getSession());
         }
     }
 
@@ -65,6 +65,10 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
         $this->selectVariant($variant);
 
         $this->getDocument()->pressButton('Add to cart');
+
+        if ($this->getDriver() instanceof Selenium2Driver) {
+            JQueryHelper::waitForAsynchronousActionsToFinish($this->getSession());
+        }
     }
 
     /**
@@ -108,15 +112,27 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
-    public function getAttributeByName($name)
+    public function getAttributeByName(string $name): ?string
     {
         $attributesTable = $this->getElement('attributes');
+
+        $driver = $this->getDriver();
+        if ($driver instanceof Selenium2Driver) {
+            try {
+                $attributesTab = $this->getElement('tab', ['%name%' => 'attributes']);
+                if (!$attributesTab->hasClass('active')) {
+                    $attributesTab->click();
+                }
+            } catch (ElementNotFoundException $exception) {
+                return null;
+            }
+        }
 
         $nameTdSelector = sprintf('tr > td.sylius-product-attribute-name:contains("%s")', $name);
         $nameTd = $attributesTable->find('css', $nameTdSelector);
 
         if (null === $nameTd) {
-            return false;
+            return null;
         }
 
         $row = $nameTd->getParent();
@@ -277,7 +293,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
-    public function open(array $urlParameters = [])
+    public function open(array $urlParameters = []): void
     {
         $start = microtime(true);
         $end = $start + 5;
@@ -289,7 +305,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
                 $isOpen = false;
                 sleep(1);
             }
-        } while(!$isOpen && microtime(true) < $end);
+        } while (!$isOpen && microtime(true) < $end);
 
         if (!$isOpen) {
             throw new UnexpectedPageException();
@@ -299,7 +315,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'association' => '#sylius-product-association-%association-name%',
@@ -313,6 +329,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
             'product_price' => '#product-price',
             'reviews' => '[data-tab="reviews"] .comments',
             'selecting_variants' => '#sylius-product-selecting-variant',
+            'tab' => '.menu [data-tab="%name%"]',
             'validation_errors' => '.sylius-validation-error',
             'variant_radio' => '#sylius-product-variants tbody tr:contains("%variant-name%") input',
         ]);

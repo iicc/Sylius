@@ -4,7 +4,7 @@
 default:
     suites:
         ui_managing_orders:
-            contexts_services:
+            contexts:
                 - sylius.behat.context.hook.doctrine_orm
                 - sylius.behat.context.hook.email_spool
 
@@ -36,6 +36,7 @@ default:
                 - sylius.behat.context.transform.payment
                 - sylius.behat.context.transform.product
                 - sylius.behat.context.transform.product_variant
+                - sylius.behat.context.transform.promotion
                 - sylius.behat.context.transform.shipping_method
                 - sylius.behat.context.transform.tax_category
                 - sylius.behat.context.transform.taxon
@@ -43,12 +44,15 @@ default:
 
                 - sylius.behat.context.transform.shared_storage
 
-                - sylius.behat.context.ui.email
                 - sylius.behat.context.ui.admin.managing_orders
                 - sylius.behat.context.ui.admin.notification
-                - sylius.behat.context.ui.shop.currency
-                - sylius.behat.context.ui.checkout
                 - sylius.behat.context.ui.channel
+                - sylius.behat.context.ui.email
                 - sylius.behat.context.ui.shop.cart
+                - sylius.behat.context.ui.shop.checkout
+                - sylius.behat.context.ui.shop.checkout.addressing
+                - sylius.behat.context.ui.shop.checkout.complete
+                - sylius.behat.context.ui.shop.currency
+
             filters:
                 tags: "@managing_orders && @ui"

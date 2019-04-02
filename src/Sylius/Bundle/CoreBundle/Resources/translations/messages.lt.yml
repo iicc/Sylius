@@ -25,17 +25,29 @@ sylius:
             name: Pavadinimas
             roles: Rolės
         channel:
-            taxonomies: Taksonomijos
+            billing_data:
+                city: Miestas
+                company: įmonė
+                country: Šalis
+                postcode: Pašto kodas
+                street: Gatvė
+            contact_email: Kontaktinis el. pašto adresas
+            currencies: Valiutos
+            currency_base: Bazinė valiuta
+            account_verification_required: Ar reikalingas sąskaitos patikrinimas?
+            hostname: Pagrindinio kompiuterio vardas
             locale_default: Numatytoji lokalė
             locales: Lokalės
-            currencies: Valiutos
-            shipping_methods: Pristatymo būdai
             payment_methods: Mokėjimo būdai
+            shipping_methods: Pristatymo būdai
+            skipping_shipping_step_allowed: Ar praleisti pristatymo pasirinkimo žingsnį, jei yra galimas tik vienas pristatymo būdas?
+            skipping_payment_step_allowed: Ar praleisti mokėjimo pasirinkimo žingsnį, jei yra galimas tik vienas mokėjimo būdas?
             tax_calculation_strategy: Mokesčių skaičiavimo strategija
             tax_zone_default: Numatyta mokesčių zona
+            taxonomies: Taksonomijos
             theme: Tema
         image:
-            code: Kodas
+            type: Tipas
             file: Paveikslėlis
         locale:
             code: Kodas
@@ -57,6 +69,7 @@ sylius:
             restricted_zone: Apribota zona
             short_description: Trumpas aprašymas
             variant_selection_method: Varianto pasirinkimo būdas
+            main_taxon: Pagrindinis taksonas
             channels: Kanalai
             enabled: Įjungta
         product_filter:
@@ -103,6 +116,7 @@ sylius:
             on_hand: Dabartinės atsargos
             price: Kaina
             sku: Kodas
+            shipping_required: Ar pristatymas privalomas?
             weight: Svoris
             width: Plotis
         attribute:
@@ -116,15 +130,27 @@ sylius:
             type: Sąryšio tipas
         product_association_type:
             name: Pavadinimas
+        promotion_filter:
+            products: Produktų filtras
+            taxons: Taksonų filtras
         promotion_rule:
+            customer_group:
+                group: Klientų grupė
             has_taxon:
                 taxons: Taksonai
             product:
                 products: Prekės
             total_of_items_from_taxon:
+                taxon: Taksonas
                 amount: Suma
         payment_method:
             channels: Kanalai
+        product_attribute:
+            position: Pozicija
+        zone:
+            scopes:
+                shipping: Pristatymas
+                tax: Mokesčiai
     installer:
         extensions:
             header: plėtiniai
@@ -142,8 +168,8 @@ sylius:
             intl: Intl
             json_encode: JSON
             mbstring: Įvairaus baitų ilgio eilutę
-            "off": false
-            "on": true
+            off: false
+            on: true
             pcre: PCRE
             pdo: PDO
             php_xml: PHP-XML
@@ -154,16 +180,16 @@ sylius:
             header: failų sistema
             cache:
                 header: podėlis
-                help: 'Jei norite nustatyti teises, įvykdykite komandą: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%'
+                help: "Jei norite nustatyti teises, įvykdykite komandą: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%"
             exists: egzistuoja
             logs:
                 header: audito įrašai
-                help: 'Jei norite nustatyti teises, įvykdykite komandą: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%'
+                help: "Jei norite nustatyti teises, įvykdykite komandą: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%"
             not_exists: neegzistuoja
             not_writable: be galimybės įrašyti
             parameters:
                 header: parameters.yml
-                help: 'Jei norite nustatyti teises, įvykdykite komandą: sudo chmod a+w %path%'
+                help: "Jei norite nustatyti teises, įvykdykite komandą: sudo chmod a+w %path%"
             vendors: vendors
             writable: galimas įrašyti
         settings:
@@ -172,8 +198,8 @@ sylius:
             detect_unicode: detect_unicode
             magic_quotes_gpc: magic_quotes_gpc
             non_deprecated: galiojantis
-            "off": false
-            "on": true
+            off: false
+            on: true
             register_globals: register_globals
             session:
                 auto_start: session.auto_start
@@ -181,11 +207,12 @@ sylius:
             timezone: laiko juosta
             timezone_deprecated:
                 header: Pasenusi laiko juosta
-                help: 'Laiko juosta %timezone% yra pasenusi. Pataisykite savo php.ini failą (pasenusių laiko juostų sąrašas http://php.net/manual/en/timezones.others.php).'
+                help: Laiko juosta %timezone% yra pasenusi. Pataisykite savo php.ini failą (pasenusių laiko juostų sąrašas http://php.net/manual/en/timezones.others.php).
             version: PHP versija
             version_recommended: Rekomenduojama PHP versija
     payum_gateway:
         cash_on_delivery: Grynaisiais pristatymo metu
+        offline: Neprisijungęs
         paypal_express_checkout: PayPal Express Checkout
     shipping_method_resolver:
         by_zones_and_channel: Pagal zonas ir kanalus

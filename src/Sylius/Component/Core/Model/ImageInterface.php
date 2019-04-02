@@ -9,48 +9,38 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
-use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
-interface ImageInterface extends ResourceInterface, CodeAwareInterface
+interface ImageInterface extends ResourceInterface
 {
-    /**
-     * @return null|\SplFileInfo
-     */
-    public function getFile();
-
-    /**
-     * @param \SplFileInfo $file
-     */
-    public function setFile(\SplFileInfo $file);
-
-    /**
-     * @return bool
-     */
-    public function hasFile();
-
     /**
      * @return string
      */
-    public function getPath();
+    public function getType(): ?string;
+
+    public function setType(?string $type): void;
+
+    public function getFile(): ?\SplFileInfo;
+
+    public function setFile(?\SplFileInfo $file): void;
+
+    public function hasFile(): bool;
+
+    public function getPath(): ?string;
+
+    public function setPath(?string $path): void;
 
     /**
-     * @param string $path
-     */
-    public function setPath($path);
-
-    /**
-     * @return ImageAwareInterface
+     * @return object
      */
     public function getOwner();
 
     /**
-     * @param ImageAwareInterface|null $owner
+     * @param object|null $owner
      */
-    public function setOwner(ImageAwareInterface $owner = null);
+    public function setOwner($owner): void;
 }

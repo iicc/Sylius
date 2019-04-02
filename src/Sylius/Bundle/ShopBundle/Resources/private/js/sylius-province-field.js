@@ -7,90 +7,93 @@
  * file that was distributed with this source code.
  */
 
-(function ( $ ) {
-    'use strict';
+import $ from 'jquery';
 
-    $.fn.extend({
-        provinceField: function () {
-            var countrySelect = $('select[name$="[countryCode]"]');
+const getProvinceInputValue = function getProvinceInputValue(valueSelector) {
+  return valueSelector == undefined ? '' : `value="${valueSelector}"`;
+};
 
-            countrySelect.on('change', function(event) {
-                var select = $(event.currentTarget);
-                var provinceContainer = select.parents('.field').next('div.province-container');
+$.fn.extend({
+  provinceField() {
+    const countrySelect = $('select[name$="[countryCode]"]');
 
-                var provinceSelectFieldName = select.attr('name').replace('country', 'province');
-                var provinceInputFieldName = select.attr('name').replace('countryCode', 'provinceName');
+    countrySelect.on('change', (event) => {
+      const select = $(event.currentTarget);
+      const provinceContainer = select.parents('.field').next('div.province-container');
 
-                if ('' === select.val() || undefined == select.val()) {
-                    provinceContainer.fadeOut('slow', function () {
-                        provinceContainer.html('');
-                    });
+      const provinceSelectFieldName = select.attr('name').replace('country', 'province');
+      const provinceInputFieldName = select.attr('name').replace('countryCode', 'provinceName');
 
-                    return;
-                }
+      const provinceSelectFieldId = select.attr('id').replace('country', 'province');
+      const provinceInputFieldId = select.attr('id').replace('countryCode', 'provinceName');
 
-                $.get(provinceContainer.attr('data-url'), {countryCode: $(this).val()}, function (response) {
-                    if (!response.content) {
-                        provinceContainer.fadeOut('slow', function () {
-                            provinceContainer.html('');
-                        });
-                    } else if (-1 !== response.content.indexOf('select')) {
-                        provinceContainer.fadeOut('slow', function () {
+      if (select.val() === '' || select.val() == undefined) {
+        provinceContainer.fadeOut('slow', () => {
+          provinceContainer.html('');
+        });
 
-                            var provinceSelectValue = getProvinceInputValue(
-                                $(provinceContainer).find('select > option[selected$="selected"]').val()
-                            );
+        return;
+      }
 
-                            provinceContainer.html(response.content.replace(
-                                'name="sylius_address_province"',
-                                'name="' + provinceSelectFieldName + '"' + provinceSelectValue
-                            )
-                            .replace(
-                                'option value="" selected="selected"',
-                                'option value=""'
-                            )
-                            .replace(
-                                'option ' + provinceSelectValue,
-                                'option ' + provinceSelectValue + '" selected="selected"'
-                            ));
+      provinceContainer.attr('data-loading', true);
 
-                            provinceContainer.fadeIn();
-                        });
-                    } else {
-                        provinceContainer.fadeOut('slow', function () {
+      $.get(provinceContainer.attr('data-url'), { countryCode: select.val() }, (response) => {
+        if (!response.content) {
+          provinceContainer.fadeOut('slow', () => {
+            provinceContainer.html('');
 
-                            var provinceInputValue = getProvinceInputValue($(provinceContainer).find('input').val());
+            provinceContainer.removeAttr('data-loading');
+          });
+        } else if (response.content.indexOf('select') !== -1) {
+          provinceContainer.fadeOut('slow', () => {
+            const provinceSelectValue = getProvinceInputValue((
+              $(provinceContainer).find('select > option[selected$="selected"]').val()
+            ));
 
-                            provinceContainer.html(response.content.replace(
-                                'name="sylius_address_province"',
-                                'name="' + provinceInputFieldName + '"' + provinceInputValue
-                            ));
+            provinceContainer.html((
+              response.content
+                .replace('name="sylius_address_province"', `name="${provinceSelectFieldName}"${provinceSelectValue}`)
+                .replace('id="sylius_address_province"', `id="${provinceSelectFieldId}"`)
+                .replace('option value="" selected="selected"', 'option value=""')
+                .replace(`option ${provinceSelectValue}`, `option ${provinceSelectValue}" selected="selected"`)
+            ));
 
-                            provinceContainer.fadeIn();
-                        });
-                    }
-                });
-            });
+            provinceContainer.removeAttr('data-loading');
 
-            if('' !== countrySelect.val()) {
-                countrySelect.trigger('change');
-            }
+            provinceContainer.fadeIn();
+          });
+        } else {
+          provinceContainer.fadeOut('slow', () => {
+            const provinceInputValue = getProvinceInputValue($(provinceContainer).find('input').val());
 
-            if('' === $.trim($('div.province-container').text())) {
-                $('select.country-select').trigger('change');
-            }
+            provinceContainer.html((
+              response.content
+                .replace('name="sylius_address_province"', `name="${provinceInputFieldName}"${provinceInputValue}`)
+                .replace('id="sylius_address_province"', `id="${provinceInputFieldId}"`)
+            ));
 
-            var billingAddressCheckbox = $('input[type="checkbox"][name$="[differentBillingAddress]"]');
-            var billingAddressContainer = $('#sylius-billing-address-container');
-            var toggleBillingAddress = function() {
-                billingAddressContainer.toggle(billingAddressCheckbox.prop('checked'));
-            };
-            toggleBillingAddress();
-            billingAddressCheckbox.on('change', toggleBillingAddress);
+            provinceContainer.removeAttr('data-loading');
 
-            var getProvinceInputValue = function (valueSelector) {
-                return undefined == valueSelector ? '' : 'value="'+ valueSelector +'"';
-            };
+            provinceContainer.fadeIn();
+          });
         }
+      });
     });
-})( jQuery );
+
+    if (countrySelect.val() !== '') {
+      countrySelect.trigger('change');
+    }
+
+    if ($.trim($('div.province-container').text()) === '') {
+      $('select.country-select').trigger('change');
+    }
+
+    const billingAddressCheckbox = $('input[type="checkbox"][name$="[differentBillingAddress]"]');
+    const billingAddressContainer = $('#sylius-billing-address-container');
+    const toggleBillingAddress = function toggleBillingAddress() {
+      billingAddressContainer.toggle(billingAddressCheckbox.prop('checked'));
+    };
+    toggleBillingAddress();
+    billingAddressCheckbox.on('change', toggleBillingAddress);
+  },
+});

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\OrderProcessing;
 
 use Sylius\Component\Core\Model\AdjustmentInterface;
@@ -20,25 +22,14 @@ use Sylius\Component\Shipping\Calculator\DelegatingCalculatorInterface;
 use Sylius\Component\Shipping\Calculator\UndefinedShippingMethodException;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class ShippingChargesProcessor implements OrderProcessorInterface
 {
-    /**
-     * @var FactoryInterface
-     */
-    protected $adjustmentFactory;
+    /** @var FactoryInterface */
+    private $adjustmentFactory;
 
-    /**
-     * @var DelegatingCalculatorInterface
-     */
-    protected $shippingChargesCalculator;
+    /** @var DelegatingCalculatorInterface */
+    private $shippingChargesCalculator;
 
-    /**
-     * @param FactoryInterface $adjustmentFactory
-     * @param DelegatingCalculatorInterface $shippingChargesCalculator
-     */
     public function __construct(
         FactoryInterface $adjustmentFactory,
         DelegatingCalculatorInterface $shippingChargesCalculator
@@ -50,7 +41,7 @@ final class ShippingChargesProcessor implements OrderProcessorInterface
     /**
      * {@inheritdoc}
      */
-    public function process(BaseOrderInterface $order)
+    public function process(BaseOrderInterface $order): void
     {
         /** @var OrderInterface $order */
         Assert::isInstanceOf($order, OrderInterface::class);
@@ -62,6 +53,7 @@ final class ShippingChargesProcessor implements OrderProcessorInterface
             try {
                 $shippingCharge = $this->shippingChargesCalculator->calculate($shipment);
 
+                /** @var AdjustmentInterface $adjustment */
                 $adjustment = $this->adjustmentFactory->createNew();
                 $adjustment->setType(AdjustmentInterface::SHIPPING_ADJUSTMENT);
                 $adjustment->setAmount($shippingCharge);

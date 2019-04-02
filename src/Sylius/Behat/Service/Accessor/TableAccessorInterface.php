@@ -1,18 +1,23 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
 namespace Sylius\Behat\Service\Accessor;
 
 use Behat\Mink\Element\NodeElement;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 interface TableAccessorInterface
 {
     /**
-     * @param NodeElement $table
-     * @param array $fields
-     *
      * @return NodeElement
      *
      * @throws \InvalidArgumentException If row cannot be found
@@ -20,9 +25,6 @@ interface TableAccessorInterface
     public function getRowWithFields(NodeElement $table, array $fields);
 
     /**
-     * @param NodeElement $table
-     * @param array $fields
-     *
      * @return NodeElement[]
      *
      * @throws \InvalidArgumentException If there is no rows fulfilling given conditions
@@ -30,7 +32,6 @@ interface TableAccessorInterface
     public function getRowsWithFields(NodeElement $table, array $fields);
 
     /**
-     * @param NodeElement $table
      * @param string $fieldName
      *
      * @return array
@@ -40,15 +41,11 @@ interface TableAccessorInterface
     public function getIndexedColumn(NodeElement $table, $fieldName);
 
     /**
-     * @param NodeElement $table
-     *
      * @return NodeElement[]
      */
     public function getSortableHeaders(NodeElement $table);
 
     /**
-     * @param NodeElement $table
-     * @param NodeElement $row
      * @param string $field
      *
      * @return NodeElement
@@ -56,8 +53,6 @@ interface TableAccessorInterface
     public function getFieldFromRow(NodeElement $table, NodeElement $row, $field);
 
     /**
-     * @param NodeElement $table
-     *
      * @return int
      */
     public function countTableBodyRows(NodeElement $table);

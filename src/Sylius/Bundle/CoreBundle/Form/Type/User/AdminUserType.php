@@ -9,27 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\Type\User;
 
 use Sylius\Bundle\UserBundle\Form\Type\UserType;
 use Symfony\Component\Form\Extension\Core\Type\LocaleType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class AdminUserType extends UserType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
         $builder
-            ->add('firstName')
-            ->add('lastName')
+            ->add('firstName', TextType::class, [
+                'required' => false,
+                'label' => 'sylius.form.user.first_name',
+            ])
+            ->add('lastName', TextType::class, [
+                'required' => false,
+                'label' => 'sylius.form.user.last_name',
+            ])
             ->add('localeCode', LocaleType::class, [
                 'label' => 'sylius.ui.locale',
                 'placeholder' => null,
@@ -40,7 +46,7 @@ final class AdminUserType extends UserType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_admin_user';
     }

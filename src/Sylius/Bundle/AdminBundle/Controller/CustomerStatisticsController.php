@@ -9,10 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AdminBundle\Controller;
 
 use Sylius\Component\Core\Customer\Statistics\CustomerStatisticsProviderInterface;
-use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
@@ -20,31 +21,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
-class CustomerStatisticsController
+final class CustomerStatisticsController
 {
-    /**
-     * @var CustomerStatisticsProviderInterface
-     */
+    /** @var CustomerStatisticsProviderInterface */
     private $statisticsProvider;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $customerRepository;
 
-    /**
-     * @var EngineInterface
-     */
+    /** @var EngineInterface */
     private $templatingEngine;
 
-    /**
-     * @param CustomerStatisticsProviderInterface $statisticsProvider
-     * @param RepositoryInterface $customerRepository
-     * @param EngineInterface $templatingEngine
-     */
     public function __construct(
         CustomerStatisticsProviderInterface $statisticsProvider,
         RepositoryInterface $customerRepository,
@@ -56,13 +43,9 @@ class CustomerStatisticsController
     }
 
     /**
-     * @param Request $request
-     *
-     * @return Response
-     *
      * @throws HttpException
      */
-    public function renderAction(Request $request)
+    public function renderAction(Request $request): Response
     {
         $customerId = $request->query->get('customerId');
 
@@ -78,7 +61,7 @@ class CustomerStatisticsController
         $customerStatistics = $this->statisticsProvider->getCustomerStatistics($customer);
 
         return $this->templatingEngine->renderResponse(
-            '@SyliusAdmin/Customer/Show/Statistics/statistics.html.twig',
+            '@SyliusAdmin/Customer/Show/Statistics/index.html.twig',
             ['statistics' => $customerStatistics]
         );
     }

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Repository;
 
 use Doctrine\ORM\QueryBuilder;
@@ -17,48 +19,27 @@ use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Product\Repository\ProductRepositoryInterface as BaseProductRepositoryInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface ProductRepositoryInterface extends BaseProductRepositoryInterface
 {
     /**
-     * @param string $locale
      * @param mixed|null $taxonId
-     *
-     * @return QueryBuilder
      */
-    public function createListQueryBuilder($locale, $taxonId = null);
+    public function createListQueryBuilder(string $locale, $taxonId = null): QueryBuilder;
+
+    public function createShopListQueryBuilder(
+        ChannelInterface $channel,
+        TaxonInterface $taxon,
+        string $locale,
+        array $sorting = [],
+        bool $includeAllDescendants = false
+    ): QueryBuilder;
 
     /**
-     * @param ChannelInterface $channel
-     * @param string $taxonSlug
-     * @param string $locale
-     *
-     * @return QueryBuilder
+     * @return array|ProductInterface[]
      */
-    public function createQueryBuilderByChannelAndTaxonSlug(ChannelInterface $channel, $taxonSlug, $locale);
+    public function findLatestByChannel(ChannelInterface $channel, string $locale, int $count): array;
 
+    public function findOneByChannelAndSlug(ChannelInterface $channel, string $locale, string $slug): ?ProductInterface;
 
-    /**
-     * @param ChannelInterface $channel
-     * @param int $count
-     *
-     * @return ProductInterface[]
-     */
-    public function findLatestByChannel(ChannelInterface $channel, $count);
-
-    /**
-     * @param string $slug
-     * @param ChannelInterface $channel
-     *
-     * @return ProductInterface|null
-     */
-    public function findOneBySlugAndChannel($slug, ChannelInterface $channel);
-    /**
-     * @param string $slug
-     *
-     * @return ProductInterface|null
-     */
-    public function findOneBySlug($slug);
+    public function findOneByCode(string $code): ?ProductInterface;
 }

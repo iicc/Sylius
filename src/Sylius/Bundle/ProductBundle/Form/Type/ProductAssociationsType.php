@@ -9,34 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ProductBundle\Form\Type;
 
+use Sylius\Bundle\ResourceBundle\Form\Type\FixedCollectionType;
 use Sylius\Component\Product\Model\ProductAssociationTypeInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class ProductAssociationsType extends AbstractType
 {
-    /**
-     * @var RepositoryInterface
-     */
-    protected $productAssociationTypeRepository;
+    /** @var RepositoryInterface */
+    private $productAssociationTypeRepository;
 
-    /**
-     * @var DataTransformerInterface
-     */
-    protected $productsToProductAssociationsTransformer;
+    /** @var DataTransformerInterface */
+    private $productsToProductAssociationsTransformer;
 
-    /**
-     * @param RepositoryInterface $productAssociationTypeRepository
-     * @param DataTransformerInterface $productsToProductAssociationsTransformer
-     */
     public function __construct(
         RepositoryInterface $productAssociationTypeRepository,
         DataTransformerInterface $productsToProductAssociationsTransformer
@@ -48,24 +41,42 @@ final class ProductAssociationsType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $productAssociationTypes = $this->productAssociationTypeRepository->findAll();
-
-        /** @var ProductAssociationTypeInterface $productAssociationType */
-        foreach ($productAssociationTypes as $productAssociationType) {
-            $builder->add($productAssociationType->getCode(), TextType::class, [
-                'label' => $productAssociationType->getName(),
-            ]);
-        }
-
         $builder->addModelTransformer($this->productsToProductAssociationsTransformer);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'entries' => $this->productAssociationTypeRepository->findAll(),
+            'entry_type' => TextType::class,
+            'entry_name' => function (ProductAssociationTypeInterface $productAssociationType) {
+                return $productAssociationType->getCode();
+            },
+            'entry_options' => function (ProductAssociationTypeInterface $productAssociationType) {
+                return [
+                    'label' => $productAssociationType->getName(),
+                ];
+            },
+        ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParent(): string
+    {
+        return FixedCollectionType::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix(): string
     {
         return 'sylius_product_associations';
     }

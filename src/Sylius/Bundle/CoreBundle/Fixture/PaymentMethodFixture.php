@@ -9,19 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture;
 
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 class PaymentMethodFixture extends AbstractResourceFixture
 {
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'payment_method';
     }
@@ -29,15 +28,18 @@ class PaymentMethodFixture extends AbstractResourceFixture
     /**
      * {@inheritdoc}
      */
-    protected function configureResourceNode(ArrayNodeDefinition $resourceNode)
+    protected function configureResourceNode(ArrayNodeDefinition $resourceNode): void
     {
         $resourceNode
             ->children()
                 ->scalarNode('code')->cannotBeEmpty()->end()
                 ->scalarNode('name')->cannotBeEmpty()->end()
                 ->scalarNode('description')->cannotBeEmpty()->end()
-                ->scalarNode('gateway')->cannotBeEmpty()->end()
-                ->arrayNode('channels')->prototype('scalar')->end()->end()
+                ->scalarNode('instructions')->end()
+                ->scalarNode('gatewayName')->cannotBeEmpty()->end()
+                ->scalarNode('gatewayFactory')->cannotBeEmpty()->end()
+                ->arrayNode('gatewayConfig')->variablePrototype()->end()->end()
+                ->arrayNode('channels')->scalarPrototype()->end()->end()
                 ->booleanNode('enabled')->end()
         ;
     }

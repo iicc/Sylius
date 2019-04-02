@@ -9,24 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Resource\Factory;
 
 /**
  * Creates resources based on theirs FQCN.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 final class Factory implements FactoryInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $className;
 
-    /**
-     * @param string $className
-     */
-    public function __construct($className)
+    public function __construct(string $className)
     {
         $this->className = $className;
     }

@@ -9,23 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Model;
 
 use Sylius\Component\Resource\Model\AbstractTranslation;
 
-/**
- * @author Vincenzo Provenza <vincenzo.provenza89@gmail.com>
- */
 class ProductOptionValueTranslation extends AbstractTranslation implements ProductOptionValueTranslationInterface
 {
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $value;
 
     /**
@@ -39,7 +34,7 @@ class ProductOptionValueTranslation extends AbstractTranslation implements Produ
     /**
      * {@inheritdoc}
      */
-    public function getValue()
+    public function getValue(): ?string
     {
         return $this->value;
     }
@@ -47,7 +42,7 @@ class ProductOptionValueTranslation extends AbstractTranslation implements Produ
     /**
      * {@inheritdoc}
      */
-    public function setValue($value)
+    public function setValue(?string $value): void
     {
         $this->value = $value;
     }

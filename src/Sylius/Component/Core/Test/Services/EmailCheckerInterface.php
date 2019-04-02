@@ -9,38 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Test\Services;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 interface EmailCheckerInterface
 {
-    /**
-     * @param string $recipient
-     *
-     * @return bool
-     */
-    public function hasRecipient($recipient);
+    public function hasRecipient(string $recipient): bool;
 
-    /**
-     * @param string $message
-     * @param string $recipient
-     *
-     * @return bool
-     */
-    public function hasMessageTo($message, $recipient);
+    public function hasMessageTo(string $message, string $recipient): bool;
 
-    /**
-     * @param string $recipient
-     *
-     * @return int
-     */
-    public function countMessagesTo($recipient);
+    public function countMessagesTo(string $recipient): int;
 
-    /**
-     * @return string
-     */
-    public function getSpoolDirectory();
+    public function getSpoolDirectory(): string;
 }

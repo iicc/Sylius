@@ -9,25 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Factory;
 
 use Sylius\Component\Product\Model\ProductInterface;
+use Sylius\Component\Product\Model\ProductVariantInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 class ProductVariantFactory implements ProductVariantFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $factory;
 
-    /**
-     * @param FactoryInterface $factory
-     */
     public function __construct(FactoryInterface $factory)
     {
         $this->factory = $factory;
@@ -36,7 +30,7 @@ class ProductVariantFactory implements ProductVariantFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createNew()
+    public function createNew(): ProductVariantInterface
     {
         return $this->factory->createNew();
     }
@@ -44,8 +38,9 @@ class ProductVariantFactory implements ProductVariantFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createForProduct(ProductInterface $product)
+    public function createForProduct(ProductInterface $product): ProductVariantInterface
     {
+        /** @var ProductVariantInterface $variant */
         $variant = $this->createNew();
         $variant->setProduct($product);
 

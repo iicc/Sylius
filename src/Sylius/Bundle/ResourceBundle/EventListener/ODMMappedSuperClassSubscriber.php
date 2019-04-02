@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\EventListener;
 
 use Doctrine\ODM\MongoDB\Event\LoadClassMetadataEventArgs;
@@ -16,10 +18,10 @@ use Doctrine\ODM\MongoDB\Events;
 use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
 use Doctrine\ODM\MongoDB\Mapping\ClassMetadataInfo;
 
+@trigger_error(sprintf('The "%s" class is deprecated since Sylius 1.3. Doctrine MongoDB and PHPCR support will no longer be supported in Sylius 2.0.', ODMMappedSuperClassSubscriber::class), \E_USER_DEPRECATED);
+
 /**
  * Doctrine listener used to manipulate mappings.
- *
- * @author Ivannis Suárez Jérez <ivannis.suarez@gmail.com>
  */
 final class ODMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
 {
@@ -33,9 +35,6 @@ final class ODMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
         ];
     }
 
-    /**
-     * @param LoadClassMetadataEventArgs $eventArgs
-     */
     public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
     {
         $metadata = $eventArgs->getClassMetadata();
@@ -49,9 +48,6 @@ final class ODMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
         }
     }
 
-    /**
-     * @param ClassMetadataInfo $metadata
-     */
     private function convertToDocumentIfNeeded(ClassMetadataInfo $metadata)
     {
         if (false === $metadata->isMappedSuperclass) {
@@ -70,7 +66,6 @@ final class ODMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
     }
 
     /**
-     * @param ClassMetadataInfo $metadata
      * @param $configuration
      */
     private function setAssociationMappings(ClassMetadataInfo $metadata, $configuration)
@@ -97,7 +92,7 @@ final class ODMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
 
             if ($parentMetadata->isMappedSuperclass) {
                 foreach ($parentMetadata->associationMappings as $key => $value) {
-                    if ($this->hasRelation($value['association'])) {
+                    if ($this->isRelation($value['association']) && !isset($metadata->associationMappings[$key])) {
                         $metadata->associationMappings[$key] = $value;
                     }
                 }
@@ -105,9 +100,6 @@ final class ODMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
         }
     }
 
-    /**
-     * @param ClassMetadataInfo $metadata
-     */
     private function unsetAssociationMappings(ClassMetadataInfo $metadata)
     {
         if (false === $this->isResource($metadata)) {
@@ -115,18 +107,18 @@ final class ODMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
         }
 
         foreach ($metadata->associationMappings as $key => $value) {
-            if ($this->hasRelation($value['association'])) {
+            if ($this->isRelation($value['association'])) {
                 unset($metadata->associationMappings[$key]);
             }
         }
     }
 
     /**
-     * @param $type
+     * @param string $type
      *
      * @return bool
      */
-    private function hasRelation($type)
+    private function isRelation($type)
     {
         return in_array(
             $type,

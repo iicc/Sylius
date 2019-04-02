@@ -9,23 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Service\Setter;
 
 use Sylius\Component\Channel\Model\ChannelInterface;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class ChannelContextSetter implements ChannelContextSetterInterface
 {
-    /**
-     * @var CookieSetterInterface
-     */
+    /** @var CookieSetterInterface */
     private $cookieSetter;
 
-    /**
-     * @param CookieSetterInterface $cookieSetter
-     */
     public function __construct(CookieSetterInterface $cookieSetter)
     {
         $this->cookieSetter = $cookieSetter;

@@ -9,123 +9,60 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Taxon;
 
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
+    public function describeItAs(string $description, string $languageCode): void;
+
+    public function chooseParent(TaxonInterface $taxon): void;
+
+    public function isCodeDisabled(): bool;
+
+    public function nameIt(string $name, string $languageCode): void;
+
+    public function specifySlug(string $slug, string $languageCode): void;
+
     /**
-     * @param string $description
-     * @param string $languageCode
+     * @param string $type
      */
-    public function describeItAs($description, $languageCode);
+    public function attachImage(string $path, string $type = null): void;
+
+    public function isImageWithTypeDisplayed(string $type): bool;
+
+    public function isSlugReadonly(string $languageCode = 'en_US'): bool;
+
+    public function removeImageWithType(string $type): void;
+
+    public function removeFirstImage(): void;
+
+    public function enableSlugModification(string $languageCode = 'en_US'): void;
+
+    public function countImages(): int;
+
+    public function changeImageWithType(string $type, string $path): void;
+
+    public function modifyFirstImageType(string $type): void;
+
+    public function getParent(): string;
+
+    public function getSlug(string $languageCode = 'en_US'): string;
 
     /**
-     * @param TaxonInterface $taxon
-     */
-    public function chooseParent(TaxonInterface $taxon);
-
-    /**
-     * @return bool
-     */
-    public function isCodeDisabled();
-
-    /**
-     * @param string $name
-     * @param string $languageCode
-     */
-    public function nameIt($name, $languageCode);
-
-    /**
-     * @param string $slug
-     * @param string $languageCode
-     */
-    public function specifySlug($slug, $languageCode);
-
-    /**
-     * @return bool
-     */
-    public function isImageCodeDisabled();
-
-    /**
-     * @param string $path
-     * @param string $code
-     */
-    public function attachImage($path, $code = null);
-
-    /**
-     * @param string $code
-     *
-     * @return bool
-     */
-    public function isImageWithCodeDisplayed($code);
-
-    /**
-     * @param string $languageCode
-     *
-     * @return bool
-     */
-    public function isSlugReadOnly($languageCode = 'en_US');
-
-    /**
-     * @param string $code
-     */
-    public function removeImageWithCode($code);
-
-    public function removeFirstImage();
-
-    /**
-     * @param string $languageCode
-     */
-    public function enableSlugModification($languageCode = 'en_US');
-
-    /**
-     * @return int
-     */
-    public function countImages();
-
-    /**
-     * @param string $code
-     * @param string $path
-     */
-    public function changeImageWithCode($code, $path);
-
-    /**
-     * @return string
-     */
-    public function getParent();
-
-    /**
-     * @param string $languageCode
-     *
-     * @return string
-     */
-    public function getSlug($languageCode = 'en_US');
-
-    /**
-     * @return string
-     *
      * @throws ElementNotFoundException
      */
-    public function getValidationMessageForImage();
+    public function getValidationMessageForImage(): string;
 
     /**
-     * @param int $place
-     *
-     * @return string
-     *
      * @throws ElementNotFoundException
      */
-    public function getValidationMessageForImageAtPlace($place);
+    public function getValidationMessageForImageAtPlace(int $place): string;
 
-    /**
-     * @param string $locale
-     */
-    public function activateLanguageTab($locale);
+    public function activateLanguageTab(string $locale): void;
 }

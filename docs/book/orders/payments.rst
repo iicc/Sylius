@@ -18,7 +18,7 @@ Payment State Machine
 ---------------------
 
 A Payment that is assigned to an order will have it's own state machine with a few available states:
-``cart``, ``new``, ``processing``, ``completed``, ``failed``, ``cancelled``, ``void``, ``refunded``.
+``cart``, ``new``, ``processing``, ``completed``, ``failed``, ``cancelled``, ``refunded``.
 
 The available transitions between these states are:
 
@@ -43,9 +43,10 @@ The available transitions between these states are:
         refund:
             from: [completed]
             to: refunded
-        void:
-            from: [new, processing]
-            to: void
+
+.. image:: ../../_images/sylius_payment.png
+    :align: center
+    :scale: 70%
 
 Of course, you can define your own states and transitions to create a workflow, that perfectly matches your needs.
 Full configuration can be seen in the `PaymentBundle/Resources/config/app/state_machine.yml <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Bundle/PaymentBundle/Resources/config/app/state_machine.yml>`_.
@@ -75,51 +76,63 @@ Payment Methods
 
 A **PaymentMethod** represents a way that your customer pays during the checkout process.
 It holds a reference to a specific ``gateway`` with custom configuration.
-You can have different payment methods using the same gateway, like PayPal or Stripe.
+Gateway is configured for each payment method separately using the payment method form.
 
 How to create a PaymentMethod programmatically?
 '''''''''''''''''''''''''''''''''''''''''''''''
 
-As usually, use a factory to create a new PaymentMethod and give it a unique code.
-The payment gateways of your system are available under the ``sylius.payment_gateways`` parameter.
+As usual, use a factory to create a new PaymentMethod and give it a unique code.
 
 .. code-block:: php
 
-    $paymentMethod = $this->container->get('sylius.factory.payment_method')->createNew();
+    $paymentMethod = $this->container->get('sylius.factory.payment_method')->createWithGateway('offline');
     $paymentMethod->setCode('ALFA1');
-
-    $gateways = $this->container->getParameter('sylius.payment_gateways');
-
-    $paymentMethod->setGateway($gateways['offline']);
 
     $this->container->get('sylius.repository.payment_method')->add($paymentMethod);
 
-In order to have your new payment method available in the checkout remember to **add it to your desired channels**:
+In order to have your new payment method available in the checkout remember to **add your desired channel to the payment method**:
 
 .. code-block:: php
 
-    $channel->addPaymentMethod($paymentMethod);
+    $paymentMethod->addChannel($channel)
 
-Payment Gateway and Configurations
-----------------------------------
+Payment Gateway configuration
+-----------------------------
 
-In order to add a new gateway, configure it in the ``app/config.yml`` file of your project in such a way:
+Payment Gateways that already have a Sylius bridge
+''''''''''''''''''''''''''''''''''''''''''''''''''
 
-.. code-block:: yaml
+First you need to create the configuration form type for your gateway. Have a look at the configuration form types of
+`Paypal <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Bundle/PayumBundle/Form/Type/PaypalGatewayConfigurationType.php>`_
+and `Stripe <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Bundle/PayumBundle/Form/Type/StripeGatewayConfigurationType.php>`_.
 
-    payum:
-        gateways:
-            paypal_express_checkout:
-                factory: "paypal_express_checkout"
-                payum.http_client: "@sylius.payum.http_client"
-                username: "TEST"
-                password: "TEST"
-                signature: "TEST"
-                sandbox: "true"
+Then you should register its configuration form type with ``sylius.gateway_configuration_type`` tag.
+After that it will be available in the Admin panel in the gateway choice dropdown.
 
 .. tip::
 
-    If you are not sure why this configuration looks like that head to `Payum`_ documentation.
+    If you are not sure how your configuration form type should look like, head to `Payum`_ documentation.
+
+Other Payment Gateways
+''''''''''''''''''''''
+
+.. note::
+
+    Learn more about integrating payment gateways in `the Payum docs <https://github.com/Payum/Payum/blob/master/docs/index.md>`_.
+
+When the Payment Gateway you are trying to use does have a bridge available and you integrate them on your own,
+use our guide on :doc:`extension development </plugins/creating-plugin>`.
+
+.. tip::
+
+    You'll probably need also this kind of configuration in your ``app/config/config.yml`` for the gateway's factory:
+
+    .. code-block:: yaml
+
+        payum:
+            gateways:
+                yourgateway:
+                    factory: yourgateway
 
 Troubleshooting
 ---------------
@@ -150,9 +163,8 @@ There are two events that are triggered on the payment complete action:
 | ``sylius.payment.post_complete``    |
 +-------------------------------------+
 
-
 Learn more
 ----------
 
-* :doc:`Payment - Component Documentation </components/Payment/index>`
-* `Payum - Project Documentation <https://github.com/Payum/Payum/blob/master/src/Payum/Core/Resources/docs/index.md>`_
+* :doc:`Payment - Component Documentation </components_and_bundles/components/Payment/index>`
+* `Payum - Project Documentation <https://github.com/Payum/Payum/blob/master/docs/index.md>`_

@@ -28,5 +28,5 @@ sylius:
         payment_method:
             description: Beskrivelse
             enabled: Aktivert?
-            gateway: Rute
             name: Navn
+            position: Plassering

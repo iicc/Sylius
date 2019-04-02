@@ -9,25 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Sylius\Component\Order\Model\OrderInterface as BaseOrderInterface;
 use Sylius\Component\Shipping\Model\Shipment as BaseShipment;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class Shipment extends BaseShipment implements ShipmentInterface
 {
-    /**
-     * @var BaseOrderInterface
-     */
+    /** @var BaseOrderInterface */
     protected $order;
 
     /**
      * {@inheritdoc}
      */
-    public function getOrder()
+    public function getOrder(): ?BaseOrderInterface
     {
         return $this->order;
     }
@@ -35,7 +32,7 @@ class Shipment extends BaseShipment implements ShipmentInterface
     /**
      * {@inheritdoc}
      */
-    public function setOrder(BaseOrderInterface $order = null)
+    public function setOrder(?BaseOrderInterface $order): void
     {
         $this->order = $order;
     }

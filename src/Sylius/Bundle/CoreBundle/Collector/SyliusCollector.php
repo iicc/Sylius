@@ -9,37 +9,29 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Collector;
 
 use Sylius\Bundle\CoreBundle\Application\Kernel;
 use Sylius\Component\Channel\Context\ChannelNotFoundException;
-use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Core\Context\ShopperContextInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Currency\Context\CurrencyNotFoundException;
 use Sylius\Component\Locale\Context\LocaleNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class SyliusCollector extends DataCollector
 {
-    /**
-     * @var ShopperContextInterface
-     */
+    /** @var ShopperContextInterface */
     private $shopperContext;
 
-    /**
-     * @param ShopperContextInterface $shopperContext
-     * @param array $bundles
-     * @param string $defaultLocaleCode
-     */
     public function __construct(
         ShopperContextInterface $shopperContext,
         array $bundles,
-        $defaultLocaleCode
+        string $defaultLocaleCode
     ) {
         $this->shopperContext = $shopperContext;
 
@@ -50,7 +42,7 @@ final class SyliusCollector extends DataCollector
             'default_locale_code' => $defaultLocaleCode,
             'locale_code' => null,
             'extensions' => [
-                'SyliusApiBundle' => ['name' => 'API', 'enabled' => false],
+                'SyliusAdminApiBundle' => ['name' => 'API', 'enabled' => false],
                 'SyliusAdminBundle' => ['name' => 'Admin', 'enabled' => false],
                 'SyliusShopBundle' => ['name' => 'Shop', 'enabled' => false],
             ],
@@ -63,18 +55,12 @@ final class SyliusCollector extends DataCollector
         }
     }
 
-    /**
-     * @return string
-     */
-    public function getVersion()
+    public function getVersion(): string
     {
         return $this->data['version'];
     }
 
-    /**
-     * @return array
-     */
-    public function getExtensions()
+    public function getExtensions(): array
     {
         return $this->data['extensions'];
     }
@@ -82,7 +68,7 @@ final class SyliusCollector extends DataCollector
     /**
      * @return string
      */
-    public function getCurrencyCode()
+    public function getCurrencyCode(): ?string
     {
         return $this->data['currency_code'];
     }
@@ -90,7 +76,7 @@ final class SyliusCollector extends DataCollector
     /**
      * @return string
      */
-    public function getLocaleCode()
+    public function getLocaleCode(): ?string
     {
         return $this->data['locale_code'];
     }
@@ -98,7 +84,7 @@ final class SyliusCollector extends DataCollector
     /**
      * @return string
      */
-    public function getDefaultCurrencyCode()
+    public function getDefaultCurrencyCode(): ?string
     {
         return $this->data['base_currency_code'];
     }
@@ -106,7 +92,7 @@ final class SyliusCollector extends DataCollector
     /**
      * @return string
      */
-    public function getDefaultLocaleCode()
+    public function getDefaultLocaleCode(): ?string
     {
         return $this->data['default_locale_code'];
     }
@@ -114,7 +100,7 @@ final class SyliusCollector extends DataCollector
     /**
      * {@inheritdoc}
      */
-    public function collect(Request $request, Response $response, \Exception $exception = null)
+    public function collect(Request $request, Response $response, \Exception $exception = null): void
     {
         try {
             /** @var ChannelInterface $channel */
@@ -122,8 +108,7 @@ final class SyliusCollector extends DataCollector
 
             $this->data['base_currency_code'] = $channel->getBaseCurrency()->getCode();
             $this->data['currency_code'] = $this->shopperContext->getCurrencyCode();
-        } catch (ChannelNotFoundException $exception) {
-        } catch (CurrencyNotFoundException $exception) {
+        } catch (ChannelNotFoundException | CurrencyNotFoundException $exception) {
         }
 
         try {
@@ -135,7 +120,17 @@ final class SyliusCollector extends DataCollector
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function reset(): void
+    {
+        $this->data['base_currency_code'] = null;
+        $this->data['currency_code'] = null;
+        $this->data['locale_code'] = null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName(): string
     {
         return 'sylius_core';
     }

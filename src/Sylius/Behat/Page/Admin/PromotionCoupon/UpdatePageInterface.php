@@ -9,32 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\PromotionCoupon;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
-    /**
-     * @return bool
-     */
-    public function isCodeDisabled();
+    public function isCodeDisabled(): bool;
 
-    /**
-     * @param int $limit
-     */
-    public function setCustomerUsageLimit($limit);
+    public function setCustomerUsageLimit(int $limit): void;
 
-    /**
-     * @param \DateTime $date
-     */
-    public function setExpiresAt(\DateTime $date);
+    public function setExpiresAt(\DateTimeInterface $date): void;
 
-    /**
-     * @param int $limit
-     */
-    public function setUsageLimit($limit);
+    public function setUsageLimit(string $limit): void;
 }

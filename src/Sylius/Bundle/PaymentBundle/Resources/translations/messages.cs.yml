@@ -29,5 +29,6 @@ sylius:
         payment_method:
             description: Popis
             enabled: Povoleno?
-            gateway: Brána
+            instructions: Instrukce
             name: Jméno
+            position: Pozice

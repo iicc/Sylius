@@ -18,27 +18,36 @@ sylius:
             channels: Ausgabekanäle
         promotion_action:
             add_product_configuration:
-                product: Verkäuflich
+                product: Produkt
         promotion_coupon:
             per_customer_usage_limit: Nutzungsbeschränkung pro Kunde
         group:
             name: Name
             roles: Rollen
         channel:
-            taxonomies: Klassifizierungen
+            billing_data:
+                city: Stadt
+                company: Firma
+                country: Land
+                postcode: PLZ
+                street: Straße
+            contact_email: Kontakt E-Mail
+            currencies: Währungen
+            currency_base: Basis-Währung
+            account_verification_required: Ist eine Konto Bestätigung erforderlich?
+            hostname: Server-Name
             locale_default: Standard Lokalisierung
             locales: Gebietsschemata
-            contact_email: Kontakt E-Mail
-            currency_base: Basis-Währung
-            currencies: Währungen
-            shipping_methods: Versandmethoden
             payment_methods: Zahlungsmethoden
+            shipping_methods: Versandmethoden
+            skipping_shipping_step_allowed: Versandart überspringen, wenn nur eine Versandart verfügbar ist?
+            skipping_payment_step_allowed: Überspringen des Zahlungsschritt, wenn nur eine Zahlungsmethode verfügbar ist?
             tax_calculation_strategy: Steuerberechnungsgrundlage
             tax_zone_default: Standard Steuerzone
-            theme: Template
-            hostname: Server-Name
+            taxonomies: Klassifizierungen
+            theme: Theme
         image:
-            code: Code
+            type: Typ
             file: Foto
         locale:
             code: Code
@@ -56,7 +65,7 @@ sylius:
             id: ID
             title: Titel
         product:
-            images: Fotos
+            images: Bilder
             restricted_zone: Beschränktes Versandgebiet
             short_description: Kurzbeschreibung
             variant_selection_method: Variantenauswahlmethode
@@ -86,7 +95,7 @@ sylius:
         taxon:
             code: Code
             file: Foto auswählen
-            images: Fotos
+            images: Bilder
         taxonomy:
             file: Foto auswählen
         user:
@@ -107,6 +116,7 @@ sylius:
             on_hand: Auf Lager
             price: Preis
             sku: Bestandseinheit
+            shipping_required: Ist ein Versand erforderlich?
             weight: Gewicht
             width: Breite
         attribute:
@@ -132,7 +142,7 @@ sylius:
                 products: Produkte
             total_of_items_from_taxon:
                 taxon: Produktgruppe
-                amount: Anzahl
+                amount: Steuersatz
         payment_method:
             channels: Ausgabekanäle
         product_attribute:
@@ -158,8 +168,8 @@ sylius:
             intl: Intl
             json_encode: JSON
             mbstring: Multibyte String
-            "off": false
-            "on": true
+            off: false
+            on: true
             pcre: PCRE
             pdo: PDO
             php_xml: PHP-XML
@@ -170,16 +180,16 @@ sylius:
             header: Dateisystem
             cache:
                 header: Cache
-                help: 'Ausführen um Zugriffsrechte zu setzen: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%'
+                help: "Ausführen um Zugriffsrechte zu setzen: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%"
             exists: Existiert
             logs:
                 header: Protokoll/Logs
-                help: 'Ausführen um Zugriffsrechte zu setzen: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%'
+                help: "Ausführen um Zugriffsrechte zu setzen: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%"
             not_exists: Existiert nicht
             not_writable: Schreibgeschützt
             parameters:
                 header: parameters.yml
-                help: 'Ausführen um Zugriffsrechte zu setzen: sudo chmod a+w %path%'
+                help: "Ausführen um Zugriffsrechte zu setzen: sudo chmod a+w %path%"
             vendors: Verkäufer
             writable: Beschreibbar
         settings:
@@ -188,8 +198,8 @@ sylius:
             detect_unicode: detect_unicode
             magic_quotes_gpc: magic_quotes_gpc
             non_deprecated: Nicht veraltet
-            "off": false
-            "on": true
+            off: false
+            on: true
             register_globals: register_globals
             session:
                 auto_start: session.auto_start

@@ -9,28 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\ProductAttribute;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
-    /**
-     * @param string $name
-     * @param string $language
-     */
-    public function changeName($name, $language);
+    public function changeName(string $name, string $language): void;
 
-    /**
-     * @return bool
-     */
-    public function isCodeDisabled();
+    public function isCodeDisabled(): bool;
 
-    /**
-     * @return bool
-     */
-    public function isTypeDisabled();
+    public function isTypeDisabled(): bool;
+
+    public function changeAttributeValue(string $oldValue, string $newValue): void;
+
+    public function hasAttributeValue(string $value): bool;
+
+    public function addAttributeValue(string $value, string $localeCode): void;
+
+    public function deleteAttributeValue(string $value): void;
 }

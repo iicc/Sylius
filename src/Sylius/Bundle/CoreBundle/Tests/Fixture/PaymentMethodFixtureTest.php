@@ -9,24 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Tests\Fixture;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Matthias\SymfonyConfigTest\PhpUnit\ConfigurationTestCaseTrait;
+use PHPUnit\Framework\TestCase;
 use Sylius\Bundle\CoreBundle\Fixture\Factory\ExampleFactoryInterface;
 use Sylius\Bundle\CoreBundle\Fixture\PaymentMethodFixture;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
-final class PaymentMethodFixtureTest extends \PHPUnit_Framework_TestCase
+final class PaymentMethodFixtureTest extends TestCase
 {
     use ConfigurationTestCaseTrait;
 
     /**
      * @test
      */
-    public function payment_methods_are_optional()
+    public function payment_methods_are_optional(): void
     {
         $this->assertConfigurationIsValid([[]], 'custom');
     }
@@ -34,7 +34,7 @@ final class PaymentMethodFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function payment_methods_can_be_generated_randomly()
+    public function payment_methods_can_be_generated_randomly(): void
     {
         $this->assertConfigurationIsValid([['random' => 4]], 'random');
         $this->assertPartialConfigurationIsInvalid([['random' => -1]], 'random');
@@ -43,7 +43,7 @@ final class PaymentMethodFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function payment_method_code_is_optional()
+    public function payment_method_code_is_optional(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['code' => 'CUSTOM']]]], 'custom.*.code');
     }
@@ -51,15 +51,77 @@ final class PaymentMethodFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function payment_method_gateway_is_optional()
+    public function payment_method_gateway_name_is_optional(): void
     {
-        $this->assertConfigurationIsValid([['custom' => [['gateway' => 'online']]]], 'custom.*.gateway');
+        $this->assertConfigurationIsValid([['custom' => [['gatewayName' => 'Online']]]], 'custom.*.gatewayName');
     }
 
     /**
      * @test
      */
-    public function payment_method_may_be_toggled()
+    public function payment_method_gateway_factory_is_optional(): void
+    {
+        $this->assertConfigurationIsValid([['custom' => [['gatewayFactory' => 'offline']]]], 'custom.*.gatewayFactory');
+    }
+
+    /**
+     * @test
+     */
+    public function payment_method_gateway_configuration_is_optional(): void
+    {
+        $this->assertConfigurationIsValid([['custom' => [['gatewayConfig' => []]]]], 'custom.*.gatewayConfig');
+    }
+
+    /**
+     * @test
+     */
+    public function payment_method_instructions_configuration_must_by_string(): void
+    {
+        $this->assertConfigurationIsValid([['custom' => [['instructions' => 'test']]]], 'custom.*.instructions');
+        $this->assertConfigurationIsInvalid([['custom' => [['instructions' => ['test']]]]], 'Invalid type for path "payment_method.custom.0.instructions". Expected scalar, but got array');
+    }
+
+    /**
+     * @test
+     */
+    public function payment_method_instructions_configuration_can_be_null(): void
+    {
+        $this->assertConfigurationIsValid([['custom' => [['instructions' => null]]]], 'custom.*.instructions');
+    }
+
+    /**
+     * @test
+     */
+    public function payment_method_instructions_configuration_default_null(): void
+    {
+        $this->assertProcessedConfigurationEquals(
+            [['custom' => [[]]]],
+            ['custom' => [[]]],
+            'custom.*.instructions'
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function payment_method_instructions_configuration_is_optional(): void
+    {
+        $this->assertConfigurationIsValid([['custom' => [[]]]], 'custom.*.instructions');
+    }
+
+    /**
+     * @test
+     */
+    public function payment_method_gateway_configuration_must_by_array(): void
+    {
+        $this->assertConfigurationIsValid([['custom' => [['gatewayConfig' => ['username' => 'USERNAME']]]]], 'custom.*.gatewayConfig');
+        $this->assertConfigurationIsInvalid([['custom' => [['gatewayConfig' => 'USERNAME']]]], 'Invalid type for path "payment_method.custom.0.gatewayConfig". Expected array, but got string');
+    }
+
+    /**
+     * @test
+     */
+    public function payment_method_may_be_toggled(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['enabled' => false]]]], 'custom.*.enabled');
     }
@@ -67,7 +129,7 @@ final class PaymentMethodFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    protected function getConfiguration()
+    protected function getConfiguration(): PaymentMethodFixture
     {
         return new PaymentMethodFixture(
             $this->getMockBuilder(ObjectManager::class)->getMock(),

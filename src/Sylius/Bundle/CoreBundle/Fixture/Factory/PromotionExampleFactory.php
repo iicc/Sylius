@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture\Factory;
 
 use Sylius\Bundle\CoreBundle\Fixture\OptionsResolver\LazyOption;
@@ -21,47 +23,26 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class PromotionExampleFactory extends AbstractExampleFactory implements ExampleFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $promotionFactory;
 
-    /**
-     * @var ExampleFactoryInterface
-     */
+    /** @var ExampleFactoryInterface */
     private $promotionRuleExampleFactory;
 
-    /**
-     * @var ExampleFactoryInterface
-     */
+    /** @var ExampleFactoryInterface */
     private $promotionActionExampleFactory;
 
-    /**
-     * @var ChannelRepositoryInterface
-     */
+    /** @var ChannelRepositoryInterface */
     private $channelRepository;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @var OptionsResolver
-     */
+    /** @var OptionsResolver */
     private $optionsResolver;
 
-    /**
-     * @param FactoryInterface $promotionFactory
-     * @param ExampleFactoryInterface $promotionRuleExampleFactory
-     * @param ExampleFactoryInterface $promotionActionExampleFactory
-     * @param ChannelRepositoryInterface $channelRepository
-     */
     public function __construct(
         FactoryInterface $promotionFactory,
         ExampleFactoryInterface $promotionRuleExampleFactory,
@@ -82,7 +63,7 @@ class PromotionExampleFactory extends AbstractExampleFactory implements ExampleF
     /**
      * {@inheritdoc}
      */
-    public function create(array $options = [])
+    public function create(array $options = []): PromotionInterface
     {
         $options = $this->optionsResolver->resolve($options);
 
@@ -94,7 +75,7 @@ class PromotionExampleFactory extends AbstractExampleFactory implements ExampleF
         $promotion->setCouponBased($options['coupon_based']);
         $promotion->setUsageLimit($options['usage_limit']);
         $promotion->setExclusive($options['exclusive']);
-        $promotion->setPriority($options['priority']);
+        $promotion->setPriority((int) $options['priority']);
 
         if (isset($options['starts_at'])) {
             $promotion->setStartsAt(new \DateTime($options['starts_at']));
@@ -126,10 +107,10 @@ class PromotionExampleFactory extends AbstractExampleFactory implements ExampleF
     /**
      * {@inheritdoc}
      */
-    protected function configureOptions(OptionsResolver $resolver)
+    protected function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
-            ->setDefault('code', function (Options $options) {
+            ->setDefault('code', function (Options $options): string {
                 return StringInflector::nameToCode($options['name']);
             })
             ->setDefault('name', $this->faker->words(3, true))
@@ -146,7 +127,7 @@ class PromotionExampleFactory extends AbstractExampleFactory implements ExampleF
             ->setAllowedTypes('channels', 'array')
             ->setNormalizer('channels', LazyOption::findBy($this->channelRepository, 'code'))
             ->setDefined('rules')
-            ->setNormalizer('rules', function (Options $options, array $rules) {
+            ->setNormalizer('rules', function (Options $options, array $rules): array {
                 if (empty($rules)) {
                     return [[]];
                 }
@@ -154,7 +135,7 @@ class PromotionExampleFactory extends AbstractExampleFactory implements ExampleF
                 return $rules;
             })
             ->setDefined('actions')
-            ->setNormalizer('actions', function (Options $options, array $actions) {
+            ->setNormalizer('actions', function (Options $options, array $actions): array {
                 if (empty($actions)) {
                     return [[]];
                 }

@@ -9,30 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\LocaleBundle\Form\Type;
 
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Bridge\Doctrine\Form\DataTransformer\CollectionToArrayTransformer;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\ChoiceList\ObjectChoiceList;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class LocaleChoiceType extends AbstractType
 {
-    /**
-     * @var RepositoryInterface
-     */
-    protected $localeRepository;
+    /** @var RepositoryInterface */
+    private $localeRepository;
 
-    /**
-     * @param RepositoryInterface $repository
-     */
     public function __construct(RepositoryInterface $repository)
     {
         $this->localeRepository = $repository;
@@ -41,7 +33,7 @@ final class LocaleChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
 
@@ -53,22 +45,15 @@ final class LocaleChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         parent::configureOptions($resolver);
 
         $resolver->setDefaults([
-            'choices' => function (Options $options) {
-                if (null === $options['enabled']) {
-                    return $this->localeRepository->findAll();
-                }
-
-                return $this->localeRepository->findBy(['enabled' => $options['enabled']]);
-            },
+            'choices' => $this->localeRepository->findAll(),
             'choice_value' => 'code',
             'choice_label' => 'name',
             'choice_translation_domain' => false,
-            'enabled' => null,
             'label' => 'sylius.form.locale.locale',
             'placeholder' => 'sylius.form.locale.select',
         ]);
@@ -77,7 +62,7 @@ final class LocaleChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
         return ChoiceType::class;
     }
@@ -85,7 +70,7 @@ final class LocaleChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_locale_choice';
     }

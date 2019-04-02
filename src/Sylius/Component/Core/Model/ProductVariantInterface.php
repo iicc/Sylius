@@ -9,108 +9,63 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Inventory\Model\StockableInterface;
 use Sylius\Component\Product\Model\ProductVariantInterface as BaseVariantInterface;
+use Sylius\Component\Resource\Model\VersionedInterface;
 use Sylius\Component\Shipping\Model\ShippableInterface;
 use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 use Sylius\Component\Taxation\Model\TaxableInterface;
 use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ProductVariantInterface extends
     BaseVariantInterface,
     ShippableInterface,
     StockableInterface,
-    TaxableInterface
+    TaxableInterface,
+    VersionedInterface,
+    ProductImagesAwareInterface
 {
-    /**
-     * @return float
-     */
-    public function getWeight();
+    public function getWeight(): ?float;
 
-    /**
-     * @param float $weight
-     */
-    public function setWeight($weight);
+    public function setWeight(?float $weight): void;
 
-    /**
-     * @return float
-     */
-    public function getWidth();
+    public function getWidth(): ?float;
 
-    /**
-     * @param float $width
-     */
-    public function setWidth($width);
+    public function setWidth(?float $width): void;
 
-    /**
-     * @return float
-     */
-    public function getHeight();
+    public function getHeight(): ?float;
 
-    /**
-     * @param float $height
-     */
-    public function setHeight($height);
+    public function setHeight(?float $height): void;
 
-    /**
-     * @return float
-     */
-    public function getDepth();
+    public function getDepth(): ?float;
 
-    /**
-     * @param float $depth
-     */
-    public function setDepth($depth);
+    public function setDepth(?float $depth): void;
 
-    /**
-     * @param TaxCategoryInterface $category
-     */
-    public function setTaxCategory(TaxCategoryInterface $category = null);
+    public function setTaxCategory(?TaxCategoryInterface $category): void;
 
-    /**
-     * @param ShippingCategoryInterface $shippingCategory
-     */
-    public function setShippingCategory(ShippingCategoryInterface $shippingCategory);
+    public function setShippingCategory(?ShippingCategoryInterface $shippingCategory): void;
 
     /**
      * @return Collection|ChannelPricingInterface[]
      */
-    public function getChannelPricings();
+    public function getChannelPricings(): Collection;
 
-    /**
-     * @param ChannelInterface $channel
-     *
-     * @return ChannelPricingInterface|null
-     */
-    public function getChannelPricingForChannel(ChannelInterface $channel);
+    public function getChannelPricingForChannel(ChannelInterface $channel): ?ChannelPricingInterface;
 
-    /**
-     * @param ChannelInterface $channel
-     *
-     * @return bool
-     */
-    public function hasChannelPricingForChannel(ChannelInterface $channel);
+    public function hasChannelPricingForChannel(ChannelInterface $channel): bool;
 
-    /**
-     * @param ChannelPricingInterface $channelPricing
-     *
-     * @return bool
-     */
-    public function hasChannelPricing(ChannelPricingInterface $channelPricing);
+    public function hasChannelPricing(ChannelPricingInterface $channelPricing): bool;
 
-    /**
-     * @param ChannelPricingInterface $channelPricing
-     */
-    public function addChannelPricing(ChannelPricingInterface $channelPricing);
+    public function addChannelPricing(ChannelPricingInterface $channelPricing): void;
 
-    /**
-     * @param ChannelPricingInterface $channelPricing
-     */
-    public function removeChannelPricing(ChannelPricingInterface $channelPricing);
+    public function removeChannelPricing(ChannelPricingInterface $channelPricing): void;
+
+    public function isShippingRequired(): bool;
+
+    public function setShippingRequired(bool $shippingRequired): void;
 }

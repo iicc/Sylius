@@ -9,11 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\ProductBundle\Form\EventSubscriber;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use PhpSpec\ObjectBehavior;
-use Sylius\Bundle\ProductBundle\Form\EventSubscriber\BuildAttributesFormSubscriber;
 use Sylius\Component\Product\Model\ProductAttributeInterface;
 use Sylius\Component\Product\Model\ProductAttributeValueInterface;
 use Sylius\Component\Product\Model\ProductInterface;
@@ -22,24 +23,19 @@ use Sylius\Component\Resource\Translation\Provider\TranslationLocaleProviderInte
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class BuildAttributesFormSubscriberSpec extends ObjectBehavior
 {
-    function let(FactoryInterface $attributeValueFactory, TranslationLocaleProviderInterface $localeProvider)
+    function let(FactoryInterface $attributeValueFactory, TranslationLocaleProviderInterface $localeProvider): void
     {
         $this->beConstructedWith($attributeValueFactory, $localeProvider);
     }
 
-    function it_is_initializable()
+    function it_subscribes_to_event(): void
     {
-        $this->shouldHaveType(BuildAttributesFormSubscriber::class);
-    }
-
-    function it_subscribes_to_event()
-    {
-        static::getSubscribedEvents()->shouldReturn([FormEvents::PRE_SET_DATA => 'preSetData']);
+        static::getSubscribedEvents()->shouldReturn([
+            FormEvents::PRE_SET_DATA => 'preSetData',
+            FormEvents::POST_SUBMIT => 'postSubmit',
+        ]);
     }
 
     function it_adds_attribute_values_in_different_locales_to_a_product(
@@ -50,7 +46,7 @@ final class BuildAttributesFormSubscriberSpec extends ObjectBehavior
         ProductAttributeInterface $attribute,
         ProductAttributeValueInterface $attributeValue,
         ProductAttributeValueInterface $newAttributeValue
-    ) {
+    ): void {
         $event->getData()->willReturn($product);
 
         $localeProvider->getDefinedLocalesCodes()->willReturn(['en_US', 'pl_PL']);
@@ -73,13 +69,45 @@ final class BuildAttributesFormSubscriberSpec extends ObjectBehavior
         $this->preSetData($event);
     }
 
-    function it_throws_an_invalid_argument_exception_if_data_is_not_a_product(FormEvent $event, \stdClass $stdObject)
+    function it_removes_empty_attribute_values_in_different_locales(
+        FormEvent $event,
+        ProductInterface $product,
+        ProductAttributeInterface $attribute,
+        ProductAttributeValueInterface $attributeValue,
+        ProductAttributeValueInterface $attributeValue2
+    ): void {
+        $event->getData()->willReturn($product);
+
+        $attributes = new ArrayCollection([$attributeValue->getWrappedObject(), $attributeValue2->getWrappedObject()]);
+        $product->getAttributes()->willReturn($attributes);
+
+        $attribute->getStorageType()->willReturn('text');
+
+        $attributeValue->getValue()->willReturn(null);
+        $attributeValue2->getValue()->willReturn('yellow');
+
+        $product->removeAttribute($attributeValue)->shouldBeCalled();
+
+        $this->postSubmit($event);
+    }
+
+    function it_throws_an_invalid_argument_exception_if_data_is_not_a_product(FormEvent $event, \stdClass $stdObject): void
     {
         $event->getData()->willReturn($stdObject);
 
         $this
             ->shouldThrow(\InvalidArgumentException::class)
             ->during('preSetData', [$event])
+        ;
+    }
+
+    function it_throws_an_invalid_argument_exception_if_data_is_not_a_product_during_submit(FormEvent $event, \stdClass $stdObject): void
+    {
+        $event->getData()->willReturn($stdObject);
+
+        $this
+            ->shouldThrow(\InvalidArgumentException::class)
+            ->during('postSubmit', [$event])
         ;
     }
 }

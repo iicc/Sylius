@@ -6,24 +6,25 @@ sylius:
         address:
             city: المدينة
             company: الشركة
-            country: البلد
             first_name: الاسم الأول
-            last_name: إسم العائلة
+            last_name: اسم العائلة
             phone_number: رقم الهاتف
             postcode: الرقم البريدي
-            street: الشارع
+            street: عنوان الشارع
             province: مقاطعة
+            zone: المنطقة
         country:
             add_province: اضافة جهة/مقاطعة
             name: الاسم
             provinces: المقاطعات
             select: اختر
-            enabled: مفتوح
+            enabled: تفعيل
         province:
             name: الاسم
             abbreviation: مختصرات
             select: اختر
         zone:
+            add_member: إضافة عضو
             members: الأعضاء
             name: الاسم
             type: نوع
@@ -32,6 +33,8 @@ sylius:
                 province: مقاطعة
                 zone: المنطقة
             scope: نطاق
+            scopes:
+                all: الجميع
             select: اختر
             select_scope: اختر النطاق
         zone_member:

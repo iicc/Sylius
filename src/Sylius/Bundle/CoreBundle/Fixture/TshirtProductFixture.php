@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture;
 
 use Sylius\Bundle\FixturesBundle\Fixture\AbstractFixture;
@@ -16,47 +18,26 @@ use Sylius\Component\Attribute\AttributeType\TextAttributeType;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 class TshirtProductFixture extends AbstractFixture
 {
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $taxonFixture;
 
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $productAttributeFixture;
 
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $productOptionFixture;
 
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $productFixture;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @var OptionsResolver
-     */
+    /** @var OptionsResolver */
     private $optionsResolver;
 
-    /**
-     * @param AbstractResourceFixture $taxonFixture
-     * @param AbstractResourceFixture $productAttributeFixture
-     * @param AbstractResourceFixture $productOptionFixture
-     * @param AbstractResourceFixture $productFixture
-     */
     public function __construct(
         AbstractResourceFixture $taxonFixture,
         AbstractResourceFixture $productAttributeFixture,
@@ -79,7 +60,7 @@ class TshirtProductFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'tshirt_product';
     }
@@ -87,7 +68,7 @@ class TshirtProductFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    public function load(array $options)
+    public function load(array $options): void
     {
         $options = $this->optionsResolver->resolve($options);
 
@@ -102,13 +83,29 @@ class TshirtProductFixture extends AbstractFixture
                     'children' => [
                         [
                             'code' => 'mens_t_shirts',
-                            'name' => 'Men',
-                            'slug' => 't-shirts/men',
+                            'translations' => [
+                                'en_US' => [
+                                    'name' => 'Men',
+                                    'slug' => 't-shirts/men',
+                                ],
+                                'fr_FR' => [
+                                    'name' => 'Hommes',
+                                    'slug' => 't-shirts/hommes',
+                                ],
+                            ],
                         ],
                         [
                             'code' => 'womens_t_shirts',
-                            'name' => 'Women',
-                            'slug' => 't-shirts/women',
+                            'translations' => [
+                                'en_US' => [
+                                    'name' => 'Women',
+                                    'slug' => 't-shirts/women',
+                                ],
+                                'fr_FR' => [
+                                    'name' => 'Hommes',
+                                    'slug' => 't-shirts/femmes',
+                                ],
+                            ],
                         ],
                     ],
                 ],
@@ -156,13 +153,19 @@ class TshirtProductFixture extends AbstractFixture
                 'taxons' => ['t_shirts', $categoryTaxonCode],
                 'product_attributes' => [
                     't_shirt_brand' => $this->faker->randomElement(['Nike', 'Adidas', 'JKM-476 Streetwear', 'Potato', 'Centipede Wear']),
-                    't_shirt_collection' => sprintf('Sylius %s %s', $this->faker->randomElement(['Summer', 'Winter', 'Spring', 'Autumn']), mt_rand(1995, 2012)),
+                    't_shirt_collection' => sprintf('Sylius %s %s', $this->faker->randomElement(['Summer', 'Winter', 'Spring', 'Autumn']), random_int(1995, 2012)),
                     't_shirt_material' => $this->faker->randomElement(['Centipede', 'Wool', 'Centipede 10% / Wool 90%', 'Potato 100%']),
                 ],
                 'product_options' => ['t_shirt_color', 't_shirt_size'],
                 'images' => [
-                    'main' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 't-shirts.jpg'),
-                    'thumbnail' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 't-shirts.jpg'),
+                    [
+                        'path' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 't-shirts.jpg'),
+                        'type' => 'main',
+                    ],
+                    [
+                        'path' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 't-shirts.jpg'),
+                        'type' => 'thumbnail',
+                    ],
                 ],
             ];
         }
@@ -173,7 +176,7 @@ class TshirtProductFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    protected function configureOptionsNode(ArrayNodeDefinition $optionsNode)
+    protected function configureOptionsNode(ArrayNodeDefinition $optionsNode): void
     {
         $optionsNode
             ->children()
@@ -181,12 +184,7 @@ class TshirtProductFixture extends AbstractFixture
         ;
     }
 
-    /**
-     * @param int $amount
-     *
-     * @return string
-     */
-    private function getUniqueNames($amount)
+    private function getUniqueNames(int $amount): array
     {
         $productsNames = [];
 

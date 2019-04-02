@@ -9,17 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Currency\Context;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface CurrencyContextInterface
 {
     /**
-     * @return string
-     *
      * @throws CurrencyNotFoundException
      */
-    public function getCurrencyCode();
+    public function getCurrencyCode(): string;
 }

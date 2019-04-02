@@ -9,18 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxonomy\Generator;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
+use Sylius\Component\Taxonomy\Model\TaxonInterface;
+
 interface TaxonSlugGeneratorInterface
 {
-    /**
-     * @param string $name
-     * @param int|null $parentId
-     *
-     * @return string
-     */
-    public function generate($name, $parentId = null);
+    public function generate(TaxonInterface $taxon, ?string $locale = null): string;
 }

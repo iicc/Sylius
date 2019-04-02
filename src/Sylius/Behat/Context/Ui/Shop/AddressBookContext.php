@@ -9,14 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Shop;
 
 use Behat\Behat\Context\Context;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
 use Sylius\Behat\NotificationType;
 use Sylius\Behat\Page\Shop\Account\AddressBook\CreatePageInterface;
 use Sylius\Behat\Page\Shop\Account\AddressBook\IndexPageInterface;
 use Sylius\Behat\Page\Shop\Account\AddressBook\UpdatePageInterface;
-use Sylius\Behat\Page\SymfonyPageInterface;
 use Sylius\Behat\Service\NotificationCheckerInterface;
 use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Behat\Service\SharedStorageInterface;
@@ -24,56 +26,29 @@ use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class AddressBookContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $addressRepository;
 
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $addressBookIndexPage;
 
-    /**
-     * @var CreatePageInterface
-     */
+    /** @var CreatePageInterface */
     private $addressBookCreatePage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $addressBookUpdatePage;
 
-    /**
-     * @var CurrentPageResolverInterface
-     */
+    /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
-    /**
-     * @var NotificationCheckerInterface
-     */
+    /** @var NotificationCheckerInterface */
     private $notificationChecker;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param RepositoryInterface $addressRepository
-     * @param IndexPageInterface $addressBookIndexPage
-     * @param CreatePageInterface $addressBookCreatePage
-     * @param UpdatePageInterface $addressBookUpdatePage
-     * @param CurrentPageResolverInterface $currentPageResolver
-     * @param NotificationCheckerInterface $notificationChecker
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         RepositoryInterface $addressRepository,
@@ -224,7 +199,7 @@ final class AddressBookContext implements Context
     {
         $fullName = $this->sharedStorage->get('full_name');
 
-        $this->addressBookIndexPage->addressOfContains($fullName, $value);
+        Assert::true($this->addressBookIndexPage->addressOfContains($fullName, $value));
     }
 
     /**
@@ -233,10 +208,7 @@ final class AddressBookContext implements Context
      */
     public function thisAddressShouldHavePersonFirstNameAndLastName($fullName)
     {
-        Assert::true(
-            $this->addressBookIndexPage->hasAddressOf($fullName),
-            sprintf('An address of "%s" should be on the list.', $fullName)
-        );
+        Assert::true($this->addressBookIndexPage->hasAddressOf($fullName));
     }
 
     /**
@@ -244,10 +216,7 @@ final class AddressBookContext implements Context
      */
     public function iShouldStillBeOnAddressAdditionPage()
     {
-        Assert::true(
-            $this->addressBookCreatePage->isOpen(),
-            'The address creation page should be opened.'
-        );
+        $this->addressBookCreatePage->verify();
     }
 
     /**
@@ -265,13 +234,7 @@ final class AddressBookContext implements Context
      */
     public function iShouldStillHaveAsMySpecifiedProvince($value)
     {
-        $actualValue = $this->addressBookUpdatePage->getSpecifiedProvince();
-
-        Assert::same(
-            $actualValue,
-            $value,
-            sprintf('Address\'s province should be %s, but is %s.', $value, $actualValue)
-        );
+        Assert::same($this->addressBookUpdatePage->getSpecifiedProvince(), $value);
     }
 
     /**
@@ -279,13 +242,7 @@ final class AddressBookContext implements Context
      */
     public function iShouldStillHaveAsMyChosenProvince($value)
     {
-        $actualValue = $this->addressBookUpdatePage->getSelectedProvince();
-
-        Assert::same(
-            $actualValue,
-            $value,
-            sprintf('Address\'s province should be %s, but is %s.', $value, $actualValue)
-        );
+        Assert::same($this->addressBookUpdatePage->getSelectedProvince(), $value);
     }
 
     /**
@@ -293,10 +250,7 @@ final class AddressBookContext implements Context
      */
     public function iShouldBeNotifiedThatTheProvinceNeedsToBeSpecified()
     {
-        Assert::true(
-            $this->addressBookCreatePage->hasProvinceValidationMessage(),
-            'Province validation messages should be visible.'
-        );
+        Assert::true($this->addressBookCreatePage->hasProvinceValidationMessage());
     }
 
     /**
@@ -304,13 +258,7 @@ final class AddressBookContext implements Context
      */
     public function iShouldBeNotifiedAboutErrors($expectedCount)
     {
-        $actualCount = $this->addressBookCreatePage->countValidationMessages();
-
-        Assert::same(
-            (int) $expectedCount,
-            $actualCount,
-            sprintf('There should be %d validation messages, but %d has been found.', $expectedCount, $actualCount)
-        );
+        Assert::same($this->addressBookCreatePage->countValidationMessages(), (int) $expectedCount);
     }
 
     /**
@@ -318,10 +266,7 @@ final class AddressBookContext implements Context
      */
     public function thereShouldBeNoAddresses()
     {
-        Assert::true(
-            $this->addressBookIndexPage->hasNoAddresses(),
-            'There should be no addresses on the list.'
-        );
+        Assert::true($this->addressBookIndexPage->hasNoAddresses());
     }
 
     /**
@@ -329,10 +274,7 @@ final class AddressBookContext implements Context
      */
     public function iShouldNotSeeAddressOf($fullName)
     {
-        Assert::false(
-            $this->addressBookIndexPage->hasAddressOf($fullName),
-            sprintf('The address of "%s" should not be on the list.', $fullName)
-        );
+        Assert::false($this->addressBookIndexPage->hasAddressOf($fullName));
     }
 
     /**
@@ -343,7 +285,7 @@ final class AddressBookContext implements Context
     {
         $this->addressBookIndexPage->open();
 
-        $this->assertAddressesCountOnPage((int) $count);
+        Assert::same($this->addressBookIndexPage->getAddressesCount(), (int) $count);
     }
 
     /**
@@ -369,14 +311,7 @@ final class AddressBookContext implements Context
     {
         $address = $this->getAddressOf($this->sharedStorage->getLatestResource());
 
-        Assert::false(
-            $this->addressBookUpdatePage->isOpen(['id' => $address->getId()]),
-            sprintf(
-                'I should be unable to edit the address of "%s %s"',
-                $address->getFirstName(),
-                $address->getLastName()
-            )
-        );
+        Assert::false($this->addressBookUpdatePage->isOpen(['id' => $address->getId()]));
     }
 
     /**
@@ -400,10 +335,7 @@ final class AddressBookContext implements Context
      */
     public function iShouldHaveNoDefaultAddress()
     {
-        Assert::true(
-            $this->addressBookIndexPage->hasNoDefaultAddress(),
-            'There should be no default address.'
-        );
+        Assert::true($this->addressBookIndexPage->hasNoDefaultAddress());
     }
 
     /**
@@ -414,11 +346,7 @@ final class AddressBookContext implements Context
         $actualFullName = $this->addressBookIndexPage->getFullNameOfDefaultAddress();
         $expectedFullName = sprintf('%s %s', $address->getFirstName(), $address->getLastName());
 
-        Assert::same(
-            $expectedFullName,
-            $actualFullName,
-            sprintf('The default address should be of "%s", but is of "%s".', $expectedFullName, $actualFullName)
-        );
+        Assert::same($actualFullName, $expectedFullName);
     }
 
     /**
@@ -428,7 +356,7 @@ final class AddressBookContext implements Context
      */
     private function getAddressOf($fullName)
     {
-        list($firstName, $lastName) = explode(' ', $fullName);
+        [$firstName, $lastName] = explode(' ', $fullName);
 
         /** @var AddressInterface $address */
         $address = $this->addressRepository->findOneBy(['firstName' => $firstName, 'lastName' => $lastName]);
@@ -446,27 +374,7 @@ final class AddressBookContext implements Context
             ->currentPageResolver
             ->getCurrentPageWithForm([
                 $this->addressBookCreatePage,
-                $this->addressBookUpdatePage
+                $this->addressBookUpdatePage,
         ]);
-    }
-
-    /**
-     * @param int $expectedCount
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function assertAddressesCountOnPage($expectedCount)
-    {
-        $actualCount = $this->addressBookIndexPage->getAddressesCount();
-
-        Assert::same(
-            $expectedCount,
-            $actualCount,
-            sprintf(
-                'There should be %d addresses on the list, but %d addresses has been found.',
-                $expectedCount,
-                $actualCount
-            )
-        );
     }
 }

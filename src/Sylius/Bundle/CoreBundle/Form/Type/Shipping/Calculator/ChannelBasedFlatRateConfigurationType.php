@@ -9,54 +9,46 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\Type\Shipping\Calculator;
 
+use Sylius\Bundle\CoreBundle\Form\Type\ChannelCollectionType;
 use Sylius\Bundle\ShippingBundle\Form\Type\Calculator\FlatRateConfigurationType;
-use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class ChannelBasedFlatRateConfigurationType extends AbstractType
 {
     /**
-     * @var ChannelRepositoryInterface
-     */
-    private $channelRepository;
-
-    /**
-     * @param ChannelRepositoryInterface $channelRepository
-     */
-    public function __construct(ChannelRepositoryInterface $channelRepository)
-    {
-        $this->channelRepository = $channelRepository;
-    }
-
-    /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        /**
-         * @var ChannelInterface $channel
-         */
-        foreach ($this->channelRepository->findAll() as $channel) {
-            $builder
-                ->add($channel->getCode(), FlatRateConfigurationType::class, [
+        $resolver->setDefaults([
+            'entry_type' => FlatRateConfigurationType::class,
+            'entry_options' => function (ChannelInterface $channel): array {
+                return [
                     'label' => $channel->getName(),
                     'currency' => $channel->getBaseCurrency()->getCode(),
-                ])
-            ;
-        }
+                ];
+            },
+        ]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getParent(): string
+    {
+        return ChannelCollectionType::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix(): string
     {
         return 'sylius_channel_based_shipping_calculator_flat_rate';
     }

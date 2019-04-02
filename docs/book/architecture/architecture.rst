@@ -47,6 +47,19 @@ Twig
 
 To read more about Twig, `go here <http://twig.sensiolabs.org/>`_.
 
+Architecture
+------------
+
+On the below image you can see the symbolic representation of Sylius architecture.
+
+.. image:: ../../_images/architecture_overview.png
+    :align: center
+    :scale: 50%
+
+|
+
+Keep on reading this chapter to learn more about each of its parts: Shop, Admin, API, Core, Components and Bundles.
+
 Division into Components, Bundles, Platform
 -------------------------------------------
 
@@ -54,7 +67,7 @@ Components
 ~~~~~~~~~~
 
 Every single component of Sylius can be used standalone. Taking the ``Taxation`` component as an example,
-it's only responsibility is to calculate taxes, it does not matter whether these will be taxes for products or anything else, it is fully decoupled.
+its only responsibility is to calculate taxes, it does not matter whether these will be taxes for products or anything else, it is fully decoupled.
 In order to let the Taxation component operate on your objects you need to have them implementing the ``TaxableInterface``.
 Since then they can have taxes calculated.
 Such approach is true for every component of Sylius.
@@ -62,7 +75,7 @@ Besides components that are strictly connected to the e-commerce needs, we have 
 
 All the components are packages available via `Packagist <https://packagist.org/>`_.
 
-:doc:`Read more about the Components </components/index>`.
+:doc:`Read more about the Components </components_and_bundles/components/index>`.
 
 Bundles
 ~~~~~~~
@@ -71,7 +84,7 @@ These are the Symfony Bundles - therefore if you are a Symfony Developer, and yo
 but you do not want to spend time on configuring forms or services in the container. You can include the ``TaxationBundle`` in your application
 with minimal or even no configuration to have access to all the services, models, configure tax rates, tax categories and use that for any taxes you will need.
 
-:doc:`Read more about the Bundles </bundles/index>`.
+:doc:`Read more about the Bundles </components_and_bundles/bundles/index>`.
 
 Platform
 ~~~~~~~~
@@ -119,9 +132,9 @@ Third Party Libraries
 
 Sylius uses a lot of libraries for various tasks:
 
-* `SymfonyCMF <http://cmf.symfony.com/>`_ for content management
+* `Payum <https://github.com/Payum/Payum>`_ for payments
+* `KnpMenu <http://symfony.com/doc/current/bundles/KnpMenuBundle/index.html>`_ - for shop and admin menus
 * `Gaufrette <https://github.com/KnpLabs/Gaufrette>`_ for filesystem abstraction (store images locally, Amazon S3 or external server)
 * `Imagine <https://github.com/liip/LiipImagineBundle>`_ for images processing, generating thumbnails and cropping
-* `Snappy <https://github.com/KnpLabs/snappy>`_ for generating PDF files
 * `Pagerfanta <https://github.com/whiteoctober/Pagerfanta>`_ for pagination
-* `Payum <https://github.com/Payum/Payum>`_ for payments
+* `Winzou State Machine <https://github.com/winzou/StateMachineBundle>`_ -  for the state machines handling

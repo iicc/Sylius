@@ -9,19 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Generator;
 
 use Sylius\Component\Product\Model\ProductInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ProductVariantGeneratorInterface
 {
     /**
-     * @param ProductInterface $product
-     *
      * @throws \InvalidArgumentException
      */
-    public function generate(ProductInterface $product);
+    public function generate(ProductInterface $product): void;
 }

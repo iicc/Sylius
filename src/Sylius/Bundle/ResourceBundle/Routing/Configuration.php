@@ -9,28 +9,40 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Routing;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class Configuration implements ConfigurationInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('routing');
+        if (method_exists(TreeBuilder::class, 'getRootNode')) {
+            $treeBuilder = new TreeBuilder('routing');
+            $rootNode = $treeBuilder->getRootNode();
+        } else {
+            // BC layer for symfony/config 4.1 and older
+            $treeBuilder = new TreeBuilder();
+            $rootNode = $treeBuilder->root('routing');
+        }
 
         $rootNode
             ->children()
                 ->scalarNode('alias')->isRequired()->cannotBeEmpty()->end()
-                ->scalarNode('path')->cannotBeEmpty()->end()
+                ->scalarNode('path')->defaultValue(null)->end()
+                ->scalarNode('identifier')->defaultValue('id')->end()
+                ->arrayNode('criteria')
+                    ->useAttributeAsKey('identifier')
+                    ->scalarPrototype()
+                    ->end()
+                ->end()
+                ->booleanNode('filterable')->end()
                 ->variableNode('form')->cannotBeEmpty()->end()
                 ->scalarNode('serialization_version')->cannotBeEmpty()->end()
                 ->scalarNode('section')->cannotBeEmpty()->end()
@@ -39,10 +51,10 @@ final class Configuration implements ConfigurationInterface
                 ->scalarNode('grid')->cannotBeEmpty()->end()
                 ->booleanNode('permission')->defaultValue(false)->end()
                 ->arrayNode('except')
-                    ->prototype('scalar')->end()
+                    ->scalarPrototype()->end()
                 ->end()
                 ->arrayNode('only')
-                    ->prototype('scalar')->end()
+                    ->scalarPrototype()->end()
                 ->end()
                 ->variableNode('vars')->cannotBeEmpty()->end()
             ->end()

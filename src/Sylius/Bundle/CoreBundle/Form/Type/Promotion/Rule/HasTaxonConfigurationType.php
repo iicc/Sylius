@@ -9,26 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\Type\Promotion\Rule;
 
-use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonChoiceType;
+use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonAutocompleteChoiceType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 final class HasTaxonConfigurationType extends AbstractType
 {
-    /**
-     * @var DataTransformerInterface
-     */
+    /** @var DataTransformerInterface */
     private $taxonsToCodesTransformer;
 
-    /**
-     * @param DataTransformerInterface $taxonsToCodesTransformer
-     */
     public function __construct(DataTransformerInterface $taxonsToCodesTransformer)
     {
         $this->taxonsToCodesTransformer = $taxonsToCodesTransformer;
@@ -37,10 +31,10 @@ final class HasTaxonConfigurationType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('taxons', TaxonChoiceType::class, [
+            ->add('taxons', TaxonAutocompleteChoiceType::class, [
                 'label' => 'sylius.form.promotion_rule.has_taxon.taxons',
                 'multiple' => true,
             ])
@@ -52,7 +46,7 @@ final class HasTaxonConfigurationType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_promotion_rule_has_taxon_configuration';
     }

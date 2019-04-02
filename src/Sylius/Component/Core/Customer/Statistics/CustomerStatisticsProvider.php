@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Customer\Statistics;
 
 use Sylius\Component\Core\Model\ChannelInterface;
@@ -17,25 +19,14 @@ use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class CustomerStatisticsProvider implements CustomerStatisticsProviderInterface
 {
-    /**
-     * @var OrderRepositoryInterface
-     */
+    /** @var OrderRepositoryInterface */
     private $orderRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $channelRepository;
 
-    /**
-     * @param OrderRepositoryInterface $orderRepository
-     * @param RepositoryInterface $channelRepository
-     */
     public function __construct(OrderRepositoryInterface $orderRepository, RepositoryInterface $channelRepository)
     {
         $this->orderRepository = $orderRepository;
@@ -45,9 +36,9 @@ final class CustomerStatisticsProvider implements CustomerStatisticsProviderInte
     /**
      * {@inheritdoc}
      */
-    public function getCustomerStatistics(CustomerInterface $customer)
+    public function getCustomerStatistics(CustomerInterface $customer): CustomerStatistics
     {
-        $orders = $this->orderRepository->findByCustomer($customer);
+        $orders = $this->orderRepository->findForCustomerStatistics($customer);
         if (empty($orders)) {
             return new CustomerStatistics([]);
         }
@@ -72,25 +63,23 @@ final class CustomerStatisticsProvider implements CustomerStatisticsProviderInte
     }
 
     /**
-     * @param OrderInterface[] $orders
-     *
-     * @return int
+     * @param array|OrderInterface[] $orders
      */
-    private function getOrdersSummedTotal(array $orders)
+    private function getOrdersSummedTotal(array $orders): int
     {
-        return array_sum(array_map(function (OrderInterface $order) {
+        return array_sum(
+            array_map(function (OrderInterface $order) {
                 return $order->getTotal();
             }, $orders)
         );
     }
 
     /**
-     * @param OrderInterface[] $orders
-     * @param ChannelInterface $channel
+     * @param array|OrderInterface[] $orders
      *
-     * @return OrderInterface[]
+     * @return array|OrderInterface[]
      */
-    private function filterOrdersByChannel(array $orders, ChannelInterface $channel)
+    private function filterOrdersByChannel(array $orders, ChannelInterface $channel): array
     {
         return array_filter($orders, function (OrderInterface $order) use ($channel) {
             return $order->getChannel() === $channel;

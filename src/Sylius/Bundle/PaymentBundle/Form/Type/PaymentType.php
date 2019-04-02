@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PaymentBundle\Form\Type;
 
 use Sylius\Bundle\MoneyBundle\Form\Type\MoneyType;
@@ -17,15 +19,12 @@ use Sylius\Component\Payment\Model\PaymentInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class PaymentType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('method', PaymentMethodChoiceType::class, [
@@ -38,13 +37,10 @@ final class PaymentType extends AbstractResourceType
                 'choices' => [
                     'sylius.form.payment.state.processing' => PaymentInterface::STATE_PROCESSING,
                     'sylius.form.payment.state.failed' => PaymentInterface::STATE_FAILED,
-                    'sylius.form.payment.state.void' => PaymentInterface::STATE_VOID,
                     'sylius.form.payment.state.completed' => PaymentInterface::STATE_COMPLETED,
-                    'sylius.form.payment.state.authorized' => PaymentInterface::STATE_AUTHORIZED,
                     'sylius.form.payment.state.new' => PaymentInterface::STATE_NEW,
                     'sylius.form.payment.state.cancelled' => PaymentInterface::STATE_CANCELLED,
                     'sylius.form.payment.state.refunded' => PaymentInterface::STATE_REFUNDED,
-                    'sylius.form.payment.state.unknown' => PaymentInterface::STATE_UNKNOWN,
                 ],
                 'label' => 'sylius.form.payment.state.header',
             ])
@@ -54,7 +50,7 @@ final class PaymentType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_payment';
     }

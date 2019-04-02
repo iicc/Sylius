@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\GridBundle\FieldTypes;
 
 use Sylius\Component\Grid\DataExtractor\DataExtractorInterface;
@@ -16,25 +18,14 @@ use Sylius\Component\Grid\Definition\Field;
 use Sylius\Component\Grid\FieldTypes\FieldTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class TwigFieldType implements FieldTypeInterface
 {
-    /**
-     * @var DataExtractorInterface
-     */
+    /** @var DataExtractorInterface */
     private $dataExtractor;
 
-    /**
-     * @var \Twig_Environment
-     */
+    /** @var \Twig_Environment */
     private $twig;
 
-    /**
-     * @param DataExtractorInterface $dataExtractor
-     * @param \Twig_Environment $twig
-     */
     public function __construct(DataExtractorInterface $dataExtractor, \Twig_Environment $twig)
     {
         $this->dataExtractor = $dataExtractor;
@@ -56,20 +47,12 @@ final class TwigFieldType implements FieldTypeInterface
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setRequired('template');
         $resolver->setAllowedTypes('template', 'string');
 
         $resolver->setDefined('vars');
         $resolver->setAllowedTypes('vars', 'array');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'twig';
     }
 }

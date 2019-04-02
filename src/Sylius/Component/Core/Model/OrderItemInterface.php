@@ -9,42 +9,31 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Sylius\Component\Order\Model\OrderItemInterface as BaseOrderItemInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface OrderItemInterface extends BaseOrderItemInterface
 {
-    /**
-     * @return ProductInterface
-     */
-    public function getProduct();
+    public function getProduct(): ?ProductInterface;
 
-    /**
-     * @return ProductVariantInterface
-     */
-    public function getVariant();
+    public function getVariant(): ?ProductVariantInterface;
 
-    /**
-     * @param ProductVariantInterface $variant
-     */
-    public function setVariant(ProductVariantInterface $variant);
+    public function setVariant(?ProductVariantInterface $variant): void;
 
-    /**
-     * @return int
-     */
-    public function getTaxTotal();
+    public function getProductName(): ?string;
 
-    /**
-     * @return int
-     */
-    public function getDiscountedUnitPrice();
+    public function setProductName(?string $productName): void;
 
-    /**
-     * @return int
-     */
-    public function getSubtotal();
+    public function getVariantName(): ?string;
+
+    public function setVariantName(?string $variantName): void;
+
+    public function getTaxTotal(): int;
+
+    public function getDiscountedUnitPrice(): int;
+
+    public function getSubtotal(): int;
 }

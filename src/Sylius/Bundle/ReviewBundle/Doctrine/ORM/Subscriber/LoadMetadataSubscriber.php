@@ -9,26 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ReviewBundle\Doctrine\ORM\Subscriber;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
+use Doctrine\ORM\Mapping\ClassMetadata;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class LoadMetadataSubscriber implements EventSubscriber
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $subjects;
 
-    /**
-     * @param array $subjects
-     */
     public function __construct(array $subjects)
     {
         $this->subjects = $subjects;
@@ -37,19 +31,20 @@ final class LoadMetadataSubscriber implements EventSubscriber
     /**
      * {@inheritdoc}
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             'loadClassMetadata',
         ];
     }
 
-    /**
-     * @param LoadClassMetadataEventArgs $eventArguments
-     */
-    public function loadClassMetadata(LoadClassMetadataEventArgs $eventArguments)
+    public function loadClassMetadata(LoadClassMetadataEventArgs $eventArguments): void
     {
         $metadata = $eventArguments->getClassMetadata();
+
+        /** @var ClassMetadata $metadata */
+        Assert::isInstanceOf($metadata, ClassMetadata::class);
+
         $metadataFactory = $eventArguments->getEntityManager()->getMetadataFactory();
 
         foreach ($this->subjects as $subject => $class) {
@@ -71,57 +66,40 @@ final class LoadMetadataSubscriber implements EventSubscriber
         }
     }
 
-    /**
-     * @param string $reviewableEntity
-     * @param string $subject
-     * @param ClassMetadata $reviewableEntityMetadata
-     *
-     * @return array
-     */
-    private function createSubjectMapping($reviewableEntity, $subject, ClassMetadata $reviewableEntityMetadata)
-    {
+    private function createSubjectMapping(
+        string $reviewableEntity,
+        string $subject,
+        ClassMetadata $reviewableEntityMetadata
+    ): array {
         return [
             'fieldName' => 'reviewSubject',
             'targetEntity' => $reviewableEntity,
             'inversedBy' => 'reviews',
-            'joinColumns' => [
-                [
-                    'name' => $subject.'_id',
-                    'referencedColumnName' => $reviewableEntityMetadata->fieldMappings['id']['columnName'],
-                    'nullable' => false,
-                    'onDelete' => 'CASCADE',
-                ],
-            ],
+            'joinColumns' => [[
+                'name' => $subject . '_id',
+                'referencedColumnName' => $reviewableEntityMetadata->fieldMappings['id']['columnName'],
+                'nullable' => false,
+                'onDelete' => 'CASCADE',
+            ]],
         ];
     }
 
-    /**
-     * @param string $reviewerEntity
-     * @param ClassMetadata $reviewerEntityMetadata
-     *
-     * @return array
-     */
-    private function createReviewerMapping($reviewerEntity, ClassMetadata $reviewerEntityMetadata)
+    private function createReviewerMapping(string $reviewerEntity, ClassMetadata $reviewerEntityMetadata): array
     {
         return [
             'fieldName' => 'author',
             'targetEntity' => $reviewerEntity,
-            'joinColumn' => [
+            'joinColumns' => [[
                 'name' => 'author_id',
                 'referencedColumnName' => $reviewerEntityMetadata->fieldMappings['id']['columnName'],
                 'nullable' => false,
                 'onDelete' => 'CASCADE',
-            ],
+            ]],
             'cascade' => ['persist'],
         ];
     }
 
-    /**
-     * @param string $reviewEntity
-     *
-     * @return array
-     */
-    private function createReviewsMapping($reviewEntity)
+    private function createReviewsMapping(string $reviewEntity): array
     {
         return [
             'fieldName' => 'reviews',

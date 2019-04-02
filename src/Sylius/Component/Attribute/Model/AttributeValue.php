@@ -9,69 +9,45 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Attribute\Model;
 
 use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 class AttributeValue implements AttributeValueInterface
 {
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var AttributeSubjectInterface
-     */
+    /** @var AttributeSubjectInterface */
     protected $subject;
 
-    /**
-     * @var AttributeInterface
-     */
+    /** @var AttributeInterface */
     protected $attribute;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $localeCode;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $text;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $boolean;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $integer;
 
-    /**
-     * @var float
-     */
+    /** @var float */
     private $float;
 
-    /**
-     * @var \DateTime
-     */
+    /** @var \DateTimeInterface */
     private $datetime;
 
-    /**
-     * @var \DateTime
-     */
+    /** @var \DateTimeInterface */
     private $date;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $json;
 
     /**
@@ -85,7 +61,7 @@ class AttributeValue implements AttributeValueInterface
     /**
      * {@inheritdoc}
      */
-    public function getSubject()
+    public function getSubject(): ?AttributeSubjectInterface
     {
         return $this->subject;
     }
@@ -93,7 +69,7 @@ class AttributeValue implements AttributeValueInterface
     /**
      * {@inheritdoc}
      */
-    public function setSubject(AttributeSubjectInterface $subject = null)
+    public function setSubject(?AttributeSubjectInterface $subject): void
     {
         $this->subject = $subject;
     }
@@ -101,7 +77,7 @@ class AttributeValue implements AttributeValueInterface
     /**
      * {@inheritdoc}
      */
-    public function getAttribute()
+    public function getAttribute(): ?AttributeInterface
     {
         return $this->attribute;
     }
@@ -109,7 +85,7 @@ class AttributeValue implements AttributeValueInterface
     /**
      * {@inheritdoc}
      */
-    public function setAttribute(AttributeInterface $attribute)
+    public function setAttribute(?AttributeInterface $attribute): void
     {
         $this->attribute = $attribute;
     }
@@ -117,7 +93,7 @@ class AttributeValue implements AttributeValueInterface
     /**
      * {@inheritdoc}
      */
-    public function getLocaleCode()
+    public function getLocaleCode(): ?string
     {
         return $this->localeCode;
     }
@@ -125,7 +101,7 @@ class AttributeValue implements AttributeValueInterface
     /**
      * {@inheritdoc}
      */
-    public function setLocaleCode($localeCode)
+    public function setLocaleCode(?string $localeCode): void
     {
         Assert::string($localeCode);
 
@@ -149,7 +125,7 @@ class AttributeValue implements AttributeValueInterface
     /**
      * {@inheritdoc}
      */
-    public function setValue($value)
+    public function setValue($value): void
     {
         $this->assertAttributeIsSet();
 
@@ -161,7 +137,7 @@ class AttributeValue implements AttributeValueInterface
     /**
      * {@inheritdoc}
      */
-    public function getCode()
+    public function getCode(): ?string
     {
         $this->assertAttributeIsSet();
 
@@ -171,7 +147,7 @@ class AttributeValue implements AttributeValueInterface
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): ?string
     {
         $this->assertAttributeIsSet();
 
@@ -181,121 +157,82 @@ class AttributeValue implements AttributeValueInterface
     /**
      * {@inheritdoc}
      */
-    public function getType()
+    public function getType(): ?string
     {
         $this->assertAttributeIsSet();
 
         return $this->attribute->getType();
     }
 
-    /**
-     * @return bool
-     */
-    protected function getBoolean()
+    protected function getBoolean(): ?bool
     {
         return $this->boolean;
     }
 
-    /**
-     * @param bool $boolean
-     */
-    protected function setBoolean($boolean)
+    protected function setBoolean(?bool $boolean): void
     {
         $this->boolean = $boolean;
     }
 
-    /**
-     * @return string
-     */
-    protected function getText()
+    protected function getText(): ?string
     {
         return $this->text;
     }
 
-    /**
-     * @param string $text
-     */
-    protected function setText($text)
+    protected function setText(?string $text): void
     {
         $this->text = $text;
     }
 
-    /**
-     * @return int
-     */
-    protected function getInteger()
+    protected function getInteger(): ?int
     {
         return $this->integer;
     }
 
-    /**
-     * @param int $integer
-     */
-    protected function setInteger($integer)
+    protected function setInteger(?int $integer): void
     {
         $this->integer = $integer;
     }
 
-    /**
-     * @return float
-     */
-    protected function getFloat()
+    protected function getFloat(): ?float
     {
         return $this->float;
     }
 
-    /**
-     * @param float $float
-     */
-    protected function setFloat($float)
+    protected function setFloat(?float $float): void
     {
         $this->float = $float;
     }
 
-    /**
-     * @return \DateTime
-     */
-    protected function getDatetime()
+    protected function getDatetime(): ?\DateTimeInterface
     {
         return $this->datetime;
     }
 
     /**
-     * @param \DateTime $datetime
+     * @param \DateTimeInterface $datetime
      */
-    protected function setDatetime(\DateTime $datetime)
+    protected function setDatetime(?\DateTimeInterface $datetime): void
     {
         $this->datetime = $datetime;
     }
 
-    /**
-     * @return \DateTime
-     */
-    protected function getDate()
+    protected function getDate(): ?\DateTimeInterface
     {
         return $this->date;
     }
 
-    /**
-     * @param \DateTime $date
-     */
-    protected function setDate(\DateTime $date)
+    protected function setDate(?\DateTimeInterface $date): void
     {
         $this->date = $date;
     }
 
-    /**
-     * @return array
-     */
-    public function getJson()
+    protected function getJson(): ?array
     {
         return $this->json;
     }
 
-    /**
-     * @param array $json
-     */
-    public function setJson(array $json)
+    protected function setJson(?array $json): void
     {
         $this->json = $json;
     }

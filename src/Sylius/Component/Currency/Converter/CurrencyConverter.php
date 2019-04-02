@@ -9,29 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Currency\Converter;
 
 use Sylius\Component\Currency\Model\ExchangeRateInterface;
 use Sylius\Component\Currency\Repository\ExchangeRateRepositoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class CurrencyConverter implements CurrencyConverterInterface
 {
-    /**
-     * @var ExchangeRateRepositoryInterface
-     */
+    /** @var ExchangeRateRepositoryInterface */
     private $exchangeRateRepository;
 
-    /**
-     * @var array
-     */
+    /** @var array|ExchangeRateInterface[] */
     private $cache;
 
-    /**
-     * @param ExchangeRateRepositoryInterface $exchangeRateRepository
-     */
     public function __construct(ExchangeRateRepositoryInterface $exchangeRateRepository)
     {
         $this->exchangeRateRepository = $exchangeRateRepository;
@@ -40,13 +32,13 @@ final class CurrencyConverter implements CurrencyConverterInterface
     /**
      * {@inheritdoc}
      */
-    public function convert($amount, $sourceCurrencyCode, $targetCurrencyCode)
+    public function convert(int $amount, string $sourceCurrencyCode, string $targetCurrencyCode): int
     {
         if ($sourceCurrencyCode === $targetCurrencyCode) {
             return $amount;
         }
 
-        $exchangeRate = $this->getExchangeRate($sourceCurrencyCode, $targetCurrencyCode);
+        $exchangeRate = $this->findExchangeRate($sourceCurrencyCode, $targetCurrencyCode);
 
         if (null === $exchangeRate) {
             return $amount;
@@ -59,13 +51,7 @@ final class CurrencyConverter implements CurrencyConverterInterface
         return (int) round($amount / $exchangeRate->getRatio());
     }
 
-    /**
-     * @param string $sourceCode
-     * @param string $targetCode
-     *
-     * @return ExchangeRateInterface
-     */
-    private function getExchangeRate($sourceCode, $targetCode)
+    private function findExchangeRate(string $sourceCode, string $targetCode): ?ExchangeRateInterface
     {
         $sourceTargetIndex = $this->createIndex($sourceCode, $targetCode);
 
@@ -82,13 +68,7 @@ final class CurrencyConverter implements CurrencyConverterInterface
         return $this->cache[$sourceTargetIndex] = $this->exchangeRateRepository->findOneWithCurrencyPair($sourceCode, $targetCode);
     }
 
-    /**
-     * @param $prefix
-     * @param $suffix
-     *
-     * @return string
-     */
-    private function createIndex($prefix, $suffix)
+    private function createIndex(string $prefix, string $suffix): string
     {
         return sprintf('%s-%s', $prefix, $suffix);
     }

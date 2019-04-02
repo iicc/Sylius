@@ -9,40 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Channel\Context;
 
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class CachedPerRequestChannelContext implements ChannelContextInterface
 {
-    /**
-     * @var ChannelContextInterface
-     */
+    /** @var ChannelContextInterface */
     private $decoratedChannelContext;
 
-    /**
-     * @var RequestStack
-     */
+    /** @var RequestStack */
     private $requestStack;
 
-    /**
-     * @var \SplObjectStorage|ChannelInterface[]
-     */
+    /** @var \SplObjectStorage|ChannelInterface[] */
     private $requestToChannelMap;
 
-    /**
-     * @var \SplObjectStorage|ChannelNotFoundException[]
-     */
+    /** @var \SplObjectStorage|ChannelNotFoundException[] */
     private $requestToExceptionMap;
 
-    /**
-     * @param ChannelContextInterface $decoratedChannelContext
-     * @param RequestStack $requestStack
-     */
     public function __construct(ChannelContextInterface $decoratedChannelContext, RequestStack $requestStack)
     {
         $this->decoratedChannelContext = $decoratedChannelContext;
@@ -55,7 +42,7 @@ final class CachedPerRequestChannelContext implements ChannelContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getChannel()
+    public function getChannel(): ChannelInterface
     {
         $objectIdentifier = $this->requestStack->getMasterRequest();
 

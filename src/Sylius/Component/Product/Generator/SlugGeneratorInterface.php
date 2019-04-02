@@ -9,17 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Generator;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 interface SlugGeneratorInterface
 {
-    /**
-     * @param string $name
-     *
-     * @return string
-     */
-    public function generate($name);
+    public function generate(string $name): string;
 }

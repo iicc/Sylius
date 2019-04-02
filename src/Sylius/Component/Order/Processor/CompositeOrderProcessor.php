@@ -9,19 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Order\Processor;
 
 use Sylius\Component\Order\Model\OrderInterface;
 use Zend\Stdlib\PriorityQueue;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class CompositeOrderProcessor implements OrderProcessorInterface
 {
-    /**
-     * @var PriorityQueue|OrderProcessorInterface[]
-     */
+    /** @var PriorityQueue|OrderProcessorInterface[] */
     private $orderProcessors;
 
     public function __construct()
@@ -29,11 +26,7 @@ final class CompositeOrderProcessor implements OrderProcessorInterface
         $this->orderProcessors = new PriorityQueue();
     }
 
-    /**
-     * @param OrderProcessorInterface $orderProcessor
-     * @param int $priority
-     */
-    public function addProcessor(OrderProcessorInterface $orderProcessor, $priority = 0)
+    public function addProcessor(OrderProcessorInterface $orderProcessor, int $priority = 0): void
     {
         $this->orderProcessors->insert($orderProcessor, $priority);
     }
@@ -41,7 +34,7 @@ final class CompositeOrderProcessor implements OrderProcessorInterface
     /**
      * {@inheritdoc}
      */
-    public function process(OrderInterface $order)
+    public function process(OrderInterface $order): void
     {
         foreach ($this->orderProcessors as $orderProcessor) {
             $orderProcessor->process($order);

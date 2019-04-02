@@ -9,25 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Shop;
 
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Page\Shop\HomePageInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class CurrencyContext implements Context
 {
-    /**
-     * @var HomePageInterface
-     */
+    /** @var HomePageInterface */
     private $homePage;
 
-    /**
-     * @param HomePageInterface $homePage
-     */
     public function __construct(HomePageInterface $homePage)
     {
         $this->homePage = $homePage;
@@ -50,7 +44,7 @@ final class CurrencyContext implements Context
     {
         $this->homePage->open();
 
-        Assert::same($currencyCode, $this->homePage->getActiveCurrency());
+        Assert::same($this->homePage->getActiveCurrency(), $currencyCode);
     }
 
     /**

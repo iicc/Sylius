@@ -9,126 +9,64 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Customer\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 
-/**
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 interface CustomerInterface extends TimestampableInterface, ResourceInterface
 {
-    const UNKNOWN_GENDER = 'u';
-    const MALE_GENDER = 'm';
-    const FEMALE_GENDER = 'f';
+    public const UNKNOWN_GENDER = 'u';
+    public const MALE_GENDER = 'm';
+    public const FEMALE_GENDER = 'f';
 
-    /**
-     * @return string
-     */
-    public function getEmail();
+    public function getEmail(): ?string;
 
-    /**
-     * @param  string $email
-     */
-    public function setEmail($email);
+    public function setEmail(?string $email): void;
 
     /**
      * Gets normalized email (should be used in search and sort queries).
-     *
-     * @return string
      */
-    public function getEmailCanonical();
+    public function getEmailCanonical(): ?string;
 
-    /**
-     * @param  string $emailCanonical
-     */
-    public function setEmailCanonical($emailCanonical);
+    public function setEmailCanonical(?string $emailCanonical): void;
 
-    /**
-     * @return string
-     */
-    public function getFullName();
+    public function getFullName(): string;
 
-    /**
-     * @return string
-     */
-    public function getFirstName();
+    public function getFirstName(): ?string;
 
-    /**
-     * @param  string $firstName
-     */
-    public function setFirstName($firstName);
+    public function setFirstName(?string $firstName): void;
 
-    /**
-     * @return string
-     */
-    public function getLastName();
+    public function getLastName(): ?string;
 
-    /**
-     * @param  string $lastName
-     */
-    public function setLastName($lastName);
+    public function setLastName(?string $lastName): void;
 
-    /**
-     * @return \DateTime
-     */
-    public function getBirthday();
+    public function getBirthday(): ?\DateTimeInterface;
 
-    /**
-     * @param  \DateTime $birthday
-     */
-    public function setBirthday(\DateTime $birthday = null);
+    public function setBirthday(?\DateTimeInterface $birthday): void;
 
-    /**
-     * @return string
-     */
-    public function getGender();
+    public function getGender(): string;
 
     /**
      * You should use interface constants for that.
-     *
-     * @param  string $gender
      */
-    public function setGender($gender);
+    public function setGender(string $gender): void;
 
-    /**
-     * @return bool
-     */
-    public function isMale();
+    public function isMale(): bool;
 
-    /**
-     * @return bool
-     */
-    public function isFemale();
+    public function isFemale(): bool;
 
-    /**
-     * @return CustomerGroupInterface
-     */
-    public function getGroup();
+    public function getGroup(): ?CustomerGroupInterface;
 
-    /**
-     * @param CustomerGroupInterface $group
-     */
-    public function setGroup(CustomerGroupInterface $group = null);
+    public function setGroup(?CustomerGroupInterface $group): void;
 
-    /**
-     * @return string
-     */
-    public function getPhoneNumber();
+    public function getPhoneNumber(): ?string;
 
-    /**
-     * @param string $phoneNumber
-     */
-    public function setPhoneNumber($phoneNumber);
+    public function setPhoneNumber(?string $phoneNumber): void;
 
-    /**
-     * @return bool
-     */
-    public function isSubscribedToNewsletter();
+    public function isSubscribedToNewsletter(): bool;
 
-    /**
-     * @param bool $subscribedToNewsletter
-     */
-    public function setSubscribedToNewsletter($subscribedToNewsletter);
+    public function setSubscribedToNewsletter(bool $subscribedToNewsletter): void;
 }

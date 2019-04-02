@@ -9,22 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Currency;
 
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface CreatePageInterface extends BaseCreatePageInterface
 {
-    /**
-     * @param string $name
-     */
-    public function chooseName($name);
+    public function chooseName(string $name): void;
 
-    /**
-     * @param float $exchangeRate
-     */
-    public function specifyExchangeRate($exchangeRate);
+    public function specifyExchangeRate(float $exchangeRate): void;
 }

@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Basic resource interfaces for PHP applications.",
     "keywords": ["shop", "ecommerce", "resource", "api", "sylius", "doctrine"],
-    "homepage": "http://sylius.org",
+    "homepage": "http://sylius.com",
     "license": "MIT",
     "authors": [
         {
@@ -12,7 +12,7 @@
         },
         {
             "name": "Sylius project",
-            "homepage": "http://sylius.org"
+            "homepage": "http://sylius.com"
         },
         {
             "name": "Community contributions",
@@ -20,16 +20,17 @@
         }
     ],
     "require": {
-        "php": "^5.6|^7.0",
+        "php": "^7.2",
 
         "doctrine/common": "^2.6",
-        "symfony/event-dispatcher": "^3.2",
-        "symfony/property-access": "^3.2",
+        "gedmo/doctrine-extensions": "^2.4",
+        "symfony/event-dispatcher": "^3.4|^4.1.1",
+        "symfony/property-access": "^3.4|^4.1.1",
         "winzou/state-machine": "^0.3",
-        "pagerfanta/pagerfanta": "^1.0"
+        "pagerfanta/pagerfanta": "^1.0|^2.0"
     },
     "require-dev": {
-        "phpspec/phpspec": "^3.2",
+        "phpspec/phpspec": "^5.0",
         "sylius/locale": "^1.0"
     },
     "suggest": {
@@ -54,7 +55,7 @@
     ],
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0-dev"
+            "dev-master": "1.5-dev"
         }
     }
 }

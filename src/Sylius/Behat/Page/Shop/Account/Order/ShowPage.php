@@ -9,36 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Shop\Account\Order;
 
 use Behat\Mink\Session;
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 use Sylius\Behat\Service\Accessor\TableAccessorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class ShowPage extends SymfonyPage implements ShowPageInterface
 {
-    /**
-     * @var TableAccessorInterface
-     */
+    /** @var TableAccessorInterface */
     private $tableAccessor;
 
-    /**
-     * @param Session $session
-     * @param array $parameters
-     * @param RouterInterface $router
-     * @param TableAccessorInterface $tableAccessor
-     */
     public function __construct(
         Session $session,
-        array $parameters,
+        $minkParameters,
         RouterInterface $router,
         TableAccessorInterface $tableAccessor
     ) {
-        parent::__construct($session, $parameters, $router);
+        parent::__construct($session, $minkParameters, $router);
 
         $this->tableAccessor = $tableAccessor;
     }
@@ -46,7 +37,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return 'sylius_shop_account_order_show';
     }
@@ -123,15 +114,24 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
-    public function isProductInTheList($name)
+    public function isProductInTheList(string $productName): bool
     {
         try {
+            $table = $this->getElement('order_items');
             $rows = $this->tableAccessor->getRowsWithFields(
-                $this->getElement('order_items'),
-                ['item' => $name]
+                $table,
+                ['item' => $productName]
             );
 
-            return 1 === count($rows);
+            foreach ($rows as $row) {
+                $field = $this->tableAccessor->getFieldFromRow($table, $row, 'item');
+                $name = $field->find('css', '.sylius-product-name');
+                if (null !== $name && $name->getText() === $productName) {
+                    return true;
+                }
+            }
+
+            return false;
         } catch (\InvalidArgumentException $exception) {
             return false;
         }
@@ -168,7 +168,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'billing_address' => '#sylius-billing-address',
@@ -197,7 +197,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
         return
             (stripos($elementText, $customerName) !== false) &&
             (stripos($elementText, $street) !== false) &&
-            (stripos($elementText, $city.', '.$postcode) !== false) &&
+            (stripos($elementText, $city . ', ' . $postcode) !== false) &&
             (stripos($elementText, $countryName) !== false)
         ;
     }

@@ -9,52 +9,54 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Promotion\Checker\Rule;
 
-use Sylius\Bundle\CoreBundle\Form\Type\Promotion\Rule\HasTaxonConfigurationType;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\OrderItemInterface;
+use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Promotion\Checker\Rule\RuleCheckerInterface;
 use Sylius\Component\Promotion\Exception\UnsupportedTypeException;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 final class HasTaxonRuleChecker implements RuleCheckerInterface
 {
-    const TYPE = 'has_taxon';
+    public const TYPE = 'has_taxon';
 
     /**
      * {@inheritdoc}
+     *
+     * @throws UnsupportedTypeException
      */
-    public function isEligible(PromotionSubjectInterface $subject, array $configuration)
+    public function isEligible(PromotionSubjectInterface $subject, array $configuration): bool
     {
         if (!isset($configuration['taxons'])) {
-            return;
+            return false;
         }
 
         if (!$subject instanceof OrderInterface) {
             throw new UnsupportedTypeException($subject, OrderInterface::class);
         }
 
-        /* @var $item OrderItemInterface */
+        /** @var OrderItemInterface $item */
         foreach ($subject->getItems() as $item) {
-            foreach ($item->getProduct()->getProductTaxons() as $productTaxon) {
-                if (in_array($productTaxon->getTaxon()->getCode(), $configuration['taxons'], true)) {
-                    return true;
-                }
+            if ($this->hasProductValidTaxon($item->getProduct(), $configuration)) {
+                return true;
             }
         }
 
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
+    private function hasProductValidTaxon(ProductInterface $product, array $configuration): bool
     {
-        return HasTaxonConfigurationType::class;
+        foreach ($product->getTaxons() as $taxon) {
+            if (in_array($taxon->getCode(), $configuration['taxons'], true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

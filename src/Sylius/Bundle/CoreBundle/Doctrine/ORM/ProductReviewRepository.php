@@ -9,29 +9,29 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Repository\ProductReviewRepositoryInterface;
 use Sylius\Component\Review\Model\ReviewInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 class ProductReviewRepository extends EntityRepository implements ProductReviewRepositoryInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function findLatestByProductId($productId, $count)
+    public function findLatestByProductId($productId, int $count): array
     {
         return $this->createQueryBuilder('o')
-            ->where('o.reviewSubject = :productId')
+            ->andWhere('o.reviewSubject = :productId')
             ->andWhere('o.status = :status')
             ->setParameter('productId', $productId)
             ->setParameter('status', ReviewInterface::STATUS_ACCEPTED)
-            ->orderBy('o.createdAt', 'desc')
+            ->addOrderBy('o.createdAt', 'DESC')
             ->setMaxResults($count)
             ->getQuery()
             ->getResult()
@@ -41,15 +41,14 @@ class ProductReviewRepository extends EntityRepository implements ProductReviewR
     /**
      * {@inheritdoc}
      */
-    public function findAcceptedByProductSlugAndChannel($slug, $locale, ChannelInterface $channel)
+    public function findAcceptedByProductSlugAndChannel(string $slug, string $locale, ChannelInterface $channel): array
     {
         return $this->createQueryBuilder('o')
             ->innerJoin('o.reviewSubject', 'product')
             ->innerJoin('product.translations', 'translation')
-            ->innerJoin('product.channels', 'channel')
             ->andWhere('translation.locale = :locale')
             ->andWhere('translation.slug = :slug')
-            ->andWhere('channel = :channel')
+            ->andWhere(':channel MEMBER OF product.channels')
             ->andWhere('o.status = :status')
             ->setParameter('locale', $locale)
             ->setParameter('slug', $slug)
@@ -57,6 +56,37 @@ class ProductReviewRepository extends EntityRepository implements ProductReviewR
             ->setParameter('status', ReviewInterface::STATUS_ACCEPTED)
             ->getQuery()
             ->getResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createQueryBuilderByProductCode(string $locale, string $productCode): QueryBuilder
+    {
+        return $this->createQueryBuilder('o')
+            ->innerJoin('o.reviewSubject', 'product')
+            ->innerJoin('product.translations', 'translation')
+            ->andWhere('translation.locale = :locale')
+            ->andWhere('product.code = :productCode')
+            ->setParameter('locale', $locale)
+            ->setParameter('productCode', $productCode)
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByIdAndProductCode($id, string $productCode): ?ReviewInterface
+    {
+        return $this->createQueryBuilder('o')
+            ->innerJoin('o.reviewSubject', 'product')
+            ->andWhere('product.code = :productCode')
+            ->andWhere('o.id = :id')
+            ->setParameter('productCode', $productCode)
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult()
         ;
     }
 }

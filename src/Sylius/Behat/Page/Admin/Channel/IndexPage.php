@@ -9,19 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Channel;
 
 use Sylius\Behat\Page\Admin\Crud\IndexPage as BaseIndexPage;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 class IndexPage extends BaseIndexPage implements IndexPageInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getUsedThemeName($channelCode)
+    public function getUsedThemeName(string $channelCode): ?string
     {
         $table = $this->getDocument()->find('css', 'table');
 

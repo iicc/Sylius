@@ -9,21 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Shop;
 
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class HomePage extends SymfonyPage implements HomePageInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return 'sylius_shop_homepage';
     }
@@ -91,7 +90,7 @@ class HomePage extends SymfonyPage implements HomePageInterface
         } catch (UnsupportedDriverActionException $exception) {
         }
 
-        $this->getElement('currency_selector')->pressButton($currencyCode);
+        $this->getElement('currency_selector')->clickLink($currencyCode);
     }
 
     /**
@@ -120,7 +119,7 @@ class HomePage extends SymfonyPage implements HomePageInterface
      */
     public function switchLocale($localeCode)
     {
-        $this->getElement('locale_selector')->pressButton($localeCode);
+        $this->getElement('locale_selector')->clickLink($localeCode);
     }
 
     /**
@@ -139,7 +138,7 @@ class HomePage extends SymfonyPage implements HomePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'currency_selector' => '#sylius-currency-selector',

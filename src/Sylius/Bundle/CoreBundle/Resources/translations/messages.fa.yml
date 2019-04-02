@@ -4,7 +4,7 @@
 sylius:
     form:
         block:
-            body: متن
+            body: بدنه
             id: شناسه
             title: عنوان
         cart:
@@ -25,19 +25,29 @@ sylius:
             name: نام
             roles: نقش ها
         channel:
-            taxonomies: رده بندی
+            billing_data:
+                city: شهر
+                company: شرکت
+                country: کشور
+                postcode: کد پستی
+                street: خیابان
+            contact_email: ایمیل مخاطب
+            currencies: واحدهای پول
+            currency_base: ارز پایه
+            account_verification_required: تأیید صحت حساب، ضروری است؟
+            hostname: نام میزبان
             locale_default: زبان پیش فرض
             locales: زبان ها
-            currency_base: ارز پایه
-            currencies: واحدهای پول
-            shipping_methods: شیوه های ارسال
             payment_methods: روش‌های پرداخت
+            shipping_methods: شیوه های ارسال
+            skipping_shipping_step_allowed: اگر فقط یک روش ارسال موجود باشد,از مرحله ارسال پرش شود?
+            skipping_payment_step_allowed: اگر فقط یک روش پرداخت موجود باشد,از مرحله پرداخت پرش شود?
             tax_calculation_strategy: استراتژی محاسبه مالیات
             tax_zone_default: منطقه مالیاتی پیش فرض
+            taxonomies: رده بندی
             theme: قالب
-            hostname: نام میزبان
         image:
-            code: نام انگلیسی
+            type: نوع
             file: عکس
         locale:
             code: نام انگلیسی
@@ -51,7 +61,7 @@ sylius:
             payment_state: وضعیت پرداخت
             channel: تمام کانال های فروش
         page:
-            body: متن
+            body: بدنه
             id: شناسه
             title: عنوان
         product:
@@ -59,7 +69,7 @@ sylius:
             restricted_zone: مناطق ممنوع
             short_description: شرح کوتاه
             variant_selection_method: انتخاب نوع ترکیب بندی
-            main_taxon: رده اصلی
+            main_taxon: طبقه بندی اصلی
             channels: کانال های فروش
             enabled: فعال
         product_filter:
@@ -93,7 +103,7 @@ sylius:
             different_billing_address: آدرس گیرنده با خریدار متفاوت است؟
             enabled: فعال
             first_name: نام
-            groups: گروه ها
+            groups: گروه‌ها
             roles: نقش ها
             last_name: نام خانوادگی
             password: کلمه عبور
@@ -106,6 +116,7 @@ sylius:
             on_hand: موجودی
             price: قیمت
             sku: کد محصول
+            shipping_required: آیا ارسال مورد نیاز است?
             weight: وزن
             width: عرض
         attribute:
@@ -119,7 +130,12 @@ sylius:
             type: نوع ارتباط
         product_association_type:
             name: نام
+        promotion_filter:
+            products: فیلتر محصول‌ها
+            taxons: فیلتر دسته‌بندی‌ها
         promotion_rule:
+            customer_group:
+                group: گروه مشتری
             has_taxon:
                 taxons: دسته بندی ها
             product:
@@ -129,6 +145,12 @@ sylius:
                 amount: مقدار
         payment_method:
             channels: کانال های فروش
+        product_attribute:
+            position: جایگاه
+        zone:
+            scopes:
+                shipping: حمل
+                tax: مالیات
     installer:
         extensions:
             header: افزونه ها
@@ -146,8 +168,8 @@ sylius:
             intl: Intl
             json_encode: JSON
             mbstring: Multibyte String
-            "off": false
-            "on": true
+            off: false
+            on: true
             pcre: PCRE
             pdo: PDO
             php_xml: PHP-XML
@@ -176,8 +198,8 @@ sylius:
             detect_unicode: detect_unicode
             magic_quotes_gpc: magic_quotes_gpc
             non_deprecated: معتبر
-            "off": false
-            "on": true
+            off: false
+            on: true
             register_globals: register_globals
             session:
                 auto_start: session.auto_start
@@ -185,7 +207,7 @@ sylius:
             timezone: منطقه زمانی
             timezone_deprecated:
                 header: منطقه زمانی نامعتبر
-                help: 'منطقه زمانی %timezone% نامعتبر است. لطفا تنظیمات مربوطه را در فایل php.ini اصلاح کنید (برای دیدن لیست منطقه های زمانی نامعتبر به آدرس http://php.net/manual/en/timezones.others.php مراجعه کنید).'
+                help: منطقه زمانی %timezone% نامعتبر است. لطفا تنظیمات مربوطه را در فایل php.ini اصلاح کنید (برای دیدن لیست منطقه های زمانی نامعتبر به آدرس http://php.net/manual/en/timezones.others.php مراجعه کنید).
             version: ورژن PHP
             version_recommended: ورژن توصیه شده PHP
     payum_gateway:

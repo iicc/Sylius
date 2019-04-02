@@ -8,7 +8,7 @@ sylius:
             not_blank: Zadejte prosím Jméno držitele karty.
         expiry_month:
             max_range: Měsíc vypršení platnosti karty musí být mezi {{ min }} max {{ max }}
-            min_range: Měsíc vypršení platnosti karty musí být mezi {{ min }} a {{ max }}.
+            min_range: Měsíc vypršení platnosti karty musí být mezi {{ min }} max {{ max }}
             not_blank: Vyberte prosím měsíc vypršení platnosti.
         number:
             not_blank: Zadejte prosím číslo karty.
@@ -19,6 +19,11 @@ sylius:
             min_length: CVV kód kreditní karty musí být nanejvýš {{ limit }} číslic dlouhý.
         expiry_year:
             not_blank: Vyberte prosím rok vypršení platnosti.
+    payment:
+        currency_code:
+            not_valid: Kód měny, kterou jste zadali, je neplatný.
+        method:
+            not_blank: 'Vyberte, prosím, způsob platby.'
     payment_method:
         gateway:
             not_blank: Prosím vyberte bránu platební metody.
@@ -34,3 +39,7 @@ sylius:
                 max_range: Procentuální poplatek nemůže být větší než {{ limit }}.
                 min_range: Procentuální poplatek nemůže být nižší než {{ limit }}.
                 not_blank: Zadejte procentuální poplatek.
+        code:
+            not_blank: 'Zadejte, prosím, kód způsobu platby.'
+            regex: 'Kód způsobu platby můžou tvořit pouze písmena, číslice, pomlčky a podtržítka.'
+            unique: 'Způsob platby se zadaným kódem již existuje.'

@@ -11,7 +11,7 @@ sylius:
             last_name: نام خانوادگی
             phone_number: شماره تلفن
             postcode: کد پستی
-            street: خیابان
+            street: آدرس خیابان
             province: استان
             zone: منطقه
         country:

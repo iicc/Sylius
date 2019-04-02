@@ -9,9 +9,10 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Promotion\Action;
 
-use Sylius\Bundle\PromotionBundle\Form\Type\Action\UnitPercentageDiscountConfigurationType;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\Promotion\Filter\FilterInterface;
@@ -20,34 +21,19 @@ use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-final class UnitPercentageDiscountPromotionActionCommand extends UnitDiscountPromotionActionCommand implements ChannelBasedPromotionActionCommandInterface
+final class UnitPercentageDiscountPromotionActionCommand extends UnitDiscountPromotionActionCommand
 {
-    const TYPE = 'unit_percentage_discount';
+    public const TYPE = 'unit_percentage_discount';
 
-    /**
-     * @var FilterInterface
-     */
+    /** @var FilterInterface */
     private $priceRangeFilter;
 
-    /**
-     * @var FilterInterface
-     */
+    /** @var FilterInterface */
     private $taxonFilter;
 
-    /**
-     * @var FilterInterface
-     */
+    /** @var FilterInterface */
     private $productFilter;
 
-    /**
-     * @param FactoryInterface $adjustmentFactory
-     * @param FilterInterface $priceRangeFilter
-     * @param FilterInterface $taxonFilter
-     * @param FilterInterface $productFilter
-     */
     public function __construct(
         FactoryInterface $adjustmentFactory,
         FilterInterface $priceRangeFilter,
@@ -64,7 +50,7 @@ final class UnitPercentageDiscountPromotionActionCommand extends UnitDiscountPro
     /**
      * {@inheritdoc}
      */
-    public function execute(PromotionSubjectInterface $subject, array $configuration, PromotionInterface $promotion)
+    public function execute(PromotionSubjectInterface $subject, array $configuration, PromotionInterface $promotion): bool
     {
         if (!$subject instanceof OrderInterface) {
             throw new UnexpectedTypeException($subject, OrderInterface::class);
@@ -94,21 +80,11 @@ final class UnitPercentageDiscountPromotionActionCommand extends UnitDiscountPro
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return UnitPercentageDiscountConfigurationType::class;
-    }
-
-    /**
-     * @param OrderItemInterface $item
-     * @param int $promotionAmount
-     * @param PromotionInterface $promotion
-     */
-    private function setUnitsAdjustments(OrderItemInterface $item, $promotionAmount, PromotionInterface $promotion)
-    {
+    private function setUnitsAdjustments(
+        OrderItemInterface $item,
+        int $promotionAmount,
+        PromotionInterface $promotion
+    ): void {
         foreach ($item->getUnits() as $unit) {
             $this->addAdjustmentToUnit($unit, $promotionAmount, $promotion);
         }

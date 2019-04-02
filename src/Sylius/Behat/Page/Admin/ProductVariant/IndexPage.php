@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\ProductVariant;
 
 use Behat\Mink\Element\NodeElement;
@@ -17,23 +19,14 @@ use Sylius\Behat\Page\Admin\Crud\IndexPage as BaseIndexPage;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class IndexPage extends BaseIndexPage implements IndexPageInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getOnHandQuantityFor(ProductVariantInterface $productVariant)
+    public function getOnHandQuantityFor(ProductVariantInterface $productVariant): int
     {
         return (int) $this->getElement('on_hand_quantity', ['%id%' => $productVariant->getId()])->getText();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getOnHoldQuantityFor(ProductVariantInterface $productVariant)
+    public function getOnHoldQuantityFor(ProductVariantInterface $productVariant): int
     {
         try {
             return (int) $this->getElement('on_hold_quantity', ['%id%' => $productVariant->getId()])->getText();
@@ -42,10 +35,7 @@ final class IndexPage extends BaseIndexPage implements IndexPageInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setPosition($name, $position)
+    public function setPosition(string $name, int $position): void
     {
         /** @var NodeElement $productVariantsRow */
         $productVariantsRow = $this->getElement('table')->find('css', sprintf('tbody > tr:contains("%s")', $name));
@@ -56,20 +46,16 @@ final class IndexPage extends BaseIndexPage implements IndexPageInterface
         $productVariantPosition->setValue($position);
     }
 
-    public function savePositions()
+    public function savePositions(): void
     {
         $this->getElement('save_configuration_button')->press();
 
         $this->getDocument()->waitFor(5, function () {
-            return false === $this->getElement('save_configuration_button')->hasClass('loading');
+            return null === $this->getElement('save_configuration_button')->find('css', '.loading');
         });
     }
 
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'on_hand_quantity' => '.onHand[data-product-variant-id="%id%"]',

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
@@ -20,37 +22,20 @@ use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Component\Addressing\Model\CountryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class ManagingCountriesContext implements Context
 {
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var CreatePageInterface
-     */
+    /** @var CreatePageInterface */
     private $createPage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $updatePage;
 
-    /**
-     * @var CurrentPageResolverInterface
-     */
+    /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
-    /**
-     * @param IndexPageInterface $indexPage
-     * @param CreatePageInterface $createPage
-     * @param UpdatePageInterface $updatePage
-     * @param CurrentPageResolverInterface $currentPageResolver
-     */
     public function __construct(
         IndexPageInterface $indexPage,
         CreatePageInterface $createPage,
@@ -93,6 +78,7 @@ final class ManagingCountriesContext implements Context
      */
     public function iAddProvinceWithCode($provinceName, $provinceCode, $provinceAbbreviation = null)
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         $currentPage->addProvince($provinceName, $provinceCode, $provinceAbbreviation);
@@ -138,10 +124,7 @@ final class ManagingCountriesContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['code' => $country->getCode()]),
-            sprintf('Country %s should exist but it does not', $country->getCode())
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['code' => $country->getCode()]));
     }
 
     /**
@@ -151,10 +134,7 @@ final class ManagingCountriesContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isCountryEnabled($country),
-            sprintf('Country %s should be enabled but it is not', $country->getCode())
-        );
+        Assert::true($this->indexPage->isCountryEnabled($country));
     }
 
     /**
@@ -164,10 +144,7 @@ final class ManagingCountriesContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isCountryDisabled($country),
-            sprintf('Country %s should be disabled but it is not', $country->getCode())
-        );
+        Assert::true($this->indexPage->isCountryDisabled($country));
     }
 
     /**
@@ -189,10 +166,7 @@ final class ManagingCountriesContext implements Context
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeFieldDisabled(),
-            'Code field should be disabled but is not'
-        );
+        Assert::true($this->updatePage->isCodeFieldDisabled());
     }
 
     /**
@@ -203,10 +177,7 @@ final class ManagingCountriesContext implements Context
     {
         $this->iWantToEditThisCountry($country);
 
-        Assert::true(
-            $this->updatePage->isThereProvince($provinceName),
-            sprintf('%s is not a province of this country.', $provinceName)
-        );
+        Assert::true($this->updatePage->isThereProvince($provinceName));
     }
 
     /**
@@ -216,10 +187,7 @@ final class ManagingCountriesContext implements Context
     {
         $this->iWantToEditThisCountry($country);
 
-        Assert::false(
-            $this->updatePage->isThereProvince($provinceName),
-            sprintf('%s is a province of this country.', $provinceName)
-        );
+        Assert::false($this->updatePage->isThereProvince($provinceName));
     }
 
     /**
@@ -229,10 +197,7 @@ final class ManagingCountriesContext implements Context
     {
         $this->updatePage->open(['id' => $country->getId()]);
 
-        Assert::true(
-            $this->updatePage->isThereProvince($provinceName),
-            sprintf('%s is not a province of this country.', $provinceName)
-        );
+        Assert::true($this->updatePage->isThereProvince($provinceName));
     }
 
     /**
@@ -242,10 +207,7 @@ final class ManagingCountriesContext implements Context
     {
         $this->updatePage->open(['id' => $country->getId()]);
 
-        Assert::false(
-            $this->updatePage->isThereProvince($provinceName),
-            sprintf('%s is a province of this country.', $provinceName)
-        );
+        Assert::false($this->updatePage->isThereProvince($provinceName));
     }
 
     /**
@@ -255,10 +217,7 @@ final class ManagingCountriesContext implements Context
     {
         $this->updatePage->open(['id' => $country->getId()]);
 
-        Assert::false(
-            $this->updatePage->isThereProvinceWithCode($provinceCode),
-            sprintf('%s is a province of this country.', $provinceCode)
-        );
+        Assert::false($this->updatePage->isThereProvinceWithCode($provinceCode));
     }
 
     /**
@@ -285,7 +244,7 @@ final class ManagingCountriesContext implements Context
      */
     public function iNameTheProvince($provinceName = null)
     {
-        $this->updatePage->nameProvince($provinceName);
+        $this->updatePage->nameProvince($provinceName ?? '');
     }
 
     /**
@@ -294,7 +253,7 @@ final class ManagingCountriesContext implements Context
      */
     public function iSpecifyTheProvinceCode($provinceCode = null)
     {
-        $this->updatePage->specifyProvinceCode($provinceCode);
+        $this->updatePage->specifyProvinceCode($provinceCode ?? '');
     }
 
     /**

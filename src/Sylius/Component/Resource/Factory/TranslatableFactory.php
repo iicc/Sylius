@@ -9,31 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Resource\Factory;
 
 use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 use Sylius\Component\Resource\Model\TranslatableInterface;
 use Sylius\Component\Resource\Translation\Provider\TranslationLocaleProviderInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class TranslatableFactory implements TranslatableFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $factory;
 
-    /**
-     * @var TranslationLocaleProviderInterface
-     */
+    /** @var TranslationLocaleProviderInterface */
     private $localeProvider;
 
-    /**
-     * @param FactoryInterface $factory
-     * @param TranslationLocaleProviderInterface $localeProvider
-     */
     public function __construct(FactoryInterface $factory, TranslationLocaleProviderInterface $localeProvider)
     {
         $this->factory = $factory;

@@ -9,34 +9,34 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
-use Sylius\Component\Channel\Model\ChannelInterface as BaseChannelInterface;
-
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 class ChannelPricing implements ChannelPricingInterface
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $id;
 
-    /**
-     * @var ChannelInterface
-     */
-    protected $channel;
+    /** @var string */
+    protected $channelCode;
 
-    /**
-     * @var ProductVariantInterface
-     */
+    /** @var ProductVariantInterface */
     protected $productVariant;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $price;
+
+    /** @var int */
+    protected $originalPrice;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __toString(): string
+    {
+        return (string) $this->getPrice();
+    }
 
     /**
      * {@inheritdoc}
@@ -49,23 +49,23 @@ class ChannelPricing implements ChannelPricingInterface
     /**
      * {@inheritdoc}
      */
-    public function getChannel()
+    public function getChannelCode(): ?string
     {
-        return $this->channel;
+        return $this->channelCode;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setChannel(BaseChannelInterface $channel = null)
+    public function setChannelCode(?string $channelCode): void
     {
-        $this->channel = $channel;
+        $this->channelCode = $channelCode;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getProductVariant()
+    public function getProductVariant(): ?ProductVariantInterface
     {
         return $this->productVariant;
     }
@@ -73,7 +73,7 @@ class ChannelPricing implements ChannelPricingInterface
     /**
      * {@inheritdoc}
      */
-    public function setProductVariant(ProductVariantInterface $productVariant = null)
+    public function setProductVariant(?ProductVariantInterface $productVariant): void
     {
         $this->productVariant = $productVariant;
     }
@@ -81,7 +81,7 @@ class ChannelPricing implements ChannelPricingInterface
     /**
      * {@inheritdoc}
      */
-    public function getPrice()
+    public function getPrice(): ?int
     {
         return $this->price;
     }
@@ -89,8 +89,32 @@ class ChannelPricing implements ChannelPricingInterface
     /**
      * {@inheritdoc}
      */
-    public function setPrice($price)
+    public function setPrice(?int $price): void
     {
         $this->price = $price;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOriginalPrice(): ?int
+    {
+        return $this->originalPrice;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setOriginalPrice(?int $originalPrice): void
+    {
+        $this->originalPrice = $originalPrice;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isPriceReduced(): bool
+    {
+        return $this->originalPrice > $this->price;
     }
 }

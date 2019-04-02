@@ -9,25 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
 use Sylius\Component\Product\Repository\ProductOptionRepositoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class ProductOptionContext implements Context
 {
-    /**
-     * @var ProductOptionRepositoryInterface
-     */
+    /** @var ProductOptionRepositoryInterface */
     private $productOptionRepository;
 
-    /**
-     * @param ProductOptionRepositoryInterface $productOptionRepository
-     */
     public function __construct(ProductOptionRepositoryInterface $productOptionRepository)
     {
         $this->productOptionRepository = $productOptionRepository;
@@ -43,8 +37,8 @@ final class ProductOptionContext implements Context
         $productOptions = $this->productOptionRepository->findByName($productOptionName, 'en_US');
 
         Assert::eq(
-            1,
             count($productOptions),
+            1,
             sprintf('%d product options has been found with name "%s".', count($productOptions), $productOptionName)
         );
 

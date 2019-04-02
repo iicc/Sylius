@@ -9,42 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface ProductTaxonInterface extends ResourceInterface
 {
-    /**
-     * @return ProductInterface
-     */
-    public function getProduct();
+    public function getProduct(): ?ProductInterface;
 
-    /**
-     * @param ProductInterface $product
-     */
-    public function setProduct(ProductInterface $product);
+    public function setProduct(?ProductInterface $product): void;
 
-    /**
-     * @return TaxonInterface
-     */
-    public function getTaxon();
+    public function getTaxon(): ?TaxonInterface;
 
-    /**
-     * @param TaxonInterface $taxon
-     */
-    public function setTaxon(TaxonInterface $taxon);
+    public function setTaxon(?TaxonInterface $taxon): void;
 
-    /**
-     * @return int
-     */
-    public function getPosition();
+    public function getPosition(): ?int;
 
-    /**
-     * @param int $position
-     */
-    public function setPosition($position);
+    public function setPosition(?int $position): void;
 }

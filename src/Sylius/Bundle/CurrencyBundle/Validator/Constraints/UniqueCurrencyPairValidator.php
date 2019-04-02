@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CurrencyBundle\Validator\Constraints;
 
 use Sylius\Component\Currency\Model\CurrencyInterface;
@@ -17,20 +19,13 @@ use Sylius\Component\Currency\Repository\ExchangeRateRepositoryInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 class UniqueCurrencyPairValidator extends ConstraintValidator
 {
-    /**
-     * @var ExchangeRateRepositoryInterface
-     */
+    /** @var ExchangeRateRepositoryInterface */
     private $exchangeRateRepository;
 
-    /**
-     * @param ExchangeRateRepositoryInterface $exchangeRateRepository
-     */
     public function __construct(ExchangeRateRepositoryInterface $exchangeRateRepository)
     {
         $this->exchangeRateRepository = $exchangeRateRepository;
@@ -41,6 +36,9 @@ class UniqueCurrencyPairValidator extends ConstraintValidator
      */
     public function validate($value, Constraint $constraint)
     {
+        /** @var UniqueCurrencyPair $constraint */
+        Assert::isInstanceOf($constraint, UniqueCurrencyPair::class);
+
         if (!$value instanceof ExchangeRateInterface) {
             throw new UnexpectedTypeException($value, ExchangeRateInterface::class);
         }
@@ -49,18 +47,16 @@ class UniqueCurrencyPairValidator extends ConstraintValidator
             return;
         }
 
+        if (null === $value->getSourceCurrency() || null === $value->getTargetCurrency()) {
+            return;
+        }
+
         if (!$this->isCurrencyPairUnique($value->getSourceCurrency(), $value->getTargetCurrency())) {
             $this->context->buildViolation($constraint->message)->addViolation();
         }
     }
 
-    /**
-     * @param CurrencyInterface $baseCurrency
-     * @param CurrencyInterface $targetCurrency
-     *
-     * @return bool
-     */
-    private function isCurrencyPairUnique(CurrencyInterface $baseCurrency, CurrencyInterface $targetCurrency)
+    private function isCurrencyPairUnique(CurrencyInterface $baseCurrency, CurrencyInterface $targetCurrency): bool
     {
         $exchangeRate = $this->exchangeRateRepository->findOneWithCurrencyPair($baseCurrency->getCode(), $targetCurrency->getCode());
 

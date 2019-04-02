@@ -9,30 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Validator\Constraints;
 
 use Sylius\Bundle\ResourceBundle\Validator\UniqueWithinCollectionConstraintValidator;
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class UniqueWithinCollectionConstraint extends Constraint
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $message = 'This code must be unique within this collection.';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $attributePath = 'code';
 
     /**
      * {@inheritdoc}
      */
-    public function validatedBy()
+    public function validatedBy(): string
     {
         return UniqueWithinCollectionConstraintValidator::class;
     }

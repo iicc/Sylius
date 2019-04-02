@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -16,14 +18,9 @@ use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Channel\Model\ChannelInterface as BaseChannelInterface;
 use Sylius\Component\Promotion\Model\Promotion as BasePromotion;
 
-/**
- * @author Kristian Loevstroem <kristian@loevstroem.dk>
- */
 class Promotion extends BasePromotion implements PromotionInterface
 {
-    /**
-     * @var ChannelInterface[]|Collection
-     */
+    /** @var ChannelInterface[]|Collection */
     protected $channels;
 
     public function __construct()
@@ -36,7 +33,7 @@ class Promotion extends BasePromotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function getChannels()
+    public function getChannels(): Collection
     {
         return $this->channels;
     }
@@ -44,7 +41,7 @@ class Promotion extends BasePromotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function addChannel(BaseChannelInterface $channel)
+    public function addChannel(BaseChannelInterface $channel): void
     {
         if (!$this->hasChannel($channel)) {
             $this->channels->add($channel);
@@ -54,7 +51,7 @@ class Promotion extends BasePromotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function removeChannel(BaseChannelInterface $channel)
+    public function removeChannel(BaseChannelInterface $channel): void
     {
         if ($this->hasChannel($channel)) {
             $this->channels->removeElement($channel);
@@ -64,7 +61,7 @@ class Promotion extends BasePromotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function hasChannel(BaseChannelInterface $channel)
+    public function hasChannel(BaseChannelInterface $channel): bool
     {
         return $this->channels->contains($channel);
     }

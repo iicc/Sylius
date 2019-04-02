@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Model;
 
 use Doctrine\Common\Collections\Collection;
@@ -16,90 +18,41 @@ use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 use Sylius\Component\Resource\Model\TranslatableInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ProductVariantInterface extends
     TimestampableInterface,
     ResourceInterface,
     CodeAwareInterface,
     TranslatableInterface
 {
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getName(): ?string;
 
-    /**
-     * @param string $name
-     */
-    public function setName($name);
+    public function setName(?string $name): void;
+
+    public function getDescriptor(): string;
 
     /**
      * @return Collection|ProductOptionValueInterface[]
      */
-    public function getOptionValues();
+    public function getOptionValues(): Collection;
+
+    public function addOptionValue(ProductOptionValueInterface $optionValue): void;
+
+    public function removeOptionValue(ProductOptionValueInterface $optionValue): void;
+
+    public function hasOptionValue(ProductOptionValueInterface $optionValue): bool;
+
+    public function getProduct(): ?ProductInterface;
+
+    public function setProduct(?ProductInterface $product): void;
+
+    public function getPosition(): ?int;
+
+    public function setPosition(?int $position): void;
 
     /**
-     * @param ProductOptionValueInterface $optionValue
+     * @return ProductVariantTranslationInterface
      */
-    public function addOptionValue(ProductOptionValueInterface $optionValue);
-
-    /**
-     * @param ProductOptionValueInterface $optionValue
-     */
-    public function removeOptionValue(ProductOptionValueInterface $optionValue);
-
-    /**
-     * @param ProductOptionValueInterface $optionValue
-     *
-     * @return bool
-     */
-    public function hasOptionValue(ProductOptionValueInterface $optionValue);
-
-    /**
-     * @return ProductInterface
-     */
-    public function getProduct();
-
-    /**
-     * @param null|ProductInterface $product
-     */
-    public function setProduct(ProductInterface $product = null);
-
-    /**
-     * @return bool
-     */
-    public function isAvailable();
-
-    /**
-     * @return \DateTime
-     */
-    public function getAvailableOn();
-
-    /**
-     * @param \DateTime|null $availableOn
-     */
-    public function setAvailableOn(\DateTime $availableOn = null);
-
-    /**
-     * @return \DateTime
-     */
-    public function getAvailableUntil();
-
-    /**
-     * @param \DateTime|null $availableUntil
-     */
-    public function setAvailableUntil(\DateTime $availableUntil = null);
-
-    /**
-     * @return int
-     */
-    public function getPosition();
-
-    /**
-     * @param int $position
-     */
-    public function setPosition($position);
+    public function getTranslation(?string $locale = null): TranslationInterface;
 }

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Service;
 
 use Sylius\Behat\Service\Setter\CookieSetterInterface;
@@ -18,30 +20,18 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class SecurityService implements SecurityServiceInterface
 {
-    /**
-     * @var SessionInterface
-     */
+    /** @var SessionInterface */
     private $session;
 
-    /**
-     * @var CookieSetterInterface
-     */
+    /** @var CookieSetterInterface */
     private $cookieSetter;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $sessionTokenVariable;
 
     /**
-     * @param SessionInterface $session
-     * @param CookieSetterInterface $cookieSetter
      * @param string $firewallContextName
      */
     public function __construct(SessionInterface $session, CookieSetterInterface $cookieSetter, $firewallContextName)
@@ -90,9 +80,6 @@ final class SecurityService implements SecurityServiceInterface
         $this->setToken($token);
     }
 
-    /**
-     * @param TokenInterface $token
-     */
     private function setToken(TokenInterface $token)
     {
         $serializedToken = serialize($token);

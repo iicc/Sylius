@@ -9,141 +9,95 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Channel;
 
+use Behat\Mink\Element\NodeElement;
 use Sylius\Behat\Behaviour\ChecksCodeImmutability;
 use Sylius\Behat\Behaviour\Toggles;
 use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
 {
     use ChecksCodeImmutability;
     use Toggles;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setTheme($themeName)
+    public function setTheme(string $themeName): void
     {
         $this->getDocument()->selectFieldOption('Theme', $themeName);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function unsetTheme()
+    public function unsetTheme(): void
     {
         $this->getDocument()->selectFieldOption('Theme', '');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function chooseLocale($language)
+    public function chooseLocale(string $language): void
     {
         $this->getDocument()->selectFieldOption('Locales', $language);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isLocaleChosen($language)
-    {
-        return $this->getElement('locales')->find('named', array('option', $language))->hasAttribute('selected');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function chooseCurrency($currencyCode)
+    public function chooseCurrency(string $currencyCode): void
     {
         $this->getDocument()->selectFieldOption('Currencies', $currencyCode);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isCurrencyChosen($currencyCode)
+    public function chooseDefaultTaxZone(string $taxZone): void
     {
-        return $this->getElement('currencies')->find('named', array('option', $currencyCode))->hasAttribute('selected');
+        $this->getDocument()->selectFieldOption('Default tax zone', $taxZone);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function chooseDefaultTaxZone($taxZone)
-    {
-        $this->getDocument()->selectFieldOption('Default tax zone', (null === $taxZone) ? '' : $taxZone);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function chooseTaxCalculationStrategy($taxZone)
+    public function chooseTaxCalculationStrategy(string $taxZone): void
     {
         $this->getDocument()->selectFieldOption('Tax calculation strategy', $taxZone);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isDefaultTaxZoneChosen($taxZone)
+    public function isLocaleChosen(string $language): bool
     {
-        return $this->getElement('default_tax_zone')->find('named', array('option', $taxZone))->hasAttribute('selected');
+        return $this->getElement('locales')->find('named', ['option', $language])->hasAttribute('selected');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isAnyDefaultTaxZoneChosen()
+    public function isCurrencyChosen(string $currencyCode): bool
+    {
+        return $this->getElement('currencies')->find('named', ['option', $currencyCode])->hasAttribute('selected');
+    }
+
+    public function isDefaultTaxZoneChosen(string $taxZone): bool
+    {
+        return $this->getElement('default_tax_zone')->find('named', ['option', $taxZone])->hasAttribute('selected');
+    }
+
+    public function isAnyDefaultTaxZoneChosen(): bool
     {
         return null !== $this->getElement('default_tax_zone')->find('css', '[selected]');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isTaxCalculationStrategyChosen($taxCalculationStrategy)
+    public function isTaxCalculationStrategyChosen(string $taxCalculationStrategy): bool
     {
         return $this
             ->getElement('tax_calculation_strategy')
-            ->find('named', array('option', $taxCalculationStrategy))
+            ->find('named', ['option', $taxCalculationStrategy])
             ->hasAttribute('selected')
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isBaseCurrencyDisabled()
+    public function isBaseCurrencyDisabled(): bool
     {
         return $this->getElement('base_currency')->hasAttribute('disabled');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getCodeElement()
+    protected function getCodeElement(): NodeElement
     {
         return $this->getElement('code');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getToggleableElement()
+    protected function getToggleableElement(): NodeElement
     {
         return $this->getElement('enabled');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'base_currency' => '#sylius_channel_baseCurrency',

@@ -9,33 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UserBundle\Event;
 
 use Sylius\Component\User\Model\UserInterface;
 use Symfony\Component\EventDispatcher\Event;
 
-/**
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 class UserEvent extends Event
 {
-    /**
-     * @var UserInterface
-     */
+    /** @var UserInterface */
     private $user;
 
-    /**
-     * @param UserInterface $user
-     */
     public function __construct(UserInterface $user)
     {
         $this->user = $user;
     }
 
-    /**
-     * @return UserInterface
-     */
-    public function getUser()
+    public function getUser(): UserInterface
     {
         return $this->user;
     }

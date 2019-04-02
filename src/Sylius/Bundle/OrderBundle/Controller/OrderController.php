@@ -9,37 +9,34 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\OrderBundle\Controller;
 
-use Doctrine\ORM\EntityManager;
 use FOS\RestBundle\View\View;
-use Payum\Core\Registry\RegistryInterface;
 use Sylius\Bundle\ResourceBundle\Controller\RequestConfiguration;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+use Sylius\Component\Core\Repository\OrderRepositoryInterface;
 use Sylius\Component\Order\Context\CartContextInterface;
 use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Order\SyliusCartEvents;
 use Sylius\Component\Resource\ResourceActions;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Webmozart\Assert\Assert;
 
 class OrderController extends ResourceController
 {
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function summaryAction(Request $request)
+    public function summaryAction(Request $request): Response
     {
         $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
 
         $cart = $this->getCurrentCart();
+        if (null !== $cart->getId()) {
+            $cart = $this->getOrderRepository()->findCartForSummary($cart->getId());
+        }
 
         if (!$configuration->isHtmlRequest()) {
             return $this->viewHandler->handle($configuration, View::create($cart));
@@ -57,12 +54,8 @@ class OrderController extends ResourceController
 
         return $this->viewHandler->handle($configuration, $view);
     }
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function widgetAction(Request $request)
+
+    public function widgetAction(Request $request): Response
     {
         $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
 
@@ -80,12 +73,7 @@ class OrderController extends ResourceController
         return $this->viewHandler->handle($configuration, $view);
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function saveAction(Request $request)
+    public function saveAction(Request $request): Response
     {
         $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
 
@@ -143,19 +131,14 @@ class OrderController extends ResourceController
         return $this->viewHandler->handle($configuration, $view);
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function clearAction(Request $request)
+    public function clearAction(Request $request): Response
     {
         $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
 
         $this->isGrantedOr403($configuration, ResourceActions::DELETE);
         $resource = $this->getCurrentCart();
 
-        if ($configuration->isCsrfProtectionEnabled() && !$this->isCsrfTokenValid($resource->getId(), $request->get('_csrf_token'))) {
+        if ($configuration->isCsrfProtectionEnabled() && !$this->isCsrfTokenValid((string) $resource->getId(), $request->get('_csrf_token'))) {
             throw new HttpException(Response::HTTP_FORBIDDEN, 'Invalid csrf token.');
         }
 
@@ -182,12 +165,7 @@ class OrderController extends ResourceController
         return $this->redirectHandler->redirectToIndex($configuration, $resource);
     }
 
-    /**
-     * @param RequestConfiguration $configuration
-     *
-     * @return RedirectResponse
-     */
-    protected function redirectToCartSummary(RequestConfiguration $configuration)
+    protected function redirectToCartSummary(RequestConfiguration $configuration): Response
     {
         if (null === $configuration->getParameters()->get('redirect')) {
             return $this->redirectHandler->redirectToRoute($configuration, $this->getCartSummaryRoute());
@@ -196,34 +174,27 @@ class OrderController extends ResourceController
         return $this->redirectHandler->redirectToRoute($configuration, $configuration->getParameters()->get('redirect'));
     }
 
-    /**
-     * @return string
-     */
-    protected function getCartSummaryRoute()
+    protected function getCartSummaryRoute(): string
     {
         return 'sylius_cart_summary';
     }
 
-    /**
-     * @return OrderInterface
-     */
-    protected function getCurrentCart()
+    protected function getCurrentCart(): OrderInterface
     {
         return $this->getContext()->getCart();
     }
 
-    /**
-     * @return CartContextInterface
-     */
-    protected function getContext()
+    protected function getContext(): CartContextInterface
     {
         return $this->get('sylius.context.cart');
     }
 
-    /**
-     * @return EventDispatcherInterface
-     */
-    protected function getEventDispatcher()
+    protected function getOrderRepository(): OrderRepositoryInterface
+    {
+        return $this->get('sylius.repository.order');
+    }
+
+    protected function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->container->get('event_dispatcher');
     }

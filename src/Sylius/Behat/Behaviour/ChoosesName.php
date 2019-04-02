@@ -9,19 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Behaviour;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 trait ChoosesName
 {
     use DocumentAccessor;
 
-    /**
-     * @param string $name
-     */
-    public function chooseName($name)
+    public function chooseName(string $name): void
     {
         $this->getDocument()->selectFieldOption('Name', $name);
     }

@@ -9,20 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Checker\Eligibility;
 
 use Sylius\Component\Promotion\Model\PromotionCouponInterface;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class CompositePromotionCouponEligibilityChecker implements PromotionCouponEligibilityCheckerInterface
 {
-    /**
-     * @var PromotionCouponEligibilityCheckerInterface[]
-     */
+    /** @var PromotionCouponEligibilityCheckerInterface[] */
     private $promotionCouponEligibilityCheckers;
 
     /**
@@ -39,7 +36,7 @@ final class CompositePromotionCouponEligibilityChecker implements PromotionCoupo
     /**
      * {@inheritdoc}
      */
-    public function isEligible(PromotionSubjectInterface $promotionSubject, PromotionCouponInterface $promotionCoupon)
+    public function isEligible(PromotionSubjectInterface $promotionSubject, PromotionCouponInterface $promotionCoupon): bool
     {
         foreach ($this->promotionCouponEligibilityCheckers as $promotionCouponEligibilityChecker) {
             if (!$promotionCouponEligibilityChecker->isEligible($promotionSubject, $promotionCoupon)) {

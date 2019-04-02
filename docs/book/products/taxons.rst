@@ -5,7 +5,7 @@ Taxons
 ======
 
 We understand Taxons in Sylius as you would normally define categories.
-Sylius gives you a possibility to categorize your products in a very flexible way, which is one of the most vital funtionalities
+Sylius gives you a possibility to categorize your products in a very flexible way, which is one of the most vital functionalities
 of the modern e-commerce systems.
 The Taxons system in Sylius works in a hierarchical way.
 Let's see exemplary categories trees:
@@ -64,7 +64,7 @@ Finally **the parent taxon** has to be added to the system using a repository, a
 
 .. code-block:: php
 
-     /** @var TaxonRepositoryInterface $taxonsRepository */
+     /** @var TaxonRepositoryInterface $taxonRepository */
      $taxonRepository = $this->get('sylius.repository.taxon');
 
      $taxonRepository->add($taxon);
@@ -72,7 +72,7 @@ Finally **the parent taxon** has to be added to the system using a repository, a
 How to assign a Taxon to a Product?
 -----------------------------------
 
-In order to categorize products you will need to assign your taxons to them - via the ``addTaxon()`` method on Product.
+In order to categorize products you will need to assign your taxons to them - via the ``addProductTaxon()`` method on Product.
 
 .. code-block:: php
 
@@ -90,7 +90,13 @@ In order to categorize products you will need to assign your taxons to them - vi
     $taxonRepository = $this->container->get('sylius.repository.taxon');
     $taxonRepository->add($taxon);
 
-    $product->addTaxon($taxon);
+
+    /** @var ProductTaxonInterface $productTaxon */
+    $productTaxon = $this->container->get('sylius.factory.product_taxon')->createNew();
+    $productTaxon->setTaxon($taxon);
+    $productTaxon->setProduct($product);
+
+    $product->addProductTaxon($productTaxon);
 
     /** @var EntityManagerInterface $productManager */
     $productManager = $this->container->get('sylius.manager.product');
@@ -101,13 +107,13 @@ In order to categorize products you will need to assign your taxons to them - vi
 What is the mainTaxon of a Product?
 -----------------------------------
 
-The product entity in Sylius core has a field ``mainTaxon``. On its basis for instance the breadcrumbs are generated.
-But also you can use it for your own logic, like for instance links generation.
+The product entity in Sylius core has a field ``mainTaxon``. This field is used, for instance, for breadcrumbs generation.
+But you can also use it for your own logic, like for instance links generation.
 
-To have it on your product you need to use the ``setMainTaxon()`` method.
+To set it on your product you need to use the ``setMainTaxon()`` method.
 
 Learn more
 ----------
 
-* :doc:`Taxonomy - Bundle Documentation </bundles/SyliusTaxonomyBundle/index>`
-* :doc:`taxonomy - Component Documentation </components/Taxonomy/index>`
+* :doc:`Taxonomy - Bundle Documentation </components_and_bundles/bundles/SyliusTaxonomyBundle/index>`
+* :doc:`taxonomy - Component Documentation </components_and_bundles/components/Taxonomy/index>`

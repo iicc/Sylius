@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Installer\Setup;
 
 use Doctrine\Common\Persistence\ObjectManager;
@@ -18,31 +20,17 @@ use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class ChannelSetup implements ChannelSetupInterface
 {
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $channelRepository;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $channelFactory;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $channelManager;
 
-    /**
-     * @param RepositoryInterface $channelRepository
-     * @param FactoryInterface $channelFactory
-     * @param ObjectManager $channelManager
-     */
     public function __construct(
         RepositoryInterface $channelRepository,
         FactoryInterface $channelFactory,
@@ -56,12 +44,13 @@ final class ChannelSetup implements ChannelSetupInterface
     /**
      * {@inheritdoc}
      */
-    public function setup(LocaleInterface $locale, CurrencyInterface $currency)
+    public function setup(LocaleInterface $locale, CurrencyInterface $currency): void
     {
         /** @var ChannelInterface $channel */
         $channel = $this->channelRepository->findOneBy([]);
 
         if (null === $channel) {
+            /** @var ChannelInterface $channel */
             $channel = $this->channelFactory->createNew();
             $channel->setCode('default');
             $channel->setName('Default');

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
@@ -22,49 +24,26 @@ use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Core\Model\PromotionInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class ManagingPromotionsContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var CreatePageInterface
-     */
+    /** @var CreatePageInterface */
     private $createPage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $updatePage;
 
-    /**
-     * @var CurrentPageResolverInterface
-     */
+    /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
-    /**
-     * @var NotificationCheckerInterface
-     */
+    /** @var NotificationCheckerInterface */
     private $notificationChecker;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param IndexPageInterface $indexPage
-     * @param CreatePageInterface $createPage
-     * @param UpdatePageInterface $updatePage
-     * @param CurrentPageResolverInterface $currentPageResolver
-     * @param NotificationCheckerInterface $notificationChecker
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         IndexPageInterface $indexPage,
@@ -104,7 +83,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function iSpecifyItsCodeAs($code = null)
     {
-        $this->createPage->specifyCode($code);
+        $this->createPage->specifyCode($code ?? '');
     }
 
     /**
@@ -114,23 +93,29 @@ final class ManagingPromotionsContext implements Context
      */
     public function iNameIt($name = null)
     {
-        $this->createPage->nameIt($name);
+        $this->createPage->nameIt($name ?? '');
     }
 
     /**
+     * @When I remove its priority
+     */
+    public function iRemoveItsPriority()
+    {
+        $this->updatePage->setPriority(null);
+    }
+
+    /**
+     * @Then I should see the promotion :promotionName in the list
      * @Then the :promotionName promotion should appear in the registry
      * @Then the :promotionName promotion should exist in the registry
      * @Then this promotion should still be named :promotionName
      * @Then promotion :promotionName should still exist in the registry
      */
-    public function thePromotionShouldAppearInTheRegistry($promotionName)
+    public function thePromotionShouldAppearInTheRegistry(string $promotionName): void
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['name' => $promotionName]),
-            sprintf('Promotion with name %s has not been found.', $promotionName)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $promotionName]));
     }
 
     /**
@@ -150,9 +135,7 @@ final class ManagingPromotionsContext implements Context
     {
         $this->createPage->addRule('Has at least one from taxons');
 
-        foreach ($taxons as $taxon) {
-            $this->createPage->selectRuleOption('Taxons', $taxon, true);
-        }
+        $this->createPage->selectAutocompleteRuleOption('Taxons', $taxons, true);
     }
 
     /**
@@ -161,7 +144,7 @@ final class ManagingPromotionsContext implements Context
     public function iAddTheRuleConfiguredWith($taxonName, $amount, $channelName)
     {
         $this->createPage->addRule('Total price of items from taxon');
-        $this->createPage->selectRuleOption('Taxon', $taxonName);
+        $this->createPage->selectAutocompleteRuleOption('Taxon', $taxonName);
         $this->createPage->fillRuleOptionForChannel($channelName, 'Amount', $amount);
     }
 
@@ -226,7 +209,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function iSpecifyThatThisActionShouldBeAppliedToItemsFromCategory($taxonName)
     {
-        $this->createPage->selectFilterOption('Taxons filter', $taxonName);
+        $this->createPage->selectAutoCompleteFilterOption('Taxons', $taxonName);
     }
 
     /**
@@ -245,7 +228,7 @@ final class ManagingPromotionsContext implements Context
     public function iAddTheActionConfiguredWithAPercentageValue($actionType, $percentage = null)
     {
         $this->createPage->addAction($actionType);
-        $this->createPage->fillActionOption('Percentage', $percentage);
+        $this->createPage->fillActionOption('Percentage', $percentage ?? '');
     }
 
     /**
@@ -258,15 +241,28 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @Then /^there should be (\d+) promotion(?:|s)$/
+     * @When I check (also) the :promotionName promotion
      */
-    public function thereShouldBePromotion($number)
+    public function iCheckThePromotion(string $promotionName): void
     {
-        Assert::same(
-            (int) $number,
-            $this->indexPage->countItems(),
-            'I should see %s promotions but i see only %2$s'
-        );
+        $this->indexPage->checkResourceOnPage(['name' => $promotionName]);
+    }
+
+    /**
+     * @When I delete them
+     */
+    public function iDeleteThem(): void
+    {
+        $this->indexPage->bulkDelete();
+    }
+
+    /**
+     * @Then I should see a single promotion in the list
+     * @Then there should be :amount promotions
+     */
+    public function thereShouldBePromotion(int $amount = 1): void
+    {
+        Assert::same($amount, $this->indexPage->countItems());
     }
 
     /**
@@ -274,10 +270,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function thisPromotionShouldBeCouponBased(PromotionInterface $promotion)
     {
-        Assert::true(
-            $this->indexPage->isCouponBasedFor($promotion),
-            sprintf('Promotion with name "%s" should be coupon based', $promotion->getName())
-        );
+        Assert::true($this->indexPage->isCouponBasedFor($promotion));
     }
 
     /**
@@ -285,10 +278,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function iShouldBeAbleToManageCouponsForThisPromotion(PromotionInterface $promotion)
     {
-        Assert::true(
-            $this->indexPage->isAbleToManageCouponsFor($promotion),
-            sprintf('I should be able to manage coupons for given promotion with name %s but apparently i am not.', $promotion->getName())
-        );
+        Assert::true($this->indexPage->isAbleToManageCouponsFor($promotion));
     }
 
     /**
@@ -322,10 +312,7 @@ final class ManagingPromotionsContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage([$element => $name]),
-            sprintf('Promotion with %s "%s" has been created, but it should not.', $element, $name)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage([$element => $name]));
     }
 
     /**
@@ -335,10 +322,7 @@ final class ManagingPromotionsContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage([$element => $value]),
-            sprintf('Promotion with %s "%s" cannot be found.', $element, $value)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([$element => $value]));
     }
 
     /**
@@ -346,6 +330,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function iSetItsUsageLimitTo($usageLimit)
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         $currentPage->fillUsageLimit($usageLimit);
@@ -358,10 +343,7 @@ final class ManagingPromotionsContext implements Context
     {
         $this->iWantToModifyAPromotion($promotion);
 
-        Assert::true(
-            $this->updatePage->hasResourceValues(['usage_limit' => $usageLimit]),
-            sprintf('Promotion %s does not have usage limit set to %s.', $promotion->getName(), $usageLimit)
-        );
+        Assert::true($this->updatePage->hasResourceValues(['usage_limit' => $usageLimit]));
     }
 
     /**
@@ -369,6 +351,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function iMakeItExclusive()
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         $currentPage->makeExclusive();
@@ -387,6 +370,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function iMakeItCouponBased()
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         $currentPage->checkCouponBased();
@@ -405,6 +389,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function iMakeItApplicableForTheChannel($channelName)
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         $currentPage->checkChannel($channelName);
@@ -417,10 +402,7 @@ final class ManagingPromotionsContext implements Context
     {
         $this->iWantToModifyAPromotion($promotion);
 
-        Assert::true(
-            $this->updatePage->checkChannelsState($channelName),
-            sprintf('Promotion %s is not %s, but it should be.', $promotion->getName(), $channelName)
-        );
+        Assert::true($this->updatePage->checkChannelsState($channelName));
     }
 
     /**
@@ -438,10 +420,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeDisabled(),
-            'Code should be immutable, but it does not.'
-        );
+        Assert::true($this->updatePage->isCodeDisabled());
     }
 
     /**
@@ -472,10 +451,7 @@ final class ManagingPromotionsContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage(['code' => $promotion->getCode()]),
-            sprintf('Promotion with code %s exists but should not.', $promotion->getCode())
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage(['code' => $promotion->getCode()]));
     }
 
     /**
@@ -492,8 +468,9 @@ final class ManagingPromotionsContext implements Context
     /**
      * @When I make it available from :startsDate to :endsDate
      */
-    public function iMakeItAvailableFromTo(\DateTime $startsDate, \DateTime $endsDate)
+    public function iMakeItAvailableFromTo(\DateTimeInterface $startsDate, \DateTimeInterface $endsDate)
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         $currentPage->setStartsAt($startsDate);
@@ -503,19 +480,13 @@ final class ManagingPromotionsContext implements Context
     /**
      * @Then the :promotion promotion should be available from :startsDate to :endsDate
      */
-    public function thePromotionShouldBeAvailableFromTo(PromotionInterface $promotion, \DateTime $startsDate, \DateTime $endsDate)
+    public function thePromotionShouldBeAvailableFromTo(PromotionInterface $promotion, \DateTimeInterface $startsDate, \DateTimeInterface $endsDate)
     {
         $this->iWantToModifyAPromotion($promotion);
 
-        Assert::true(
-            $this->updatePage->hasStartsAt($startsDate),
-            sprintf('Promotion %s should starts at %s, but it isn\'t.', $promotion->getName(), date('D, d M Y H:i:s', $startsDate->getTimestamp()))
-        );
+        Assert::true($this->updatePage->hasStartsAt($startsDate));
 
-        Assert::true(
-            $this->updatePage->hasEndsAt($endsDate),
-            sprintf('Promotion %s should ends at %s, but it isn\'t.', $promotion->getName(), date('D, d M Y H:i:s', $endsDate->getTimestamp()))
-        );
+        Assert::true($this->updatePage->hasEndsAt($endsDate));
     }
 
     /**
@@ -581,7 +552,7 @@ final class ManagingPromotionsContext implements Context
     public function iAddTheRuleConfiguredWithTheProduct($productName)
     {
         $this->createPage->addRule('Contains product');
-        $this->createPage->selectRuleOption('Product', $productName);
+        $this->createPage->selectAutocompleteRuleOption('Product code', $productName);
     }
 
     /**
@@ -589,7 +560,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function iSpecifyThatThisActionShouldBeAppliedToTheProduct($productName)
     {
-        $this->createPage->selectFilterOption('Products filter', $productName);
+        $this->createPage->selectAutoCompleteFilterOption('Products', $productName);
     }
 
     /**
@@ -637,6 +608,16 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
+     * @Given the :promotion promotion should have priority :priority
+     */
+    public function thePromotionsShouldHavePriority(PromotionInterface $promotion, int $priority)
+    {
+        $this->iWantToModifyAPromotion($promotion);
+
+        Assert::same($this->updatePage->getPriority(), $priority);
+    }
+
+    /**
      * @param string $element
      * @param string $expectedMessage
      */
@@ -649,16 +630,12 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @param PromotionInterface $promotion
      * @param string $field
      */
     private function assertIfFieldIsTrue(PromotionInterface $promotion, $field)
     {
         $this->iWantToModifyAPromotion($promotion);
 
-        Assert::true(
-            $this->updatePage->hasResourceValues([$field => 1]),
-            sprintf('Promotion %s is not %s, but it should be.', $promotion->getName(), str_replace('_', ' ', $field))
-        );
+        Assert::true($this->updatePage->hasResourceValues([$field => 1]));
     }
 }

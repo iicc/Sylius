@@ -9,24 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Sylius\Component\Product\Model\ProductTranslation as BaseProductTranslation;
 
-/**
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
 class ProductTranslation extends BaseProductTranslation implements ProductTranslationInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $shortDescription;
 
     /**
      * {@inheritdoc}
      */
-    public function getShortDescription()
+    public function getShortDescription(): ?string
     {
         return $this->shortDescription;
     }
@@ -34,7 +31,7 @@ class ProductTranslation extends BaseProductTranslation implements ProductTransl
     /**
      * {@inheritdoc}
      */
-    public function setShortDescription($shortDescription)
+    public function setShortDescription(?string $shortDescription): void
     {
         $this->shortDescription = $shortDescription;
     }

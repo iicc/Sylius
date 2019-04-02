@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PayumBundle\Request;
 
 use Payum\Core\Request\BaseGetStatus;
@@ -16,10 +18,13 @@ use Sylius\Component\Payment\Model\PaymentInterface;
 
 class GetStatus extends BaseGetStatus
 {
+    /** @var string */
+    protected $status;
+
     /**
      * {@inheritdoc}
      */
-    public function markNew()
+    public function markNew(): void
     {
         $this->status = PaymentInterface::STATE_NEW;
     }
@@ -27,7 +32,7 @@ class GetStatus extends BaseGetStatus
     /**
      * {@inheritdoc}
      */
-    public function isNew()
+    public function isNew(): bool
     {
         return $this->status === PaymentInterface::STATE_NEW;
     }
@@ -181,7 +186,7 @@ class GetStatus extends BaseGetStatus
      */
     public function isPayedout()
     {
-        return $this->status === PaymentInterface::STATE_PAYEDOUT;
+        return $this->status === PaymentInterface::STATE_REFUNDED;
     }
 
     /**
@@ -189,6 +194,6 @@ class GetStatus extends BaseGetStatus
      */
     public function markPayedout()
     {
-        $this->status = PaymentInterface::STATE_PAYEDOUT;
+        $this->status = PaymentInterface::STATE_REFUNDED;
     }
 }

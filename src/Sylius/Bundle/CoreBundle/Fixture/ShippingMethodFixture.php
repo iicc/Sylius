@@ -9,19 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture;
 
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 class ShippingMethodFixture extends AbstractResourceFixture
 {
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'shipping_method';
     }
@@ -29,7 +28,7 @@ class ShippingMethodFixture extends AbstractResourceFixture
     /**
      * {@inheritdoc}
      */
-    protected function configureResourceNode(ArrayNodeDefinition $resourceNode)
+    protected function configureResourceNode(ArrayNodeDefinition $resourceNode): void
     {
         $resourceNode
             ->children()
@@ -39,13 +38,14 @@ class ShippingMethodFixture extends AbstractResourceFixture
                 ->scalarNode('zone')->cannotBeEmpty()->end()
                 ->booleanNode('enabled')->end()
                 ->scalarNode('category')->end()
-                ->arrayNode('channels')->prototype('scalar')->end()->end()
+                ->arrayNode('channels')->scalarPrototype()->end()->end()
                 ->arrayNode('calculator')
                     ->children()
                         ->scalarNode('type')->isRequired()->cannotBeEmpty()->end()
                         ->variableNode('configuration')->end()
                     ->end()
                 ->end()
+                ->scalarNode('tax_category')->end()
         ;
     }
 }

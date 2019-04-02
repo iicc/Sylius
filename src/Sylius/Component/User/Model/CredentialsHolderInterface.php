@@ -9,22 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\User\Model;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 interface CredentialsHolderInterface
 {
-    /**
-     * @return string
-     */
-    public function getPlainPassword();
+    public function getPlainPassword(): ?string;
 
-    /**
-     * @param string $plainPassword
-     */
-    public function setPlainPassword($plainPassword);
+    public function setPlainPassword(?string $plainPassword): void;
 
     /**
      * Returns the password used to authenticate the user.
@@ -32,14 +25,11 @@ interface CredentialsHolderInterface
      * This should be the encoded password. On authentication, a plain-text
      * password will be salted, encoded, and then compared to this value.
      *
-     * @return string
+     * @return string|null
      */
     public function getPassword();
 
-    /**
-     * @param string $encodedPassword
-     */
-    public function setPassword($encodedPassword);
+    public function setPassword(?string $encodedPassword): void;
 
     /**
      * Returns the salt that was originally used to encode the password.

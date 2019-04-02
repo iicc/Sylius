@@ -9,46 +9,31 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Grid\Definition;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class Field
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $type;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $path;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $label;
 
-    /**
-     * @var boolean
-     */
+    /** @var bool */
     private $enabled = true;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $sortable;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $options = [];
 
     /**
@@ -59,11 +44,7 @@ class Field
      */
     private $position = 100;
 
-    /**
-     * @param string $name
-     * @param string $type
-     */
-    private function __construct($name, $type)
+    private function __construct(string $name, string $type)
     {
         $this->name = $name;
         $this->type = $type;
@@ -72,133 +53,82 @@ class Field
         $this->label = $name;
     }
 
-    /**
-     * @param string $name
-     * @param string $type
-     *
-     * @return self
-     */
-    public static function fromNameAndType($name, $type)
+    public static function fromNameAndType(string $name, string $type): self
     {
         return new self($name, $type);
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * @return string
-     */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
 
-    /**
-     * @param string $path
-     */
-    public function setPath($path)
+    public function setPath(string $path): void
     {
         $this->path = $path;
     }
 
-    /**
-     * @return string
-     */
-    public function getLabel()
+    public function getLabel(): string
     {
         return $this->label;
     }
 
-    /**
-     * @param string $label
-     */
-    public function setLabel($label)
+    public function setLabel(string $label): void
     {
         $this->label = $label;
     }
 
-    /**
-     * @return boolean
-     */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return $this->enabled;
     }
 
-    /**
-     * @param boolean $enabled
-     */
-    public function setEnabled($enabled)
+    public function setEnabled(bool $enabled): void
     {
         $this->enabled = $enabled;
     }
 
-    /**
-     * @param string|null $sortable
-     */
-    public function setSortable($sortable)
+    public function setSortable(?string $sortable): void
     {
-        $this->sortable = $sortable ?: $this->name;
+        $this->sortable = $sortable;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getSortable()
+    public function getSortable(): ?string
     {
         return $this->sortable;
     }
 
-    /**
-     * @return bool
-     */
-    public function isSortable()
+    public function isSortable(): bool
     {
         return null !== $this->sortable;
     }
 
-    /**
-     * @return array
-     */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }
 
-    /**
-     * @param array $options
-     */
-    public function setOptions(array $options)
+    public function setOptions(array $options): void
     {
         $this->options = $options;
     }
 
-    /**
-     * @return int
-     */
-    public function getPosition()
+    public function getPosition(): int
     {
         return $this->position;
     }
 
-    /**
-     * @param int $position
-     */
-    public function setPosition($position)
+    public function setPosition(int $position): void
     {
         $this->position = $position;
     }

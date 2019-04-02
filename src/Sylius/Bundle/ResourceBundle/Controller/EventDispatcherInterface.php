@@ -9,40 +9,42 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
 use Sylius\Bundle\ResourceBundle\Event\ResourceControllerEvent;
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface EventDispatcherInterface
 {
-    /**
-     * @param string $eventName
-     * @param RequestConfiguration $requestConfiguration
-     * @param ResourceInterface $resource
-     *
-     * @return ResourceControllerEvent
-     */
-    public function dispatch($eventName, RequestConfiguration $requestConfiguration, ResourceInterface $resource);
+    public function dispatch(
+        string $eventName,
+        RequestConfiguration $requestConfiguration,
+        ResourceInterface $resource
+    ): ResourceControllerEvent;
 
-    /**
-     * @param string $eventName
-     * @param RequestConfiguration $requestConfiguration
-     * @param ResourceInterface $resource
-     *
-     * @return ResourceControllerEvent
-     */
-    public function dispatchPreEvent($eventName, RequestConfiguration $requestConfiguration, ResourceInterface $resource);
+    public function dispatchMultiple(
+        string $eventName,
+        RequestConfiguration $requestConfiguration,
+        $resources
+    ): ResourceControllerEvent;
 
-    /**
-     * @param string $eventName
-     * @param RequestConfiguration $requestConfiguration
-     * @param ResourceInterface $resource
-     *
-     * @return ResourceControllerEvent
-     */
-    public function dispatchPostEvent($eventName, RequestConfiguration $requestConfiguration, ResourceInterface $resource);
+    public function dispatchPreEvent(
+        string $eventName,
+        RequestConfiguration $requestConfiguration,
+        ResourceInterface $resource
+    ): ResourceControllerEvent;
+
+    public function dispatchPostEvent(
+        string $eventName,
+        RequestConfiguration $requestConfiguration,
+        ResourceInterface $resource
+    ): ResourceControllerEvent;
+
+    public function dispatchInitializeEvent(
+        string $eventName,
+        RequestConfiguration $requestConfiguration,
+        ResourceInterface $resource
+    ): ResourceControllerEvent;
 }

@@ -9,29 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Repository;
 
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Component\Core\Model\ShipmentInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface ShipmentRepositoryInterface extends RepositoryInterface
 {
-    /**
-     * @param mixed $id
-     * @param mixed $orderId
-     *
-     * @return ShipmentInterface|null
-     */
-    public function findOneByOrderId($id, $orderId);
+    public function createListQueryBuilder(): QueryBuilder;
+
+    public function findOneByOrderId($shipmentId, $orderId): ?ShipmentInterface;
 
     /**
-     * @param string $name
-     * @param string $locale
-     *
-     * @return ShipmentInterface[]
+     * @return array|ShipmentInterface[]
      */
-    public function findByName($name, $locale);
+    public function findByName(string $name, string $locale): array;
 }

@@ -9,24 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ChannelBundle\Tests\DependencyInjection\Compiler;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractCompilerPassTestCase;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\DefinitionHasMethodCallConstraint;
+use PHPUnit\Framework\Constraint\LogicalNot;
 use Sylius\Bundle\ChannelBundle\DependencyInjection\Compiler\CompositeChannelContextPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 class CompositeChannelContextPassTest extends AbstractCompilerPassTestCase
 {
     /**
      * @test
      */
-    public function it_collects_tagged_channel_contexts()
+    public function it_collects_tagged_channel_contexts(): void
     {
         $this->setDefinition('sylius.context.channel.composite', new Definition());
         $this->setDefinition(
@@ -40,14 +40,14 @@ class CompositeChannelContextPassTest extends AbstractCompilerPassTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
             'sylius.context.channel',
             'addContext',
-            [new Reference('sylius.context.channel.tagged_one')]
+            [new Reference('sylius.context.channel.tagged_one'), 0]
         );
     }
 
     /**
      * @test
      */
-    public function it_collects_tagged_channel_contexts_with_priority()
+    public function it_collects_tagged_channel_contexts_with_priority(): void
     {
         $this->setDefinition('sylius.context.channel.composite', new Definition());
         $this->setDefinition(
@@ -68,7 +68,7 @@ class CompositeChannelContextPassTest extends AbstractCompilerPassTestCase
     /**
      * @test
      */
-    public function it_does_not_add_method_calls_to_the_overriding_service_if_the_composite_service_is_overridden()
+    public function it_does_not_add_method_calls_to_the_overriding_service_if_the_composite_service_is_overridden(): void
     {
         $this->setDefinition('sylius.context.channel', new Definition());
         $this->setDefinition('sylius.context.channel.composite', new Definition());
@@ -82,14 +82,14 @@ class CompositeChannelContextPassTest extends AbstractCompilerPassTestCase
         $this->assertContainerBuilderNotHasServiceDefinitionWithMethodCall(
             'sylius.context.channel',
             'addContext',
-            [new Reference('sylius.context.channel.tagged_one')]
+            [new Reference('sylius.context.channel.tagged_one'), 0]
         );
     }
 
     /**
      * @test
      */
-    public function it_still_adds_method_calls_to_composite_context_even_if_it_was_overridden()
+    public function it_still_adds_method_calls_to_composite_context_even_if_it_was_overridden(): void
     {
         $this->setDefinition('sylius.context.channel', new Definition());
         $this->setDefinition('sylius.context.channel.composite', new Definition());
@@ -103,30 +103,28 @@ class CompositeChannelContextPassTest extends AbstractCompilerPassTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall(
             'sylius.context.channel.composite',
             'addContext',
-            [new Reference('sylius.context.channel.tagged_one')]
+            [new Reference('sylius.context.channel.tagged_one'), 0]
         );
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function registerCompilerPass(ContainerBuilder $container)
+    protected function registerCompilerPass(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new CompositeChannelContextPass());
     }
 
-    /**
-     * @param string $serviceId
-     * @param string $method
-     * @param array $arguments
-     */
-    private function assertContainerBuilderNotHasServiceDefinitionWithMethodCall($serviceId, $method, $arguments)
-    {
+    private function assertContainerBuilderNotHasServiceDefinitionWithMethodCall(
+        string $serviceId,
+        string $method,
+        array $arguments
+    ): void {
         $definition = $this->container->findDefinition($serviceId);
 
         self::assertThat(
             $definition,
-            new \PHPUnit_Framework_Constraint_Not(new DefinitionHasMethodCallConstraint($method, $arguments))
+            new LogicalNot(new DefinitionHasMethodCallConstraint($method, $arguments))
         );
     }
 }

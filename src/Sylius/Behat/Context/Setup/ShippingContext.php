@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
@@ -28,49 +30,26 @@ use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 use Sylius\Component\Shipping\Model\ShippingMethodTranslationInterface;
 use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class ShippingContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var ShippingMethodRepositoryInterface
-     */
+    /** @var ShippingMethodRepositoryInterface */
     private $shippingMethodRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $zoneRepository;
 
-    /**
-     * @var ShippingMethodExampleFactory
-     */
+    /** @var ShippingMethodExampleFactory */
     private $shippingMethodExampleFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $shippingMethodTranslationFactory;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $shippingMethodManager;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param ShippingMethodRepositoryInterface $shippingMethodRepository
-     * @param RepositoryInterface $zoneRepository
-     * @param ShippingMethodExampleFactory $shippingMethodExampleFactory
-     * @param FactoryInterface $shippingMethodTranslationFactory
-     * @param ObjectManager $shippingMethodManager
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         ShippingMethodRepositoryInterface $shippingMethodRepository,
@@ -177,7 +156,7 @@ final class ShippingContext implements Context
             'zone' => $this->getShippingZone(),
         ]);
 
-        $shippingMethod->setPosition($position);
+        $shippingMethod->setPosition((int) $position);
 
         $this->saveShippingMethod($shippingMethod);
     }
@@ -199,8 +178,9 @@ final class ShippingContext implements Context
 
     /**
      * @Given the store allows shipping with :firstName and :secondName
+     * @Given the store allows shipping with :firstName, :secondName and :thirdName
      */
-    public function theStoreAllowsShippingWithAnd(...$names)
+    public function theStoreAllowsShippingWithAnd(string ...$names): void
     {
         foreach ($names as $name) {
             $this->theStoreAllowsShippingMethodWithName($name);
@@ -274,18 +254,26 @@ final class ShippingContext implements Context
     }
 
     /**
+     * @Given /^the store has "([^"]+)" shipping method with ("[^"]+") fee per unit for ("[^"]+" channel)$/
      * @Given /^the store has "([^"]+)" shipping method with ("[^"]+") fee per unit for ("[^"]+" channel) and ("[^"]+") for ("[^"]+" channel)$/
      */
     public function storeHasShippingMethodWithFeePerUnitForChannels(
         $shippingMethodName,
         $firstFee,
         ChannelInterface $firstChannel,
-        $secondFee,
-        ChannelInterface $secondChannel
+        $secondFee = null,
+        ChannelInterface $secondChannel = null
     ) {
         $configuration = [];
+        $channels = [];
+
         $configuration[$firstChannel->getCode()] = ['amount' => $firstFee];
-        $configuration[$secondChannel->getCode()] = ['amount' => $secondFee];
+        $channels[] = $firstChannel;
+
+        if (null !== $secondFee) {
+            $configuration[$secondChannel->getCode()] = ['amount' => $secondFee];
+            $channels[] = $secondChannel;
+        }
 
         $this->saveShippingMethod($this->shippingMethodExampleFactory->create([
             'name' => $shippingMethodName,
@@ -295,7 +283,7 @@ final class ShippingContext implements Context
                 'type' => DefaultCalculators::PER_UNIT_RATE,
                 'configuration' => $configuration,
             ],
-            'channels' => [$firstChannel, $secondChannel],
+            'channels' => $channels,
         ]));
     }
 
@@ -367,7 +355,6 @@ final class ShippingContext implements Context
     {
         $channel = $this->sharedStorage->get('channel');
         $configuration = $this->getConfigurationByChannels([$channel], $fee);
-
 
         $this->saveShippingMethod($this->shippingMethodExampleFactory->create([
             'name' => $shippingMethodName,
@@ -454,7 +441,19 @@ final class ShippingContext implements Context
     }
 
     /**
-     * @param array $channels
+     * @Given /^the shipping fee for ("[^"]+" shipping method) has been changed to ("[^"]+")$/
+     */
+    public function theShippingFeeForShippingMethodHasBeenChangedTo(ShippingMethodInterface $shippingMethod, $fee)
+    {
+        $channel = $this->sharedStorage->get('channel');
+        $configuration = $this->getConfigurationByChannels([$channel], $fee);
+
+        $shippingMethod->setConfiguration($configuration);
+
+        $this->shippingMethodManager->flush();
+    }
+
+    /**
      * @param int $amount
      *
      * @return array
@@ -471,9 +470,6 @@ final class ShippingContext implements Context
         return $configuration;
     }
 
-    /**
-     * @param ShippingMethodInterface $shippingMethod
-     */
     private function saveShippingMethod(ShippingMethodInterface $shippingMethod)
     {
         $this->shippingMethodRepository->add($shippingMethod);

@@ -9,27 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Tests\Controller;
 
 use Lakion\ApiTestCase\JsonApiTestCase;
+use Sylius\Component\Addressing\Model\CountryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @author Jeroen Thora <jeroen.thora@intracto.com>
- */
-class CountryApiTest extends JsonApiTestCase
+final class CountryApiTest extends JsonApiTestCase
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithContentType = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'CONTENT_TYPE' => 'application/json',
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithAccept = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'ACCEPT' => 'application/json',
@@ -82,6 +78,32 @@ EOT;
     /**
      * @test
      */
+    public function it_allows_to_create_country_with_provinces()
+    {
+        $this->loadFixturesFromFile('authentication/api_administrator.yml');
+
+        $data =
+<<<EOT
+        {
+            "code": "BE",
+            "provinces": [
+                {
+                    "code": "BE-LM",
+                    "name": "Limburg"
+                }
+            ]
+        }
+EOT;
+
+        $this->client->request('POST', '/api/v1/countries/', [], [], static::$authorizedHeaderWithContentType, $data);
+
+        $response = $this->client->getResponse();
+        $this->assertResponse($response, 'country/create_with_province_response', Response::HTTP_CREATED);
+    }
+
+    /**
+     * @test
+     */
     public function it_returns_not_found_response_when_requesting_details_of_a_country_which_does_not_exist()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
@@ -113,8 +135,9 @@ EOT;
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $countries = $this->loadFixturesFromFile('resources/countries.yml');
+        $country = $countries['country_NL'];
 
-        $this->client->request('GET', '/api/v1/countries/'.$countries['country_NL']->getCode(), [], [], static::$authorizedHeaderWithAccept);
+        $this->client->request('GET', $this->getCountryUrl($country), [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'country/show_response', Response::HTTP_OK);
@@ -152,15 +175,24 @@ EOT;
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $countries = $this->loadFixturesFromFile('resources/countries.yml');
+        $country = $countries['country_NL'];
 
-        $this->client->request('DELETE', '/api/v1/countries/' . $countries['country_NL']->getCode(), [], [], static::$authorizedHeaderWithContentType, []);
+        $this->client->request('DELETE', $this->getCountryUrl($country), [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
         $this->assertResponseCode($response, Response::HTTP_NO_CONTENT);
 
-        $this->client->request('GET', '/api/v1/countries/' . $countries['country_NL']->getCode(), [], [], static::$authorizedHeaderWithAccept);
+        $this->client->request('GET', $this->getCountryUrl($country), [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'error/not_found_response', Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * @return string
+     */
+    private function getCountryUrl(CountryInterface $country)
+    {
+        return '/api/v1/countries/' . $country->getCode();
     }
 }

@@ -5,7 +5,7 @@ sylius:
     form:
         rule:
             unit_count_configuration:
-                count: Conta
+                count: Quantità
                 equal: Uguale a
             type: Tipo di regola
         shipment:
@@ -20,14 +20,14 @@ sylius:
             tracking_code: Codice di monitoraggio della spedizione
         shipping_calculator:
             flat_rate_configuration:
-                label: Tariffa fissa di spedizione
+                label: Tariffa fissa per spedizione
                 amount: Importo
             per_unit_rate_configuration:
                 label: Tariffa fissa per unità
                 amount: Importo
         shipping_category:
             description: Descrizione
-            name: Nome
+            name: "Nome\n"
         shipping_method:
             calculator: Calcolatore
             category: Categoria
@@ -36,6 +36,7 @@ sylius:
             configuration: Configurazione
             description: Descrizione
             enabled: Abilitato
-            name: Nome
+            name: "Nome\n"
+            position: Posizione
             tax_category: Categoria fiscale
             translations: Traduzioni

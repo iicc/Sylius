@@ -9,28 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Mailer\Provider;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class DefaultSettingsProvider implements DefaultSettingsProviderInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $senderName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $senderAddress;
 
-    /**
-     * @param string $senderName
-     * @param string $senderAddress
-     */
-    public function __construct($senderName, $senderAddress)
+    public function __construct(string $senderName, string $senderAddress)
     {
         $this->senderName = $senderName;
         $this->senderAddress = $senderAddress;
@@ -39,7 +30,7 @@ final class DefaultSettingsProvider implements DefaultSettingsProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getSenderName()
+    public function getSenderName(): string
     {
         return $this->senderName;
     }
@@ -47,7 +38,7 @@ final class DefaultSettingsProvider implements DefaultSettingsProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getSenderAddress()
+    public function getSenderAddress(): string
     {
         return $this->senderAddress;
     }

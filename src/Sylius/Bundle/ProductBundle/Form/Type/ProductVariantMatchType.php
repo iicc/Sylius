@@ -9,44 +9,54 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ProductBundle\Form\Type;
 
 use Sylius\Bundle\ProductBundle\Form\DataTransformer\ProductVariantToProductOptionsTransformer;
+use Sylius\Bundle\ResourceBundle\Form\Type\FixedCollectionType;
 use Sylius\Component\Product\Model\ProductInterface;
+use Sylius\Component\Product\Model\ProductOptionInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class ProductVariantMatchType extends AbstractType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        /** @var ProductInterface $product */
-        $product = $options['product'];
-
-        foreach ($product->getOptions() as $i => $option) {
-            $builder->add($option->getCode(), ProductOptionValueChoiceType::class, [
-                'label' => $option->getName(),
-                'option' => $option,
-                'property_path' => '['.$i.']',
-            ]);
-        }
-
         $builder->addModelTransformer(new ProductVariantToProductOptionsTransformer($options['product']));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
+            ->setDefaults([
+                'entries' => function (Options $options) {
+                    /** @var ProductInterface $product */
+                    $product = $options['product'];
+
+                    return $product->getOptions();
+                },
+                'entry_type' => ProductOptionValueChoiceType::class,
+                'entry_name' => function (ProductOptionInterface $productOption) {
+                    return $productOption->getCode();
+                },
+                'entry_options' => function (ProductOptionInterface $productOption) {
+                    return [
+                        'label' => $productOption->getName(),
+                        'option' => $productOption,
+                    ];
+                },
+            ])
+
             ->setRequired('product')
             ->setAllowedTypes('product', ProductInterface::class)
         ;
@@ -55,7 +65,15 @@ final class ProductVariantMatchType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getParent(): string
+    {
+        return FixedCollectionType::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix(): string
     {
         return 'sylius_product_variant_match';
     }

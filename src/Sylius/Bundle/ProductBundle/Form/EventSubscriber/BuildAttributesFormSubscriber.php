@@ -9,8 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ProductBundle\Form\EventSubscriber;
 
+use Sylius\Component\Attribute\Model\AttributeValueInterface;
 use Sylius\Component\Product\Model\ProductAttributeInterface;
 use Sylius\Component\Product\Model\ProductAttributeValueInterface;
 use Sylius\Component\Product\Model\ProductInterface;
@@ -21,25 +24,14 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class BuildAttributesFormSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $attributeValueFactory;
 
-    /**
-     * @var TranslationLocaleProviderInterface
-     */
+    /** @var TranslationLocaleProviderInterface */
     private $localeProvider;
 
-    /**
-     * @param FactoryInterface $attributeValueFactory
-     * @param TranslationLocaleProviderInterface $localeProvider
-     */
     public function __construct(
         FactoryInterface $attributeValueFactory,
         TranslationLocaleProviderInterface $localeProvider
@@ -51,19 +43,18 @@ final class BuildAttributesFormSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FormEvents::PRE_SET_DATA => 'preSetData',
+            FormEvents::POST_SUBMIT => 'postSubmit',
         ];
     }
 
     /**
-     * @param FormEvent $event
-     *
      * @throws \InvalidArgumentException
      */
-    public function preSetData(FormEvent $event)
+    public function preSetData(FormEvent $event): void
     {
         /** @var ProductInterface $product */
         $product = $event->getData();
@@ -84,10 +75,24 @@ final class BuildAttributesFormSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param ProductInterface $product
-     * @param ProductAttributeValueInterface $attribute
+     * @throws \InvalidArgumentException
      */
-    private function resolveLocalizedAttributes(ProductInterface $product, ProductAttributeValueInterface $attribute)
+    public function postSubmit(FormEvent $event): void
+    {
+        /** @var ProductInterface $product */
+        $product = $event->getData();
+
+        Assert::isInstanceOf($product, ProductInterface::class);
+
+        /** @var AttributeValueInterface $attribute */
+        foreach ($product->getAttributes() as $attribute) {
+            if (null === $attribute->getValue()) {
+                $product->removeAttribute($attribute);
+            }
+        }
+    }
+
+    private function resolveLocalizedAttributes(ProductInterface $product, ProductAttributeValueInterface $attribute): void
     {
         $localeCodes = $this->localeProvider->getDefinedLocalesCodes();
 
@@ -99,14 +104,10 @@ final class BuildAttributesFormSubscriber implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @param ProductAttributeInterface $attribute
-     * @param string $localeCode
-     *
-     * @return ProductAttributeValueInterface
-     */
-    private function createProductAttributeValue(ProductAttributeInterface $attribute, $localeCode)
-    {
+    private function createProductAttributeValue(
+        ProductAttributeInterface $attribute,
+        string $localeCode
+    ): ProductAttributeValueInterface {
         /** @var ProductAttributeValueInterface $attributeValue */
         $attributeValue = $this->attributeValueFactory->createNew();
         $attributeValue->setAttribute($attribute);

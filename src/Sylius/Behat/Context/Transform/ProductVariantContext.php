@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
@@ -16,25 +18,14 @@ use Sylius\Component\Core\Repository\ProductRepositoryInterface;
 use Sylius\Component\Product\Repository\ProductVariantRepositoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class ProductVariantContext implements Context
 {
-    /**
-     * @var ProductRepositoryInterface
-     */
+    /** @var ProductRepositoryInterface */
     private $productRepository;
 
-    /**
-     * @var ProductVariantRepositoryInterface
-     */
+    /** @var ProductVariantRepositoryInterface */
     private $productVariantRepository;
 
-    /**
-     * @param ProductRepositoryInterface $productRepository
-     * @param ProductVariantRepositoryInterface $productVariantRepository
-     */
     public function __construct(
         ProductRepositoryInterface $productRepository,
         ProductVariantRepositoryInterface $productVariantRepository
@@ -51,8 +42,8 @@ final class ProductVariantContext implements Context
         $products = $this->productRepository->findByName($productName, 'en_US');
 
         Assert::eq(
-            1,
             count($products),
+            1,
             sprintf('%d products has been found with name "%s".', count($products), $productName)
         );
 
@@ -75,8 +66,8 @@ final class ProductVariantContext implements Context
         $productVariants = $this->productVariantRepository->findByName($name, 'en_US');
 
         Assert::eq(
-            1,
             count($productVariants),
+            1,
             sprintf('%d product variants has been found with name "%s".', count($productVariants), $name)
         );
 

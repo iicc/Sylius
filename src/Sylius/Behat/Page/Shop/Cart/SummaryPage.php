@@ -9,22 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Shop\Cart;
 
 use Behat\Mink\Exception\ElementNotFoundException;
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 use Sylius\Component\Core\Model\ProductInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 class SummaryPage extends SymfonyPage implements SummaryPageInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return 'sylius_shop_cart_summary';
     }
@@ -124,7 +122,6 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
     {
         $itemElement = $this->getElement('product_row', ['%name%' => $productName]);
         $itemElement->find('css', 'button.sylius-cart-remove-button')->press();
-
     }
 
     /**
@@ -199,7 +196,7 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
     }
 
     /**
-     * {@inheritdoc]
+     * {@inheritdoc}
      */
     public function hasProductOutOfStockValidationMessage(ProductInterface $product)
     {
@@ -275,7 +272,7 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'apply_coupon_button' => 'button:contains("Apply coupon")',
@@ -301,8 +298,8 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
     }
 
     /**
-     * @param $attributeName
-     * @param $selector
+     * @param string $attributeName
+     * @param string|array $selector
      *
      * @return bool
      *
@@ -321,13 +318,8 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
         return false;
     }
 
-    /**
-     * @param string $price
-     *
-     * @return int
-     */
-    private function getPriceFromString($price)
+    private function getPriceFromString(string $price): int
     {
-        return (int) round(str_replace(['€', '£', '$'], '', $price) * 100, 2);
+        return (int) round((float) str_replace(['€', '£', '$'], '', $price) * 100, 2);
     }
 }

@@ -9,21 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Repository;
 
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface PaymentRepositoryInterface extends RepositoryInterface
 {
-    /**
-     * @param mixed $id
-     * @param mixed $orderId
-     *
-     * @return PaymentInterface|null
-     */
-    public function findOneByOrderId($id, $orderId);
+    public function createListQueryBuilder(): QueryBuilder;
+
+    public function findOneByOrderId($paymentId, $orderId): ?PaymentInterface;
 }

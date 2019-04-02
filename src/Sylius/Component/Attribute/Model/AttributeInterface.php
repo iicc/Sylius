@@ -9,65 +9,44 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Attribute\Model;
 
 use Sylius\Component\Resource\Model\CodeAwareInterface;
+use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 use Sylius\Component\Resource\Model\TranslatableInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 interface AttributeInterface extends
+    ResourceInterface,
     CodeAwareInterface,
     TimestampableInterface,
-    AttributeTranslationInterface,
     TranslatableInterface
 {
-    /**
-     * @return string
-     */
-    public function getType();
+    public function getName(): ?string;
+
+    public function setName(?string $name): void;
+
+    public function getType(): ?string;
+
+    public function setType(?string $type): void;
+
+    public function getConfiguration(): array;
+
+    public function setConfiguration(array $configuration): void;
+
+    public function getStorageType(): ?string;
+
+    public function setStorageType(string $storageType): void;
+
+    public function getPosition(): ?int;
+
+    public function setPosition(?int $position): void;
 
     /**
-     * @param string $type
+     * @return AttributeTranslationInterface
      */
-    public function setType($type);
-
-    /**
-     * @return array
-     */
-    public function getConfiguration();
-
-    /**
-     * @param array $configuration
-     */
-    public function setConfiguration(array $configuration);
-
-    /**
-     * @return AttributeValueInterface[]
-     */
-    public function getValues();
-
-    /**
-     * @return string
-     */
-    public function getStorageType();
-
-    /**
-     * @param string $storageType
-     */
-    public function setStorageType($storageType);
-
-    /**
-     * @return int
-     */
-    public function getPosition();
-
-    /**
-     * @param int $position
-     */
-    public function setPosition($position);
+    public function getTranslation(?string $locale = null): TranslationInterface;
 }

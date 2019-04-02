@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Repository;
 
 use Doctrine\ORM\QueryBuilder;
@@ -20,97 +22,53 @@ use Sylius\Component\Order\Repository\OrderRepositoryInterface as BaseOrderRepos
 
 interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
 {
-    /**
-     * @return QueryBuilder
-     */
-    public function createListQueryBuilder();
+    public function createListQueryBuilder(): QueryBuilder;
+
+    public function createByCustomerIdQueryBuilder($customerId): QueryBuilder;
+
+    public function createByCustomerAndChannelIdQueryBuilder($customerId, $channelId): QueryBuilder;
+
+    public function countByCustomerAndCoupon(CustomerInterface $customer, PromotionCouponInterface $coupon): int;
+
+    public function countByCustomer(CustomerInterface $customer): int;
 
     /**
-     * @param int $customerId
-     *
-     * @return QueryBuilder
+     * @return array|OrderInterface[]
      */
-    public function createByCustomerIdQueryBuilder($customerId);
+    public function findByCustomer(CustomerInterface $customer): array;
 
     /**
-     * @param CustomerInterface $customer
-     * @param PromotionCouponInterface $coupon
-     *
-     * @return int
+     * @return array|OrderInterface[]
      */
-    public function countByCustomerAndCoupon(CustomerInterface $customer, PromotionCouponInterface $coupon);
+    public function findForCustomerStatistics(CustomerInterface $customer): array;
+
+    public function findOneForPayment($id): ?OrderInterface;
+
+    public function findOneByNumberAndCustomer(string $number, CustomerInterface $customer): ?OrderInterface;
+
+    public function findCartByChannel($id, ChannelInterface $channel): ?OrderInterface;
+
+    public function findLatestCartByChannelAndCustomer(ChannelInterface $channel, CustomerInterface $customer): ?OrderInterface;
+
+    public function getTotalSalesForChannel(ChannelInterface $channel): int;
+
+    public function countFulfilledByChannel(ChannelInterface $channel): int;
 
     /**
-     * @param CustomerInterface $customer
-     *
-     * @return int
+     * @return array|OrderInterface[]
      */
-    public function countByCustomer(CustomerInterface $customer);
+    public function findLatestInChannel(int $count, ChannelInterface $channel): array;
 
     /**
-     * @param CustomerInterface $customer
-     *
-     * @return OrderInterface[]
+     * @return array|OrderInterface[]
      */
-    public function findByCustomer(CustomerInterface $customer);
+    public function findOrdersUnpaidSince(\DateTimeInterface $terminalDate): array;
 
-    /**
-     * @param int $id
-     *
-     * @return OrderInterface|null
-     */
-    public function findOneForPayment($id);
+    public function findCartForSummary($id): ?OrderInterface;
 
-    /**
-     * @param string $number
-     * @param CustomerInterface $customer
-     *
-     * @return OrderInterface|null
-     */
-    public function findOneByNumberAndCustomer($number, CustomerInterface $customer);
+    public function findCartForAddressing($id): ?OrderInterface;
 
-    /**
-     * @param string $id
-     * @param ChannelInterface $channel
-     *
-     * @return OrderInterface|null
-     */
-    public function findCartByChannel($id, ChannelInterface $channel);
+    public function findCartForSelectingShipping($id): ?OrderInterface;
 
-    /**
-     * @param ChannelInterface $channel
-     * @param CustomerInterface $customer
-     *
-     * @return OrderInterface|null
-     */
-    public function findLatestCartByChannelAndCustomer(ChannelInterface $channel, CustomerInterface $customer);
-
-    /**
-     * @param ChannelInterface $channel
-     *
-     * @return int
-     */
-    public function getTotalSalesForChannel(ChannelInterface $channel);
-
-    /**
-     * @param ChannelInterface $channel
-     *
-     * @return int
-     */
-    public function countByChannel(ChannelInterface $channel);
-
-    /**
-     * @param int $count
-     * @param ChannelInterface $channel
-     *
-     * @return OrderInterface[]
-     */
-    public function findLatestInChannel($count, ChannelInterface $channel);
-
-    /**
-     * @param \DateTime $terminalDate
-     *
-     * @return OrderInterface[]
-     */
-    public function findOrdersUnpaidSince(\DateTime $terminalDate);
+    public function findCartForSelectingPayment($id): ?OrderInterface;
 }

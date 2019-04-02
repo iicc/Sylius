@@ -9,54 +9,37 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxonomy\Repository;
 
 use Doctrine\ORM\QueryBuilder;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- * @author Anna Walasek <anna.walasek@lakion.com>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface TaxonRepositoryInterface extends RepositoryInterface
 {
     /**
-     * @param string $parentCode
-     *
-     * @return TaxonInterface[]
+     * @return array|TaxonInterface[]
      */
-    public function findChildren($parentCode);
+    public function findChildren(string $parentCode, ?string $locale = null): array;
 
     /**
-     * @return TaxonInterface[]
+     * @return array|TaxonInterface[]
      */
-    public function findRootNodes();
+    public function findRootNodes(): array;
+
+    public function findOneBySlug(string $slug, string $locale): ?TaxonInterface;
 
     /**
-     * @return TaxonInterface[]
+     * @return array|TaxonInterface[]
      */
-    public function findNodesTreeSorted();
-    
-    /**
-     * @param string $slug
-     *
-     * @return TaxonInterface|null
-     */
-    public function findOneBySlug($slug);
+    public function findByName(string $name, string $locale): array;
 
     /**
-     * @param string $name
-     * @param string $locale
-     *
-     * @return TaxonInterface[]
+     * @return array|TaxonInterface[]
      */
-    public function findByName($name, $locale);
+    public function findByNamePart(string $phrase, ?string $locale = null): array;
 
-    /**
-     * @return QueryBuilder
-     */
-    public function createListQueryBuilder();
+    public function createListQueryBuilder(): QueryBuilder;
 }

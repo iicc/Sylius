@@ -9,41 +9,28 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Page\Admin\Crud\IndexPageInterface;
-use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface;
 use Sylius\Behat\Page\Admin\ShippingCategory\CreatePageInterface;
+use Sylius\Behat\Page\Admin\ShippingCategory\UpdatePageInterface;
 use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 class ManagingShippingCategoriesContext implements Context
 {
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var CreatePageInterface
-     */
+    /** @var CreatePageInterface */
     private $createPage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $updatePage;
 
-
-    /**
-     * @param IndexPageInterface $indexPage
-     * @param CreatePageInterface $createPage
-     * @param UpdatePageInterface $updatePage
-     */
     public function __construct(
         IndexPageInterface $indexPage,
         CreatePageInterface $createPage,
@@ -71,16 +58,12 @@ class ManagingShippingCategoriesContext implements Context
     }
 
     /**
+     * @Then I should see a single shipping category in the list
      * @Then I should see :numberOfShippingCategories shipping categories in the list
      */
-    public function iShouldSeeShippingCategoriesInTheList($numberOfShippingCategories)
+    public function iShouldSeeShippingCategoriesInTheList(int $numberOfShippingCategories = 1): void
     {
-        $foundRows = $this->indexPage->countItems();
-
-        Assert::true(
-            ((int) $numberOfShippingCategories) === $foundRows,
-            sprintf('%s rows with shipping categories should appear on page, %s rows has been found', $numberOfShippingCategories, $foundRows)
-        );
+        Assert::same($this->indexPage->countItems(), $numberOfShippingCategories);
     }
 
     /**
@@ -117,7 +100,7 @@ class ManagingShippingCategoriesContext implements Context
      */
     public function iSpecifyItsCodeAs($shippingCategoryCode = null)
     {
-        $this->createPage->specifyCode($shippingCategoryCode);
+        $this->createPage->specifyCode($shippingCategoryCode ?? '');
     }
 
     /**
@@ -126,7 +109,15 @@ class ManagingShippingCategoriesContext implements Context
      */
     public function iNameIt($shippingCategoryName = null)
     {
-        $this->createPage->nameIt($shippingCategoryName);
+        $this->createPage->nameIt($shippingCategoryName ?? '');
+    }
+
+    /**
+     * @Then I should see the shipping category :shippingCategoryName in the list
+     */
+    public function iShouldSeeTheShippingCategoryInTheList(string $shippingCategoryName): void
+    {
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $shippingCategoryName]));
     }
 
     /**
@@ -137,10 +128,7 @@ class ManagingShippingCategoriesContext implements Context
     {
         $this->iWantToBrowseShippingCategories();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['code' => $shippingCategory->getCode()]),
-            sprintf('The shipping category with code %s has not been found.', $shippingCategory->getCode())
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['code' => $shippingCategory->getCode()]));
     }
 
     /**
@@ -157,10 +145,7 @@ class ManagingShippingCategoriesContext implements Context
      */
     public function thisShippingCategoryShouldNoLongerExistInTheRegistry(ShippingCategoryInterface $shippingCategory)
     {
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage(['code' => $shippingCategory->getCode()]),
-            sprintf('Shipping category with code %s exists but should not.', $shippingCategory->getCode())
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage(['code' => $shippingCategory->getCode()]));
     }
 
     /**
@@ -168,10 +153,7 @@ class ManagingShippingCategoriesContext implements Context
      */
     public function shippingCategoryWithNameShouldNotBeAdded($shippingCategoryName)
     {
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage(['name' => $shippingCategoryName]),
-            sprintf('Shipping category with name %s exists but should not.', $shippingCategoryName)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage(['name' => $shippingCategoryName]));
     }
 
     /**
@@ -188,7 +170,7 @@ class ManagingShippingCategoriesContext implements Context
      */
     public function iNameItIn($name)
     {
-        $this->createPage->nameIt($name);
+        $this->createPage->nameIt($name ?? '');
     }
 
     /**
@@ -200,14 +182,27 @@ class ManagingShippingCategoriesContext implements Context
     }
 
     /**
+     * @When I check (also) the :shippingCategoryName shipping category
+     */
+    public function iCheckTheShippingCategory(string $shippingCategoryName): void
+    {
+        $this->indexPage->checkResourceOnPage(['name' => $shippingCategoryName]);
+    }
+
+    /**
+     * @When I delete them
+     */
+    public function iDeleteThem(): void
+    {
+        $this->indexPage->bulkDelete();
+    }
+
+    /**
      * @Then the code field should be disabled
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeDisabled(),
-            'Code should be immutable, but it does not.'
-        );
+        Assert::true($this->updatePage->isCodeDisabled());
     }
 
     /**
@@ -215,10 +210,7 @@ class ManagingShippingCategoriesContext implements Context
      */
     public function thisShippingCategoryNameShouldBe($shippingCategoryName)
     {
-        Assert::true(
-            $this->updatePage->hasResourceValues(['name' => $shippingCategoryName]),
-            sprintf('Shipping category should have name %s, but it does not.', $shippingCategoryName)
-        );
+        Assert::true($this->updatePage->hasResourceValues(['name' => $shippingCategoryName]));
     }
 
     /**
@@ -239,9 +231,6 @@ class ManagingShippingCategoriesContext implements Context
     {
         $this->iWantToBrowseShippingCategories();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['code' => $code]),
-            sprintf('Shipping method with code %s cannot be found.', $code)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['code' => $code]));
     }
 }

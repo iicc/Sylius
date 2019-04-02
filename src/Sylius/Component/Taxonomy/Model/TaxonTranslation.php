@@ -9,41 +9,29 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxonomy\Model;
 
 use Sylius\Component\Resource\Model\AbstractTranslation;
 
-/**
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
 class TaxonTranslation extends AbstractTranslation implements TaxonTranslationInterface
 {
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string|null */
     protected $name;
 
-    /**
-     * @var string
-     */
+    /** @var string|null */
     protected $slug;
 
-    /**
-     * @var string
-     */
+    /** @var string|null */
     protected $description;
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->getName();
+        return (string) $this->getName();
     }
 
     /**
@@ -57,7 +45,7 @@ class TaxonTranslation extends AbstractTranslation implements TaxonTranslationIn
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -65,7 +53,7 @@ class TaxonTranslation extends AbstractTranslation implements TaxonTranslationIn
     /**
      * {@inheritdoc}
      */
-    public function setName($name)
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
@@ -73,7 +61,7 @@ class TaxonTranslation extends AbstractTranslation implements TaxonTranslationIn
     /**
      * {@inheritdoc}
      */
-    public function getSlug()
+    public function getSlug(): ?string
     {
         return $this->slug;
     }
@@ -81,7 +69,7 @@ class TaxonTranslation extends AbstractTranslation implements TaxonTranslationIn
     /**
      * {@inheritdoc}
      */
-    public function setSlug($slug = null)
+    public function setSlug(?string $slug): void
     {
         $this->slug = $slug;
     }
@@ -89,7 +77,7 @@ class TaxonTranslation extends AbstractTranslation implements TaxonTranslationIn
     /**
      * {@inheritdoc}
      */
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -97,7 +85,7 @@ class TaxonTranslation extends AbstractTranslation implements TaxonTranslationIn
     /**
      * {@inheritdoc}
      */
-    public function setDescription($description)
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }

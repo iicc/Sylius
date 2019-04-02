@@ -9,30 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\StateResolver;
 
+use Doctrine\Common\Collections\Collection;
 use SM\Factory\FactoryInterface;
 use SM\StateMachine\StateMachineInterface;
-use Sylius\Component\Order\Model\OrderInterface;
-use Sylius\Component\Order\StateResolver\StateResolverInterface;
+use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\OrderPaymentTransitions;
+use Sylius\Component\Order\Model\OrderInterface as BaseOrderInterface;
+use Sylius\Component\Order\StateResolver\StateResolverInterface;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class OrderPaymentStateResolver implements StateResolverInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $stateMachineFactory;
 
-    /**
-     * @param FactoryInterface $stateMachineFactory
-     */
     public function __construct(FactoryInterface $stateMachineFactory)
     {
         $this->stateMachineFactory = $stateMachineFactory;
@@ -41,8 +36,11 @@ final class OrderPaymentStateResolver implements StateResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function resolve(OrderInterface $order)
+    public function resolve(BaseOrderInterface $order): void
     {
+        /** @var OrderInterface $order */
+        Assert::isInstanceOf($order, OrderInterface::class);
+
         $stateMachine = $this->stateMachineFactory->get($order, OrderPaymentTransitions::GRAPH);
         $targetTransition = $this->getTargetTransition($order);
 
@@ -51,23 +49,14 @@ final class OrderPaymentStateResolver implements StateResolverInterface
         }
     }
 
-    /**
-     * @param StateMachineInterface $stateMachine
-     * @param string $transition
-     */
-    private function applyTransition(StateMachineInterface $stateMachine, $transition)
+    private function applyTransition(StateMachineInterface $stateMachine, string $transition): void
     {
         if ($stateMachine->can($transition)) {
             $stateMachine->apply($transition);
         }
     }
 
-    /**
-     * @param OrderInterface $order
-     *
-     * @return string|null
-     */
-    private function getTargetTransition(OrderInterface $order)
+    private function getTargetTransition(OrderInterface $order): ?string
     {
         $refundedPaymentTotal = 0;
         $refundedPayments = $this->getPaymentsWithState($order, PaymentInterface::STATE_REFUNDED);
@@ -91,7 +80,10 @@ final class OrderPaymentStateResolver implements StateResolverInterface
             $completedPaymentTotal += $payment->getAmount();
         }
 
-        if (0 < $completedPayments->count() && $completedPaymentTotal >= $order->getTotal()) {
+        if (
+            (0 < $completedPayments->count() && $completedPaymentTotal >= $order->getTotal()) ||
+            $order->getPayments()->isEmpty()
+        ) {
             return OrderPaymentTransitions::TRANSITION_PAY;
         }
 
@@ -99,16 +91,28 @@ final class OrderPaymentStateResolver implements StateResolverInterface
             return OrderPaymentTransitions::TRANSITION_PARTIALLY_PAY;
         }
 
+        $authorizedPaymentTotal = 0;
+        $authorizedPayments = $this->getPaymentsWithState($order, PaymentInterface::STATE_AUTHORIZED);
+
+        foreach ($authorizedPayments as $payment) {
+            $authorizedPaymentTotal += $payment->getAmount();
+        }
+
+        if (0 < $authorizedPayments->count() && $authorizedPaymentTotal >= $order->getTotal()) {
+            return OrderPaymentTransitions::TRANSITION_AUTHORIZE;
+        }
+
+        if ($authorizedPaymentTotal < $order->getTotal() && 0 < $authorizedPaymentTotal) {
+            return OrderPaymentTransitions::TRANSITION_PARTIALLY_AUTHORIZE;
+        }
+
         return null;
     }
 
     /**
-     * @param OrderInterface $order
-     * @param string $state
-     *
-     * @return PaymentInterface[]
+     * @return Collection|PaymentInterface[]
      */
-    private function getPaymentsWithState(OrderInterface $order, $state)
+    private function getPaymentsWithState(OrderInterface $order, string $state): Collection
     {
         return $order->getPayments()->filter(function (PaymentInterface $payment) use ($state) {
             return $state === $payment->getState();

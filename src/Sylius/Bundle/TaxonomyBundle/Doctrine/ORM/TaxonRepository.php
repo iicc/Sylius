@@ -9,47 +9,46 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\TaxonomyBundle\Doctrine\ORM;
 
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
 
-/**
- * @author Aram Alipoor <aram.alipoor@gmail.com>
- */
 class TaxonRepository extends EntityRepository implements TaxonRepositoryInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function findChildren($parentCode)
+    public function findChildren(string $parentCode, ?string $locale = null): array
     {
-        $queryBuilder = $this->createQueryBuilder('o');
-        $queryBuilder
-            ->addSelect('translation')
-            ->leftJoin('o.translations', 'translation')
+        return $this->createTranslationBasedQueryBuilder($locale)
             ->addSelect('child')
+            ->innerJoin('o.parent', 'parent')
             ->leftJoin('o.children', 'child')
-            ->leftJoin('o.parent', 'parent')
             ->andWhere('parent.code = :parentCode')
             ->addOrderBy('o.position')
             ->setParameter('parentCode', $parentCode)
+            ->getQuery()
+            ->getResult()
         ;
-
-        return $queryBuilder->getQuery()->getResult();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function findOneBySlug($slug)
+    public function findOneBySlug(string $slug, string $locale): ?TaxonInterface
     {
         return $this->createQueryBuilder('o')
             ->addSelect('translation')
-            ->leftJoin('o.translations', 'translation')
-            ->where('translation.slug = :slug')
+            ->innerJoin('o.translations', 'translation')
+            ->andWhere('translation.slug = :slug')
+            ->andWhere('translation.locale = :locale')
             ->setParameter('slug', $slug)
+            ->setParameter('locale', $locale)
             ->getQuery()
             ->getOneOrNullResult()
         ;
@@ -58,11 +57,11 @@ class TaxonRepository extends EntityRepository implements TaxonRepositoryInterfa
     /**
      * {@inheritdoc}
      */
-    public function findByName($name, $locale)
+    public function findByName(string $name, string $locale): array
     {
         return $this->createQueryBuilder('o')
             ->addSelect('translation')
-            ->leftJoin('o.translations', 'translation')
+            ->innerJoin('o.translations', 'translation')
             ->andWhere('translation.name = :name')
             ->andWhere('translation.locale = :locale')
             ->setParameter('name', $name)
@@ -75,37 +74,51 @@ class TaxonRepository extends EntityRepository implements TaxonRepositoryInterfa
     /**
      * {@inheritdoc}
      */
-    public function findRootNodes()
+    public function findRootNodes(): array
     {
-        $queryBuilder = $this->createQueryBuilder('o');
-        $queryBuilder
-            ->andWhere($queryBuilder->expr()->isNull($this->getPropertyName('parent')))
-            ->orderBy('o.position')
-        ;
-
-        return $queryBuilder->getQuery()->getResult();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findNodesTreeSorted()
-    {
-        $queryBuilder = $this->createQueryBuilder('o');
-        $queryBuilder
-            ->orderBy('o.root')
-            ->addOrderBy('o.left')
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.parent IS NULL')
             ->addOrderBy('o.position')
+            ->getQuery()
+            ->getResult()
         ;
-    
-        return $queryBuilder->getQuery()->getResult();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createListQueryBuilder()
+    public function findByNamePart(string $phrase, ?string $locale = null): array
+    {
+        return $this->createTranslationBasedQueryBuilder($locale)
+            ->andWhere('translation.name LIKE :name')
+            ->setParameter('name', '%' . $phrase . '%')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createListQueryBuilder(): QueryBuilder
     {
         return $this->createQueryBuilder('o')->leftJoin('o.translations', 'translation');
+    }
+
+    private function createTranslationBasedQueryBuilder(?string $locale): QueryBuilder
+    {
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->addSelect('translation')
+            ->leftJoin('o.translations', 'translation')
+        ;
+
+        if (null !== $locale) {
+            $queryBuilder
+                ->andWhere('translation.locale = :locale')
+                ->setParameter('locale', $locale)
+            ;
+        }
+
+        return $queryBuilder;
     }
 }

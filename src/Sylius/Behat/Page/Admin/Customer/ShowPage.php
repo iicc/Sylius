@@ -9,80 +9,60 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Customer;
 
 use Behat\Mink\Element\NodeElement;
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Magdalena Banasiak <magdalena.banasiak@lakion.com>
- */
 class ShowPage extends SymfonyPage implements ShowPageInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function isRegistered()
+    public function isRegistered(): bool
     {
         $username = $this->getDocument()->find('css', '#username');
 
         return null !== $username;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function deleteAccount()
+    public function deleteAccount(): void
     {
         $deleteButton = $this->getElement('delete_account_button');
         $deleteButton->pressButton('Delete');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCustomerEmail()
+    public function getCustomerEmail(): string
     {
         return $this->getElement('customer_email')->getText();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCustomerName()
+    public function getCustomerPhoneNumber(): string
+    {
+        return $this->getElement('customer_phone_number')->getText();
+    }
+
+    public function getCustomerName(): string
     {
         return $this->getElement('customer_name')->getText();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRegistrationDate()
+    public function getRegistrationDate(): \DateTimeInterface
     {
         return new \DateTime(str_replace('Customer since ', '', $this->getElement('registration_date')->getText()));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefaultAddress()
+    public function getDefaultAddress(): string
     {
         return $this->getElement('default_address')->getText();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasAccount()
+    public function hasAccount(): bool
     {
         return $this->hasElement('no_account');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isSubscribedToNewsletter()
+    public function isSubscribedToNewsletter(): bool
     {
         $subscribedToNewsletter = $this->getElement('subscribed_to_newsletter');
         if ($subscribedToNewsletter->find('css', 'i.green')) {
@@ -92,20 +72,14 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasDefaultAddressProvinceName($provinceName)
+    public function hasDefaultAddressProvinceName(string $provinceName): bool
     {
         $defaultAddressProvince = $this->getElement('default_address')->getText();
 
         return false !== stripos($defaultAddressProvince, $provinceName);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasVerifiedEmail()
+    public function hasVerifiedEmail(): bool
     {
         $verifiedEmail = $this->getElement('verified_email');
         if ($verifiedEmail->find('css', 'i.green')) {
@@ -115,133 +89,81 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getGroupName()
+    public function getGroupName(): string
     {
         $group = $this->getElement('group');
 
         Assert::notNull($group, 'There should be element group on page.');
 
-        list($text, $groupName) = explode(':', $group->getText());
+        [$text, $groupName] = explode(':', $group->getText());
 
         return trim($groupName);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasEmailVerificationInformation()
+    public function hasEmailVerificationInformation(): bool
     {
         return null === $this->getDocument()->find('css', '#verified-email');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasImpersonateButton()
+    public function hasImpersonateButton(): bool
     {
         return $this->hasElement('impersonate_button');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function impersonate()
+    public function impersonate(): void
     {
         $this->getElement('impersonate_button')->click();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasCustomerPlacedAnyOrders()
+    public function hasCustomerPlacedAnyOrders(): bool
     {
         return null !== $this->getElement('statistics')->find('css', '.sylius-orders-overall-count');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getOverallOrdersCount()
+    public function getOrdersCountInChannel(string $channelName): int
     {
-        $overallOrders = $this
-            ->getElement('statistics')
-            ->find('css', '.sylius-orders-overall-count')
-            ->getText()
-        ;
-
-        return (int) preg_replace('/[^0-9]/', '',$overallOrders);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrdersCountInChannel($channelName)
-    {
-        $ordersCountStatistic = $this
+        return (int) $this
             ->getStatisticsForChannel($channelName)
             ->find('css', '.sylius-orders-count')
             ->getText()
         ;
-
-        return (int) $this->getStatisticValue($ordersCountStatistic);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrdersTotalInChannel($channelName)
+    public function getOrdersTotalInChannel(string $channelName): string
     {
-        $ordersCountStatistic = $this
+        return $this
             ->getStatisticsForChannel($channelName)
             ->find('css', '.sylius-orders-total')
             ->getText()
         ;
-
-        return $this->getStatisticValue($ordersCountStatistic);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAverageTotalInChannel($channelName)
+    public function getAverageTotalInChannel(string $channelName): string
     {
-        $averageTotalStatistic = $this
+        return $this
             ->getStatisticsForChannel($channelName)
             ->find('css', '.sylius-order-average-total')
             ->getText()
         ;
-
-        return $this->getStatisticValue($averageTotalStatistic);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSuccessFlashMessage()
+    public function getSuccessFlashMessage(): string
     {
         return trim($this->getElement('flash_message')->getText());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return 'sylius_admin_customer_show';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'customer_email' => '#info .content.extra > a',
             'customer_name' => '#info .content > a',
-            'default_address' => '#defaultAddress address',
+            'customer_phone_number' => '#phone-number',
+            'default_address' => '#default-address',
             'delete_account_button' => '#actions',
             'flash_message' => '.ui.icon.positive.message .content p',
             'group' => '.group',
@@ -255,15 +177,14 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     }
 
     /**
-     * @param string $channelName
-     *
-     * @return NodeElement
-     *
      * @throws \InvalidArgumentException
      */
-    private function getStatisticsForChannel($channelName)
+    private function getStatisticsForChannel(string $channelName): NodeElement
     {
-        $statisticsRibs = $this->getElement('statistics')->findAll('css', '.accordion > .title');
+        $statisticsRibs = $this
+            ->getElement('statistics')
+            ->findAll('css', '.row > .column > .statistic > .sylius-channel-name')
+        ;
 
         $statisticsRibs = array_filter($statisticsRibs, function (NodeElement $statistic) use ($channelName) {
             return $channelName === trim($statistic->getText());
@@ -280,19 +201,9 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
             )
         );
 
-        $statisticsContents = $this->getElement('statistics')->findAll('css', '.accordion > .content');
+        $statisticsContents = $this->getElement('statistics')->findAll('css', '.row');
         $contentIndexes = array_keys($statisticsRibs);
 
         return $statisticsContents[reset($contentIndexes)];
-    }
-
-    /**
-     * @param string $statistic
-     *
-     * @return string
-     */
-    private function getStatisticValue($statistic)
-    {
-        return trim(substr($statistic, strpos($statistic, ':') + 1));
     }
 }

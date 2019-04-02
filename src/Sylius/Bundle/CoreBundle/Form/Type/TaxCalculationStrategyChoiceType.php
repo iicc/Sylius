@@ -9,25 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Mark McKelvie <mark.mckelvie@reiss.com>
- */
 final class TaxCalculationStrategyChoiceType extends AbstractType
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $strategies;
 
-    /**
-     * @param array $strategies
-     */
     public function __construct(array $strategies)
     {
         $this->strategies = $strategies;
@@ -36,7 +30,7 @@ final class TaxCalculationStrategyChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setDefaults([
@@ -48,7 +42,7 @@ final class TaxCalculationStrategyChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
         return ChoiceType::class;
     }
@@ -56,7 +50,7 @@ final class TaxCalculationStrategyChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_tax_calculation_strategy_choice';
     }

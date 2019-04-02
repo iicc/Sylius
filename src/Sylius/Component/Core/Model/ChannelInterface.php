@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Sylius\Component\Addressing\Model\ZoneInterface;
@@ -18,71 +20,48 @@ use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Locale\Model\LocalesAwareInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ChannelInterface extends
     BaseChannelInterface,
     CurrenciesAwareInterface,
     LocalesAwareInterface
 {
-    /**
-     * @return CurrencyInterface
-     */
-    public function getBaseCurrency();
+    public function getBaseCurrency(): ?CurrencyInterface;
 
-    /**
-     * @param CurrencyInterface $currency
-     */
-    public function setBaseCurrency(CurrencyInterface $currency);
+    public function setBaseCurrency(?CurrencyInterface $currency): void;
 
-    /**
-     * @return LocaleInterface
-     */
-    public function getDefaultLocale();
+    public function getDefaultLocale(): ?LocaleInterface;
 
-    /**
-     * @param LocaleInterface $locale
-     */
-    public function setDefaultLocale(LocaleInterface $locale);
+    public function setDefaultLocale(?LocaleInterface $locale): void;
 
-    /**
-     * @return ZoneInterface
-     */
-    public function getDefaultTaxZone();
+    public function getDefaultTaxZone(): ?ZoneInterface;
 
-    /**
-     * @param ZoneInterface $defaultTaxZone
-     */
-    public function setDefaultTaxZone(ZoneInterface $defaultTaxZone);
+    public function setDefaultTaxZone(?ZoneInterface $defaultTaxZone): void;
 
-    /**
-     * @return string
-     */
-    public function getTaxCalculationStrategy();
+    public function getTaxCalculationStrategy(): ?string;
 
-    /**
-     * @param string $taxCalculationStrategy
-     */
-    public function setTaxCalculationStrategy($taxCalculationStrategy);
+    public function setTaxCalculationStrategy(?string $taxCalculationStrategy): void;
 
-    /**
-     * @return string
-     */
-    public function getThemeName();
+    public function getThemeName(): ?string;
 
-    /**
-     * @param string $themeName
-     */
-    public function setThemeName($themeName);
+    public function setThemeName(?string $themeName): void;
 
-    /**
-     * @return string
-     */
-    public function getContactEmail();
+    public function getContactEmail(): ?string;
 
-    /**
-     * @param string $contactEmail
-     */
-    public function setContactEmail($contactEmail);
+    public function setContactEmail(?string $contactEmail): void;
+
+    public function isSkippingShippingStepAllowed(): bool;
+
+    public function setSkippingShippingStepAllowed(bool $skippingShippingStepAllowed): void;
+
+    public function isSkippingPaymentStepAllowed(): bool;
+
+    public function setSkippingPaymentStepAllowed(bool $skippingPaymentStepAllowed): void;
+
+    public function isAccountVerificationRequired(): bool;
+
+    public function setAccountVerificationRequired(bool $accountVerificationRequired): void;
+
+    public function getShopBillingData(): ?ShopBillingDataInterface;
+
+    public function setShopBillingData(ShopBillingDataInterface $shopBillingData): void;
 }

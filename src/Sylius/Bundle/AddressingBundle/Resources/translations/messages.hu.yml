@@ -11,7 +11,7 @@ sylius:
             last_name: Vezetéknév
             phone_number: Telefonszám
             postcode: Irányítószám
-            street: Utca
+            street: Utca, házszám
             province: Tartomány/állam
             zone: Zóna
         country:
@@ -23,7 +23,7 @@ sylius:
         province:
             name: Név
             abbreviation: Rövidítés
-            select: Válasszon
+            select: Válassza ki
         zone:
             add_member: Tag hozzáadása
             members: Tagok

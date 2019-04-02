@@ -9,27 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Checker\Eligibility;
 
 use Sylius\Component\Promotion\Checker\Rule\RuleCheckerInterface;
 use Sylius\Component\Promotion\Model\PromotionInterface;
-use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Sylius\Component\Promotion\Model\PromotionRuleInterface;
+use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class PromotionRulesEligibilityChecker implements PromotionEligibilityCheckerInterface
 {
-    /**
-     * @var ServiceRegistryInterface
-     */
+    /** @var ServiceRegistryInterface */
     private $ruleRegistry;
 
-    /**
-     * @param ServiceRegistryInterface $ruleRegistry
-     */
     public function __construct(ServiceRegistryInterface $ruleRegistry)
     {
         $this->ruleRegistry = $ruleRegistry;
@@ -38,7 +32,7 @@ final class PromotionRulesEligibilityChecker implements PromotionEligibilityChec
     /**
      * {@inheritdoc}
      */
-    public function isEligible(PromotionSubjectInterface $promotionSubject, PromotionInterface $promotion)
+    public function isEligible(PromotionSubjectInterface $promotionSubject, PromotionInterface $promotion): bool
     {
         if (!$promotion->hasRules()) {
             return true;
@@ -53,13 +47,7 @@ final class PromotionRulesEligibilityChecker implements PromotionEligibilityChec
         return true;
     }
 
-    /**
-     * @param PromotionSubjectInterface $subject
-     * @param PromotionRuleInterface $rule
-     *
-     * @return bool
-     */
-    protected function isEligibleToRule(PromotionSubjectInterface $subject, PromotionRuleInterface $rule)
+    private function isEligibleToRule(PromotionSubjectInterface $subject, PromotionRuleInterface $rule): bool
     {
         /** @var RuleCheckerInterface $checker */
         $checker = $this->ruleRegistry->get($rule->getType());

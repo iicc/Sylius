@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ChannelBundle\Form\Type;
 
 use Sylius\Component\Resource\Repository\RepositoryInterface;
@@ -19,19 +21,11 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class ChannelChoiceType extends AbstractType
 {
-    /**
-     * @var RepositoryInterface
-     */
-    protected $channelRepository;
+    /** @var RepositoryInterface */
+    private $channelRepository;
 
-    /**
-     * @param RepositoryInterface $channelRepository
-     */
     public function __construct(RepositoryInterface $channelRepository)
     {
         $this->channelRepository = $channelRepository;
@@ -40,7 +34,7 @@ final class ChannelChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if ($options['multiple']) {
             $builder->addModelTransformer(new CollectionToArrayTransformer());
@@ -50,10 +44,10 @@ final class ChannelChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'choices' => function (Options $options) {
+            'choices' => function (Options $options): array {
                 return $this->channelRepository->findAll();
             },
             'choice_value' => 'code',
@@ -65,7 +59,7 @@ final class ChannelChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
         return ChoiceType::class;
     }
@@ -73,7 +67,7 @@ final class ChannelChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_channel_choice';
     }

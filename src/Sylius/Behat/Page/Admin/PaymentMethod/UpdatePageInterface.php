@@ -9,50 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\PaymentMethod;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
-    public function enable();
-    public function disable();
+    public function enable(): void;
 
-    /**
-     * @param string $name
-     * @param string $languageCode
-     */
-    public function nameIt($name, $languageCode);
+    public function disable(): void;
 
-    /**
-     * @param string $gateway
-     */
-    public function chooseGateway($gateway);
+    public function nameIt(string $name, string $languageCode): void;
 
-    /**
-     * @return bool
-     */
-    public function isCodeDisabled();
+    public function setPaypalGatewayUsername(string $username): void;
 
-    /**
-     * @return bool
-     */
-    public function isPaymentMethodEnabled();
+    public function setPaypalGatewayPassword(string $password): void;
 
-    /**
-     * @param string $channelName
-     *
-     * @return bool
-     */
-    public function isAvailableInChannel($channelName);
+    public function setPaypalGatewaySignature(string $signature): void;
 
-    /**
-     * @param string $language
-     *
-     * @return string
-     */
-    public function getPaymentMethodInstructions($language);
+    public function isCodeDisabled(): bool;
+
+    public function isFactoryNameFieldDisabled(): bool;
+
+    public function isPaymentMethodEnabled(): bool;
+
+    public function isAvailableInChannel(string $channelName): bool;
+
+    public function getPaymentMethodInstructions(string $language): string;
 }

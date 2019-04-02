@@ -9,21 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Order\Aggregator;
 
 use Sylius\Component\Order\Model\AdjustmentInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 interface AdjustmentsAggregatorInterface
 {
     /**
-     * @param AdjustmentInterface[] $adjustments
-     *
-     * @return array
+     * @param iterable|AdjustmentInterface[] $adjustments
      *
      * @throws \InvalidArgumentException
      */
-    public function aggregate(array $adjustments);
+    public function aggregate(iterable $adjustments): array;
 }

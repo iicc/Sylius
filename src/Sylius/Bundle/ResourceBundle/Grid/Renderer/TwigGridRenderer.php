@@ -9,46 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Grid\Renderer;
 
 use Sylius\Bundle\ResourceBundle\Grid\Parser\OptionsParserInterface;
+use Sylius\Bundle\ResourceBundle\Grid\View\ResourceGridView;
 use Sylius\Component\Grid\Definition\Action;
 use Sylius\Component\Grid\Definition\Field;
 use Sylius\Component\Grid\Definition\Filter;
 use Sylius\Component\Grid\Renderer\GridRendererInterface;
 use Sylius\Component\Grid\View\GridViewInterface;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class TwigGridRenderer implements GridRendererInterface
 {
-    /**
-     * @var GridRendererInterface
-     */
+    /** @var GridRendererInterface */
     private $gridRenderer;
 
-    /**
-     * @var \Twig_Environment
-     */
+    /** @var \Twig_Environment */
     private $twig;
 
-    /**
-     * @var OptionsParserInterface
-     */
+    /** @var OptionsParserInterface */
     private $optionsParser;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $actionTemplates;
 
-    /**
-     * @param GridRendererInterface $gridRenderer
-     * @param \Twig_Environment $twig
-     * @param OptionsParserInterface $optionsParser
-     * @param array $actionTemplates
-     */
     public function __construct(
         GridRendererInterface $gridRenderer,
         \Twig_Environment $twig,
@@ -64,24 +51,27 @@ final class TwigGridRenderer implements GridRendererInterface
     /**
      * {@inheritdoc}
      */
-    public function render(GridViewInterface $gridView, $template = null)
+    public function render(GridViewInterface $gridView, ?string $template = null): string
     {
-        return $this->gridRenderer->render($gridView, $template);
+        return (string) $this->gridRenderer->render($gridView, $template);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderField(GridViewInterface $gridView, Field $field, $data)
+    public function renderField(GridViewInterface $gridView, Field $field, $data): string
     {
-        return $this->gridRenderer->renderField($gridView, $field, $data);
+        return (string) $this->gridRenderer->renderField($gridView, $field, $data);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderAction(GridViewInterface $gridView, Action $action, $data = null)
+    public function renderAction(GridViewInterface $gridView, Action $action, $data = null): string
     {
+        /** @var ResourceGridView $gridView */
+        Assert::isInstanceOf($gridView, ResourceGridView::class);
+
         $type = $action->getType();
         if (!isset($this->actionTemplates[$type])) {
             throw new \InvalidArgumentException(sprintf('Missing template for action type "%s".', $type));
@@ -93,7 +83,7 @@ final class TwigGridRenderer implements GridRendererInterface
             $data
         );
 
-        return $this->twig->render($this->actionTemplates[$type], [
+        return (string) $this->twig->render($this->actionTemplates[$type], [
             'grid' => $gridView,
             'action' => $action,
             'data' => $data,
@@ -104,8 +94,8 @@ final class TwigGridRenderer implements GridRendererInterface
     /**
      * {@inheritdoc}
      */
-    public function renderFilter(GridViewInterface $gridView, Filter $filter)
+    public function renderFilter(GridViewInterface $gridView, Filter $filter): string
     {
-        return $this->gridRenderer->renderFilter($gridView, $filter);
+        return (string) $this->gridRenderer->renderFilter($gridView, $filter);
     }
 }

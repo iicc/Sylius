@@ -9,11 +9,10 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Service;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class ResponseLoader implements ResponseLoaderInterface
 {
     /**
@@ -85,7 +84,6 @@ class ResponseLoader implements ResponseLoaderInterface
 
     /**
      * @param string $source
-     * @param mixed $content
      *
      * @throws \RuntimeException
      */
@@ -98,7 +96,6 @@ class ResponseLoader implements ResponseLoaderInterface
 
     /**
      * @param string $source
-     * @param mixed $content
      *
      * @throws \RuntimeException
      */

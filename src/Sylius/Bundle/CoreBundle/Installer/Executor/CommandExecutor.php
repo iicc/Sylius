@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Installer\Executor;
 
 use Symfony\Component\Console\Application;
@@ -18,32 +20,17 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\RuntimeException;
 
-/**
- * @author Romain Monceau <romain@akeneo.com>
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class CommandExecutor
 {
-    /**
-     * @var InputInterface
-     */
-    protected $input;
+    /** @var InputInterface */
+    private $input;
 
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
+    /** @var OutputInterface */
+    private $output;
 
-    /**
-     * @var Application
-     */
-    protected $application;
+    /** @var Application */
+    private $application;
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @param Application $application
-     */
     public function __construct(InputInterface $input, OutputInterface $output, Application $application)
     {
         $this->input = $input;
@@ -52,15 +39,9 @@ final class CommandExecutor
     }
 
     /**
-     * @param string $command
-     * @param array $parameters
-     * @param OutputInterface $output
-     *
-     * @return $this
-     *
      * @throws \Exception
      */
-    public function runCommand($command, $parameters = [], OutputInterface $output = null)
+    public function runCommand(string $command, array $parameters = [], ?OutputInterface $output = null): self
     {
         $parameters = array_merge(
             ['command' => $command],
@@ -87,10 +68,7 @@ final class CommandExecutor
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    protected function getDefaultParameters()
+    private function getDefaultParameters(): array
     {
         $defaultParameters = ['--no-debug' => true];
 

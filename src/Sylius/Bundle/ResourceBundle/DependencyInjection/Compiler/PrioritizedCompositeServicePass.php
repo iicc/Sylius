@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -16,38 +18,21 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 abstract class PrioritizedCompositeServicePass implements CompilerPassInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $serviceId;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $compositeId;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $tagName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $methodName;
 
-    /**
-     * @param string $serviceId
-     * @param string $compositeId
-     * @param string $tagName
-     * @param string $methodName
-     */
-    public function __construct($serviceId, $compositeId, $tagName, $methodName)
+    public function __construct(string $serviceId, string $compositeId, string $tagName, string $methodName)
     {
         $this->serviceId = $serviceId;
         $this->compositeId = $compositeId;
@@ -58,9 +43,9 @@ abstract class PrioritizedCompositeServicePass implements CompilerPassInterface
     /**
      * {@inheritdoc}
      */
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition($this->compositeId)) {
+        if (!$container->has($this->compositeId)) {
             return;
         }
 
@@ -68,56 +53,34 @@ abstract class PrioritizedCompositeServicePass implements CompilerPassInterface
         $this->addAliasForCompositeIfServiceDoesNotExist($container);
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
-    private function injectTaggedServicesIntoComposite(ContainerBuilder $container)
+    private function injectTaggedServicesIntoComposite(ContainerBuilder $container): void
     {
-        $channelContextDefinition = $container->findDefinition($this->compositeId);
+        $contextDefinition = $container->findDefinition($this->compositeId);
 
         $taggedServices = $container->findTaggedServiceIds($this->tagName);
         foreach ($taggedServices as $id => $tags) {
-            $this->addMethodCalls($channelContextDefinition, $id, $tags);
+            $this->addMethodCalls($contextDefinition, $id, $tags);
         }
     }
 
-    /**
-     * @param ContainerBuilder $container
-     */
-    private function addAliasForCompositeIfServiceDoesNotExist(ContainerBuilder $container)
+    private function addAliasForCompositeIfServiceDoesNotExist(ContainerBuilder $container): void
     {
         if ($container->has($this->serviceId)) {
             return;
         }
 
-        $container->setAlias($this->serviceId, $this->compositeId);
+        $container->setAlias($this->serviceId, $this->compositeId)->setPublic(true);
     }
 
-    /**
-     * @param Definition $channelContextDefinition
-     * @param string $id
-     * @param array $tags
-     */
-    private function addMethodCalls(Definition $channelContextDefinition, $id, $tags)
+    private function addMethodCalls(Definition $contextDefinition, string $id, array $tags): void
     {
         foreach ($tags as $attributes) {
-            $this->addMethodCall($channelContextDefinition, $id, $attributes);
+            $this->addMethodCall($contextDefinition, $id, $attributes);
         }
     }
 
-    /**
-     * @param Definition $channelContextDefinition
-     * @param string $id
-     * @param array $attributes
-     */
-    private function addMethodCall(Definition $channelContextDefinition, $id, $attributes)
+    private function addMethodCall(Definition $contextDefinition, string $id, array $attributes): void
     {
-        $arguments = [new Reference($id)];
-
-        if (isset($attributes['priority'])) {
-            $arguments[] = $attributes['priority'];
-        }
-
-        $channelContextDefinition->addMethodCall($this->methodName, $arguments);
+        $contextDefinition->addMethodCall($this->methodName, [new Reference($id), $attributes['priority'] ?? 0]);
     }
 }

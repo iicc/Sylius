@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Sylius package.
  *
@@ -8,262 +9,276 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Grid\Definition;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
+use Webmozart\Assert\Assert;
+
 class Grid
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $code;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $driver;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $driverConfiguration;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $sorting = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
+    private $limits = [];
+
+    /** @var array */
     private $fields = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $filters = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $actionGroups = [];
 
-    /**
-     * @param string $code
-     * @param string $driver
-     * @param array $driverConfiguration
-     */
-    private function __construct($code, $driver, array $driverConfiguration)
+    private function __construct(string $code, string $driver, array $driverConfiguration)
     {
         $this->code = $code;
         $this->driver = $driver;
         $this->driverConfiguration = $driverConfiguration;
     }
 
-    /**
-     * @param string $code
-     * @param string $driver
-     * @param array $driverConfiguration
-     *
-     * @return self
-     */
-    public static function fromCodeAndDriverConfiguration($code, $driver, array $driverConfiguration)
+    public static function fromCodeAndDriverConfiguration(string $code, string $driver, array $driverConfiguration): self
     {
         return new self($code, $driver, $driverConfiguration);
     }
 
-    /**
-     * @return string
-     */
-    public function getCode()
+    public function getCode(): string
     {
         return $this->code;
     }
 
-    /**
-     * @return string
-     */
-    public function getDriver()
+    public function getDriver(): string
     {
         return $this->driver;
     }
 
-    /**
-     * @return array
-     */
-    public function getDriverConfiguration()
+    public function getDriverConfiguration(): array
     {
         return $this->driverConfiguration;
     }
 
-    /**
-     * @param array $driverConfiguration
-     */
-    public function setDriverConfiguration(array $driverConfiguration)
+    public function setDriverConfiguration(array $driverConfiguration): void
     {
         $this->driverConfiguration = $driverConfiguration;
     }
 
-    /**
-     * @return array
-     */
-    public function getSorting()
+    public function getSorting(): array
     {
         return $this->sorting;
     }
 
-    /**
-     * @param array $sorting
-     */
-    public function setSorting(array $sorting)
+    public function setSorting(array $sorting): void
     {
         $this->sorting = $sorting;
     }
 
+    public function getLimits(): array
+    {
+        return $this->limits;
+    }
+
+    public function setLimits(array $limits): void
+    {
+        $this->limits = $limits;
+    }
+
     /**
-     * @return array
+     * @return array|Field[]
      */
-    public function getFields()
+    public function getFields(): array
     {
         return $this->fields;
     }
 
     /**
-     * @param Field $field
+     * @return array|Field[]
      */
-    public function addField(Field $field)
+    public function getEnabledFields(): array
+    {
+        return array_filter($this->getFields(), function (Field $field): bool {
+            return $field->isEnabled();
+        });
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    public function addField(Field $field): void
     {
         $name = $field->getName();
 
-        if ($this->hasField($name)) {
-            throw new \InvalidArgumentException(sprintf('Field "%s" already exists.', $name));
-        }
+        Assert::false($this->hasField($name), sprintf('Field "%s" already exists.', $name));
 
         $this->fields[$name] = $field;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return Field
-     */
-    public function getField($name)
+    public function removeField(string $name): void
     {
-        if (!$this->hasField($name)) {
-            throw new \InvalidArgumentException(sprintf('Field "%s" does not exist.', $name));
+        if ($this->hasField($name)) {
+            unset($this->fields[$name]);
         }
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    public function getField(string $name): Field
+    {
+        Assert::true($this->hasField($name), sprintf('Field "%s" does not exist.', $name));
 
         return $this->fields[$name];
     }
 
-    /**
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasField($name)
+    public function setField(Field $field): void
+    {
+        $name = $field->getName();
+
+        $this->fields[$name] = $field;
+    }
+
+    public function hasField(string $name): bool
     {
         return array_key_exists($name, $this->fields);
     }
 
     /**
-     * @return array
+     * @return array|ActionGroup[]
      */
-    public function getActionGroups()
+    public function getActionGroups(): array
     {
         return $this->actionGroups;
     }
 
     /**
-     * @param ActionGroup $actionGroup
+     * @return array|ActionGroup[]
      */
-    public function addActionGroup(ActionGroup $actionGroup)
+    public function getEnabledActionGroups(): array
+    {
+        return array_filter($this->getActionGroups(), function (ActionGroup $actionGroup): bool {
+            // TODO: There's no `isEnabled` method on ActionGroup, so we assume all of them are enabled
+            return true;
+        });
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    public function addActionGroup(ActionGroup $actionGroup): void
     {
         $name = $actionGroup->getName();
 
+        Assert::false($this->hasActionGroup($name), sprintf('ActionGroup "%s" already exists.', $name));
+
+        $this->actionGroups[$name] = $actionGroup;
+    }
+
+    public function removeActionGroup(string $name): void
+    {
         if ($this->hasActionGroup($name)) {
-            throw new \InvalidArgumentException(sprintf('ActionGroup "%s" already exists.', $name));
+            unset($this->actionGroups[$name]);
         }
+    }
+
+    public function getActionGroup(string $name): ActionGroup
+    {
+        Assert::true($this->hasActionGroup($name), sprintf('ActionGroup "%s" does not exist.', $name));
+
+        return $this->actionGroups[$name];
+    }
+
+    public function setActionGroup(ActionGroup $actionGroup): void
+    {
+        $name = $actionGroup->getName();
 
         $this->actionGroups[$name] = $actionGroup;
     }
 
     /**
-     * @param string $name
-     *
-     * @return ActionGroup
+     * @return array|Action[]
      */
-    public function getActionGroup($name)
-    {
-        if (!$this->hasActionGroup($name)) {
-            throw new \InvalidArgumentException(sprintf('ActionGroup "%s" does not exist.', $name));
-        }
-
-        return $this->actionGroups[$name];
-    }
-
-    /**
-     * @param string $groupName
-     *
-     * @return Action[]
-     */
-    public function getActions($groupName)
+    public function getActions(string $groupName): array
     {
         return $this->getActionGroup($groupName)->getActions();
     }
 
     /**
-     * @param string $name
-     *
-     * @return bool
+     * @return array|Action[]
      */
-    public function hasActionGroup($name)
+    public function getEnabledActions($groupName): array
+    {
+        return array_filter($this->getActions($groupName), function (Action $action): bool {
+            return $action->isEnabled();
+        });
+    }
+
+    public function hasActionGroup(string $name): bool
     {
         return array_key_exists($name, $this->actionGroups);
     }
 
     /**
-     * @return array
+     * @return array|Filter[]
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return $this->filters;
     }
 
     /**
-     * @param Filter $filter
+     * @return array|Filter[]
      */
-    public function addFilter(Filter $filter)
+    public function getEnabledFilters(): array
     {
-        if ($this->hasFilter($name = $filter->getName())) {
-            throw new \InvalidArgumentException(sprintf('Filter "%s" already exists.', $name));
-        }
+        return array_filter($this->getFilters(), function (Filter $filter): bool {
+            return $filter->isEnabled();
+        });
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    public function addFilter(Filter $filter): void
+    {
+        $name = $filter->getName();
+
+        Assert::false($this->hasFilter($name), sprintf('Filter "%s" already exists.', $name));
 
         $this->filters[$name] = $filter;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return Filter
-     */
-    public function getFilter($name)
+    public function removeFilter(string $name): void
     {
-        if (!$this->hasFilter($name)) {
-            throw new \InvalidArgumentException(sprintf('Filter "%s" does not exist.', $name));
+        if ($this->hasFilter($name)) {
+            unset($this->filters[$name]);
         }
+    }
+
+    public function getFilter(string $name): Filter
+    {
+        Assert::true($this->hasFilter($name), sprintf('Filter "%s" does not exist.', $name));
 
         return $this->filters[$name];
     }
 
-    /**
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasFilter($name)
+    public function setFilter(Filter $filter): void
+    {
+        $name = $filter->getName();
+
+        $this->filters[$name] = $filter;
+    }
+
+    public function hasFilter(string $name): bool
     {
         return array_key_exists($name, $this->filters);
     }

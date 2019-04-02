@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
@@ -19,37 +21,20 @@ use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Component\Product\Model\ProductOptionInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class ManagingProductOptionsContext implements Context
 {
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var CreatePageInterface
-     */
+    /** @var CreatePageInterface */
     private $createPage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $updatePage;
 
-    /**
-     * @var CurrentPageResolverInterface
-     */
+    /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
-    /**
-     * @param IndexPageInterface $indexPage
-     * @param CreatePageInterface $createPage
-     * @param UpdatePageInterface $updatePage
-     * @param CurrentPageResolverInterface $currentPageResolver
-     */
     public function __construct(
         IndexPageInterface $indexPage,
         CreatePageInterface $createPage,
@@ -118,7 +103,7 @@ final class ManagingProductOptionsContext implements Context
      */
     public function iRenameItToInLanguage($name = null, $language)
     {
-        $this->updatePage->nameItIn($name, $language);
+        $this->updatePage->nameItIn($name ?? '', $language);
     }
 
     /**
@@ -135,7 +120,7 @@ final class ManagingProductOptionsContext implements Context
      */
     public function iSpecifyItsCodeAs($code = null)
     {
-        $this->createPage->specifyCode($code);
+        $this->createPage->specifyCode($code ?? '');
     }
 
     /**
@@ -143,23 +128,38 @@ final class ManagingProductOptionsContext implements Context
      */
     public function iAddTheOptionValueWithCodeAndValue($value, $code)
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         $currentPage->addOptionValue($code, $value);
     }
 
     /**
+     * @When I check (also) the :productOptionName product option
+     */
+    public function iCheckTheProductOption(string $productOptionName): void
+    {
+        $this->indexPage->checkResourceOnPage(['name' => $productOptionName]);
+    }
+
+    /**
+     * @When I delete them
+     */
+    public function iDeleteThem(): void
+    {
+        $this->indexPage->bulkDelete();
+    }
+
+    /**
+     * @Then I should see the product option :productOptionName in the list
      * @Then the product option :productOptionName should appear in the registry
      * @Then the product option :productOptionName should be in the registry
      */
-    public function theProductOptionShouldAppearInTheRegistry($productOptionName)
+    public function theProductOptionShouldAppearInTheRegistry(string $productOptionName): void
     {
         $this->iBrowseProductOptions();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['name' => $productOptionName]),
-            sprintf('The product option with name %s has not been found.', $productOptionName)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $productOptionName]));
     }
 
     /**
@@ -177,10 +177,7 @@ final class ManagingProductOptionsContext implements Context
     {
         $this->iBrowseProductOptions();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage([$element => $value]),
-            sprintf('Product option with %s %s cannot be found.', $element, $value)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([$element => $value]));
     }
 
     /**
@@ -198,10 +195,7 @@ final class ManagingProductOptionsContext implements Context
     {
         $this->iBrowseProductOptions();
 
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage([$element => $value]),
-            sprintf('Product option with %s %s was created, but it should not.', $element, $value)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage([$element => $value]));
     }
 
     /**
@@ -212,13 +206,10 @@ final class ManagingProductOptionsContext implements Context
     {
         $this->iBrowseProductOptions();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage([
-                'code' => $productOption->getCode(),
-                'name' => $productOptionName,
-            ]),
-            sprintf('Product option name %s has not been assigned properly.', $productOptionName)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([
+            'code' => $productOption->getCode(),
+            'name' => $productOptionName,
+        ]));
     }
 
     /**
@@ -226,10 +217,7 @@ final class ManagingProductOptionsContext implements Context
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeDisabled(),
-            'Code field should be disabled but it is not'
-        );
+        Assert::true($this->updatePage->isCodeDisabled());
     }
 
     /**
@@ -245,24 +233,16 @@ final class ManagingProductOptionsContext implements Context
      */
     public function iShouldBeNotifiedThatAtLeastTwoOptionValuesAreRequired()
     {
-        Assert::true(
-            $this->createPage->checkValidationMessageForOptionValues('Please add at least 2 option values.'),
-            'I should be notified that product option needs at least two option values.'
-        );
+        Assert::true($this->createPage->checkValidationMessageForOptionValues('Please add at least 2 option values.'));
     }
 
     /**
-     * @Then /^I should see (\d+) product options in the list$/
+     * @Then I should see a single product option in the list
+     * @Then I should see :amount product options in the list
      */
-    public function iShouldSeeProductOptionsInTheList($amount)
+    public function iShouldSeeProductOptionsInTheList(int $amount = 1): void
     {
-        $foundRows = $this->indexPage->countItems();
-
-        Assert::same(
-            (int) $amount,
-            $foundRows,
-            '%2$s rows with product options should appear on page, %s rows has been found'
-        );
+        Assert::same($this->indexPage->countItems(), $amount);
     }
 
     /**
@@ -272,10 +252,7 @@ final class ManagingProductOptionsContext implements Context
     {
         $this->iWantToModifyAProductOption($productOption);
 
-        Assert::true(
-            $this->updatePage->isThereOptionValue($optionValue),
-            sprintf('%s is not a value of this product option.', $optionValue)
-        );
+        Assert::true($this->updatePage->isThereOptionValue($optionValue));
     }
 
     /**
@@ -283,13 +260,7 @@ final class ManagingProductOptionsContext implements Context
      */
     public function theFirstProductOptionInTheListShouldHave($field, $value)
     {
-        $actualValue = $this->indexPage->getColumnFields($field)[0];
-
-        Assert::same(
-            $actualValue,
-            $value,
-            sprintf('Expected first product option\'s %s to be "%s", but it is "%s".', $field, $value, $actualValue)
-        );
+        Assert::same($this->indexPage->getColumnFields($field)[0], $value);
     }
 
     /**
@@ -297,13 +268,8 @@ final class ManagingProductOptionsContext implements Context
      */
     public function theLastProductOptionInTheListShouldHave($field, $value)
     {
-        $fields = $this->indexPage->getColumnFields($field);
-        $actualValue = end($fields);
+        $values = $this->indexPage->getColumnFields($field);
 
-        Assert::same(
-            $actualValue,
-            $value,
-            sprintf('Expected last product option\'s %s to be "%s", but it is "%s".', $field, $value, $actualValue)
-        );
+        Assert::same(end($values), $value);
     }
 }

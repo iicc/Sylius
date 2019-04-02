@@ -9,15 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxation\Model;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface TaxableInterface
 {
-    /**
-     * @return TaxCategoryInterface
-     */
-    public function getTaxCategory();
+    public function getTaxCategory(): ?TaxCategoryInterface;
 }

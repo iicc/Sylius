@@ -44,6 +44,10 @@ The transitions on the order checkout state machine are:
           from: [payment_selected]
           to: completed
 
+.. image:: ../../_images/sylius_order_checkout.png
+    :align: center
+    :scale: 70%
+
 Steps of Checkout
 -----------------
 
@@ -105,14 +109,14 @@ and of course flush your order after that via the manager.
 
     $stateMachineFactory = $this->container->get('sm.factory');
 
-    $stateMachine = $stateMachineFactory->get($order, OrderCheckoutTransitions::GRAPH)
+    $stateMachine = $stateMachineFactory->get($order, OrderCheckoutTransitions::GRAPH);
     $stateMachine->apply(OrderCheckoutTransitions::TRANSITION_ADDRESS);
 
     $this->container->get('sylius.manager.order')->flush();
 
 **What happens during the transition?**
 
-The method ``process($order)`` of the `CompositeOrderProcessor <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Component/Core/OrderProcessing/CompositeOrderProcessor.php>`_ is run.
+The method ``process($order)`` of the `CompositeOrderProcessor <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Component/Order/Processor/CompositeOrderProcessor.php>`_ is run.
 
 Selecting shipping
 ~~~~~~~~~~~~~~~~~~
@@ -132,7 +136,7 @@ How to perform the Selecting shipping Step programmatically?
 Before approaching this step be sure that your Order is in the ``addressed`` state. In this state your order
 will already have a default ShippingMethod assigned, but in this step you can change it and have everything recalculated automatically.
 
-Firstly either create new (see how in the `Shipments concept </book/orders/shipments>`) or retrieve a **ShippingMethod**
+Firstly either create new (see how in the `Shipments concept </book/orders/shipments>`_) or retrieve a **ShippingMethod**
 from the repository to assign it to your order's shipment created defaultly in the addressing step.
 
 .. code-block:: php
@@ -140,7 +144,7 @@ from the repository to assign it to your order's shipment created defaultly in t
     // Let's assume you have a method with code 'DHL' that has everything set properly
     $shippingMethod = $this->container->get('sylius.repository.shipping_method')->findOneByCode('DHL');
 
-    // Shipments are a Collection, so even though you hve one Shipment by default you have to iterate over them
+    // Shipments are a Collection, so even though you have one Shipment by default you have to iterate over them
     foreach ($order->getShipments() as $shipment) {
         $shipment->setMethod($shippingMethod);
     }
@@ -159,9 +163,20 @@ and apply a proper transition and flush the order via the manager.
 
 **What happens during the transition?**
 
-The method ``process($order)`` of the `CompositeOrderProcessor <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Component/Core/OrderProcessing/CompositeOrderProcessor.php>`_ is run.
+The method ``process($order)`` of the `CompositeOrderProcessor <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Component/Order/Processor/CompositeOrderProcessor.php>`_ is run.
 Here this method is responsible for: controlling the **shipping charges** which depend on the chosen ShippingMethod,
 controlling the **promotions** that depend on the shipping method.
+
+Skipping shipping step
+''''''''''''''''''''''
+
+What if in the order you have only products that do not require shipping (they are downloadable for example)?
+
+.. note::
+
+    When all of the :doc:`ProductVariants </book/products/products>` of the order have the ``shippingRequired``
+    property set to ``false``, then Sylius assumes that the whole order **does not require shipping**,
+    and **the shipping step of checkout will be skipped**.
 
 Selecting payment
 ~~~~~~~~~~~~~~~~~
@@ -181,7 +196,7 @@ How to perform the Selecting payment step programmatically?
 Before this step your Order should be in the ``shipping_selected`` state. It will have a default Payment selected after the addressing step,
 but in this step you can change it.
 
-Firstly either create new (see how in the `Payments concept </book/orders/payments`) or retrieve a **PaymentMethod**
+Firstly either create new (see how in the `Payments concept </book/orders/payments>`_) or retrieve a **PaymentMethod**
 from the repository to assign it to your order's payment created defaultly in the addressing step.
 
 .. code-block:: php
@@ -208,9 +223,9 @@ and apply a proper transition and flush the order via the manager.
 
 **What happens during the transition?**
 
-The method ``process($order)`` of the `CompositeOrderProcessor <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Component/Core/OrderProcessing/CompositeOrderProcessor.php>`_ is run and checks all the adjustments on the order.
-The method ``update($order)`` of the `OrderExchangeRateAndCurrencyUpdater <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Component/Core/OrderProcessing/OrderExchangeRateAndCurrencyUpdater.php>`_ is run.
-Here this method is responsible for controlling the **exchangeRate** of the order's currency.
+The method ``process($order)`` of the
+`CompositeOrderProcessor <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Component/Order/Processor/CompositeOrderProcessor.php>`_
+is run and checks all the adjustments on the order.
 
 Finalizing
 ~~~~~~~~~~
@@ -230,7 +245,7 @@ Before executing the completing transition you can set some notes to your order.
 
 .. code-block:: php
 
-    $order->setNotes('Thank you dear shop owners! I am allergic to tape so please use something els for packaging.')
+    $order->setNotes('Thank you dear shop owners! I am allergic to tape so please use something else for packaging.')
 
 After that get the StateMachine for the Order via the StateMachineFactory with a proper schema,
 and apply a proper transition and flush the order via the manager.
@@ -239,7 +254,7 @@ and apply a proper transition and flush the order via the manager.
 
     $stateMachineFactory = $this->container->get('sm.factory');
 
-    $stateMachine = $stateMachineFactory->get($order, OrderCheckoutTransitions::GRAPH)
+    $stateMachine = $stateMachineFactory->get($order, OrderCheckoutTransitions::GRAPH);
     $stateMachine->apply(OrderCheckoutTransitions::TRANSITION_COMPLETE);
 
     $this->container->get('sylius.manager.order')->flush();

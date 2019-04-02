@@ -6,6 +6,12 @@ sylius:
         review:
             author: Hazırlayan
             comment: Yorum
+            header: Bir gözden ekle
+            rating: Puan
             status:
+                approved: Onaylandı
+                label: Durum
                 new: Yeni
+                rejected: Reddedildi
+            submit: Gönder
             title: Başlık

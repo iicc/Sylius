@@ -9,30 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Addressing\Factory;
 
 use Sylius\Component\Addressing\Model\ZoneInterface;
+use Sylius\Component\Addressing\Model\ZoneMemberInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class ZoneFactory implements ZoneFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $factory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $zoneMemberFactory;
 
-    /**
-     * @param FactoryInterface $factory
-     * @param FactoryInterface $zoneMemberFactory
-     */
     public function __construct(FactoryInterface $factory, FactoryInterface $zoneMemberFactory)
     {
         $this->factory = $factory;
@@ -42,7 +34,7 @@ final class ZoneFactory implements ZoneFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createNew()
+    public function createNew(): ZoneInterface
     {
         return $this->factory->createNew();
     }
@@ -50,9 +42,9 @@ final class ZoneFactory implements ZoneFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createTyped($type)
+    public function createTyped(string $type): ZoneInterface
     {
-        /* @var ZoneInterface $zone */
+        /** @var ZoneInterface $zone */
         $zone = $this->createNew();
         $zone->setType($type);
 
@@ -62,11 +54,12 @@ final class ZoneFactory implements ZoneFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createWithMembers(array $membersCodes)
+    public function createWithMembers(array $membersCodes): ZoneInterface
     {
-        /* @var ZoneInterface $zone */
+        /** @var ZoneInterface $zone */
         $zone = $this->createNew();
         foreach ($membersCodes as $memberCode) {
+            /** @var ZoneMemberInterface $zoneMember */
             $zoneMember = $this->zoneMemberFactory->createNew();
             $zoneMember->setCode($memberCode);
 

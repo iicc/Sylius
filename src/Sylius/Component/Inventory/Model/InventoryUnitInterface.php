@@ -9,18 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Inventory\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 interface InventoryUnitInterface extends ResourceInterface
 {
-    /**
-     * @return StockableInterface
-     */
-    public function getStockable();
+    public function getStockable(): ?StockableInterface;
 }

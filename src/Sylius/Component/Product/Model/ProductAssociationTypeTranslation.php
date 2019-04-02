@@ -9,24 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Model;
 
 use Sylius\Component\Resource\Model\AbstractTranslation;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
-final class ProductAssociationTypeTranslation extends AbstractTranslation implements ProductAssociationTypeTranslationInterface
+class ProductAssociationTypeTranslation extends AbstractTranslation implements ProductAssociationTypeTranslationInterface
 {
-    /**
-     * @var mixed
-     */
-    private $id;
+    /** @var mixed */
+    protected $id;
 
-    /**
-     * @var string
-     */
-    private $name;
+    /** @var string */
+    protected $name;
 
     /**
      * {@inheritdoc}
@@ -39,7 +34,7 @@ final class ProductAssociationTypeTranslation extends AbstractTranslation implem
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -47,7 +42,7 @@ final class ProductAssociationTypeTranslation extends AbstractTranslation implem
     /**
      * {@inheritdoc}
      */
-    public function setName($name)
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }

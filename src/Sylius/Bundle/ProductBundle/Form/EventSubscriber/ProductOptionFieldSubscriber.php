@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ProductBundle\Form\EventSubscriber;
 
 use Sylius\Bundle\ProductBundle\Form\Type\ProductOptionChoiceType;
@@ -19,19 +21,11 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class ProductOptionFieldSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var ProductVariantResolverInterface
-     */
+    /** @var ProductVariantResolverInterface */
     private $variantResolver;
 
-    /**
-     * @param ProductVariantResolverInterface $variantResolver
-     */
     public function __construct(ProductVariantResolverInterface $variantResolver)
     {
         $this->variantResolver = $variantResolver;
@@ -40,17 +34,14 @@ final class ProductOptionFieldSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FormEvents::PRE_SET_DATA => 'preSetData',
         ];
     }
 
-    /**
-     * @param FormEvent $event
-     */
-    public function preSetData(FormEvent $event)
+    public function preSetData(FormEvent $event): void
     {
         /** @var ProductInterface $product */
         $product = $event->getData();

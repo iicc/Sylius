@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Sylius package.
  *
@@ -8,18 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Currency\Context;
 
 use Zend\Stdlib\PriorityQueue;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class CompositeCurrencyContext implements CurrencyContextInterface
 {
-    /**
-     * @var PriorityQueue|CurrencyContextInterface[]
-     */
+    /** @var PriorityQueue|CurrencyContextInterface[] */
     private $currencyContexts;
 
     public function __construct()
@@ -27,11 +25,7 @@ final class CompositeCurrencyContext implements CurrencyContextInterface
         $this->currencyContexts = new PriorityQueue();
     }
 
-    /**
-     * @param CurrencyContextInterface $currencyContext
-     * @param int $priority
-     */
-    public function addContext(CurrencyContextInterface $currencyContext, $priority = 0)
+    public function addContext(CurrencyContextInterface $currencyContext, int $priority = 0): void
     {
         $this->currencyContexts->insert($currencyContext, $priority);
     }
@@ -39,16 +33,20 @@ final class CompositeCurrencyContext implements CurrencyContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getCurrencyCode()
+    public function getCurrencyCode(): string
     {
+        $lastException = null;
+
         foreach ($this->currencyContexts as $currencyContext) {
             try {
                 return $currencyContext->getCurrencyCode();
             } catch (CurrencyNotFoundException $exception) {
+                $lastException = $exception;
+
                 continue;
             }
         }
 
-        throw new CurrencyNotFoundException();
+        throw new CurrencyNotFoundException(null, $lastException);
     }
 }

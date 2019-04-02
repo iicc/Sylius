@@ -9,34 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Product;
 
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
+use Sylius\Component\Core\Model\TaxonInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface CreateConfigurableProductPageInterface extends BaseCreatePageInterface
 {
-    /**
-     * @param string $optionName
-     */
-    public function selectOption($optionName);
-    
-    /**
-     * @param string $code
-     */
-    public function specifyCode($code);
+    public function selectOption(string $optionName): void;
 
-    /**
-     * @param string $name
-     * @param string $localeCode
-     */
-    public function nameItIn($name, $localeCode);
+    public function specifyCode(string $code): void;
 
-    /**
-     * @param string $path
-     * @param string $code
-     */
-    public function attachImage($path, $code = null);
+    public function nameItIn(string $name, string $localeCode): void;
+
+    public function isMainTaxonChosen(string $taxonName): bool;
+
+    public function selectMainTaxon(TaxonInterface $taxon): void;
+
+    public function attachImage(string $path, ?string $type = null): void;
 }

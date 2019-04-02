@@ -10,6 +10,7 @@ sylius:
             code: Kodi
             name: Emri
             translations: Përkthime
+            type: Lloji
         attribute_type:
             checkbox: Checkbox
             configuration: Konfigurimi
@@ -17,6 +18,7 @@ sylius:
             datetime: Data dhe koha
             integer: Numër i plotë
             percent: Përqind
+            select: Zgjidh
             text: Teksti
             textarea: Hapsira e tekstit
             title: Lloji i atributit
@@ -26,6 +28,8 @@ sylius:
                 format: Formati
             date:
                 format: Formati
+            select:
+                values: Vlerat
             text:
                 min: Gjatësia min
                 max: Gjatësia max

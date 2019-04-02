@@ -9,9 +9,10 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\OrderBundle\Controller;
 
-use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\View\View;
 use Sylius\Bundle\ResourceBundle\Controller\RequestConfiguration;
@@ -22,24 +23,18 @@ use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Order\Model\OrderItemInterface;
 use Sylius\Component\Order\Modifier\OrderItemQuantityModifierInterface;
 use Sylius\Component\Order\Modifier\OrderModifierInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sylius\Component\Order\Repository\OrderRepositoryInterface;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class OrderItemController extends ResourceController
 {
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function addAction(Request $request)
+    public function addAction(Request $request): Response
     {
         $cart = $this->getCurrentCart();
         $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
@@ -57,8 +52,15 @@ class OrderItemController extends ResourceController
         );
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-            /** @var AddToCartCommandInterface $addCartItemCommand */
+            /** @var AddToCartCommandInterface $addToCartCommand */
             $addToCartCommand = $form->getData();
+
+            $errors = $this->getCartItemErrors($addToCartCommand->getCartItem());
+            if (0 < count($errors)) {
+                $form = $this->getAddToCartFormWithErrors($errors, $form);
+
+                return $this->handleBadAjaxRequestView($configuration, $form);
+            }
 
             $event = $this->eventDispatcher->dispatchPreEvent(CartActions::ADD, $configuration, $orderItem);
 
@@ -77,7 +79,10 @@ class OrderItemController extends ResourceController
             $cartManager->persist($cart);
             $cartManager->flush();
 
-            $this->eventDispatcher->dispatchPostEvent(CartActions::ADD, $configuration, $orderItem);
+            $resourceControllerEvent = $this->eventDispatcher->dispatchPostEvent(CartActions::ADD, $configuration, $orderItem);
+            if ($resourceControllerEvent->hasResponse()) {
+                return $resourceControllerEvent->getResponse();
+            }
 
             $this->flashHelper->addSuccessFlash($configuration, CartActions::ADD, $orderItem);
 
@@ -89,7 +94,7 @@ class OrderItemController extends ResourceController
         }
 
         if (!$configuration->isHtmlRequest()) {
-            return $this->viewHandler->handle($configuration, View::create($form, Response::HTTP_BAD_REQUEST));
+            return $this->handleBadAjaxRequestView($configuration, $form);
         }
 
         $view = View::create()
@@ -104,21 +109,17 @@ class OrderItemController extends ResourceController
         return $this->viewHandler->handle($configuration, $view);
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function removeAction(Request $request)
+    public function removeAction(Request $request): Response
     {
         $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
 
         $this->isGrantedOr403($configuration, CartActions::REMOVE);
+        /** @var OrderItemInterface $orderItem */
         $orderItem = $this->findOr404($configuration);
 
         $event = $this->eventDispatcher->dispatchPreEvent(CartActions::REMOVE, $configuration, $orderItem);
 
-        if ($configuration->isCsrfProtectionEnabled() && !$this->isCsrfTokenValid($orderItem->getId(), $request->request->get('_csrf_token'))) {
+        if ($configuration->isCsrfProtectionEnabled() && !$this->isCsrfTokenValid((string) $orderItem->getId(), $request->request->get('_csrf_token'))) {
             throw new HttpException(Response::HTTP_FORBIDDEN, 'Invalid csrf token.');
         }
 
@@ -132,6 +133,16 @@ class OrderItemController extends ResourceController
         }
 
         $cart = $this->getCurrentCart();
+        if ($cart !== $orderItem->getOrder()) {
+            $this->addFlash('error', $this->get('translator')->trans('sylius.cart.cannot_modify', [], 'flashes'));
+
+            if (!$configuration->isHtmlRequest()) {
+                return $this->viewHandler->handle($configuration, View::create(null, Response::HTTP_NO_CONTENT));
+            }
+
+            return $this->redirectHandler->redirectToIndex($configuration, $orderItem);
+        }
+
         $this->getOrderModifier()->removeFromOrder($cart, $orderItem);
 
         $this->repository->remove($orderItem);
@@ -151,20 +162,12 @@ class OrderItemController extends ResourceController
         return $this->redirectHandler->redirectToIndex($configuration, $orderItem);
     }
 
-    /**
-     * @return ObjectRepository
-     */
-    protected function getOrderRepository()
+    protected function getOrderRepository(): OrderRepositoryInterface
     {
         return $this->get('sylius.repository.order');
     }
 
-    /**
-     * @param RequestConfiguration $configuration
-     *
-     * @return RedirectResponse
-     */
-    protected function redirectToCartSummary(RequestConfiguration $configuration)
+    protected function redirectToCartSummary(RequestConfiguration $configuration): Response
     {
         if (null === $configuration->getParameters()->get('redirect')) {
             return $this->redirectHandler->redirectToRoute($configuration, $this->getCartSummaryRoute());
@@ -173,70 +176,68 @@ class OrderItemController extends ResourceController
         return $this->redirectHandler->redirectToRoute($configuration, $configuration->getParameters()->get('redirect'));
     }
 
-    /**
-     * @return string
-     */
-    protected function getCartSummaryRoute()
+    protected function getCartSummaryRoute(): string
     {
         return 'sylius_cart_summary';
     }
 
-    /**
-     * @return OrderInterface
-     */
-    protected function getCurrentCart()
+    protected function getCurrentCart(): OrderInterface
     {
         return $this->getContext()->getCart();
     }
 
-    /**
-     * @return CartContextInterface
-     */
-    protected function getContext()
+    protected function getContext(): CartContextInterface
     {
         return $this->get('sylius.context.cart');
     }
 
-    /**
-     * @param OrderInterface $cart
-     * @param OrderItemInterface $cartItem
-     *
-     * @return AddToCartCommandInterface
-     */
-    protected function createAddToCartCommand(OrderInterface $cart, OrderItemInterface $cartItem)
+    protected function createAddToCartCommand(OrderInterface $cart, OrderItemInterface $cartItem): AddToCartCommandInterface
     {
         return $this->get('sylius.factory.add_to_cart_command')->createWithCartAndCartItem($cart, $cartItem);
     }
 
-    /**
-     * @return FormFactoryInterface
-     */
-    protected function getFormFactory()
+    protected function getFormFactory(): FormFactoryInterface
     {
         return $this->get('form.factory');
     }
 
-    /**
-     * @return OrderItemQuantityModifierInterface
-     */
-    protected function getQuantityModifier()
+    protected function getQuantityModifier(): OrderItemQuantityModifierInterface
     {
         return $this->get('sylius.order_item_quantity_modifier');
     }
 
-    /**
-     * @return OrderModifierInterface
-     */
-    protected function getOrderModifier()
+    protected function getOrderModifier(): OrderModifierInterface
     {
         return $this->get('sylius.order_modifier');
     }
 
-    /**
-     * @return EntityManagerInterface
-     */
-    protected function getCartManager()
+    protected function getCartManager(): EntityManagerInterface
     {
         return $this->get('sylius.manager.order');
+    }
+
+    private function getCartItemErrors(OrderItemInterface $orderItem): ConstraintViolationListInterface
+    {
+        return $this
+            ->get('validator')
+            ->validate($orderItem, null, $this->getParameter('sylius.form.type.order_item.validation_groups'))
+        ;
+    }
+
+    private function getAddToCartFormWithErrors(ConstraintViolationListInterface $errors, FormInterface $form): FormInterface
+    {
+        foreach ($errors as $error) {
+            $form->get('cartItem')->get($error->getPropertyPath())->addError(new FormError($error->getMessage()));
+        }
+
+        return $form;
+    }
+
+    private function handleBadAjaxRequestView(RequestConfiguration $configuration, FormInterface $form): Response
+    {
+        return $this->viewHandler->handle(
+            $configuration,
+            View::create($form, Response::HTTP_BAD_REQUEST)->setData(['errors' => $form->getErrors(true, true)])
+        );
     }
 }

@@ -9,49 +9,34 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Taxation\Applicator;
 
-use Sylius\Component\Core\Distributor\IntegerDistributorInterface;
 use Sylius\Component\Addressing\Model\ZoneInterface;
+use Sylius\Component\Core\Distributor\IntegerDistributorInterface;
 use Sylius\Component\Core\Model\AdjustmentInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\OrderItemUnitInterface;
 use Sylius\Component\Order\Factory\AdjustmentFactoryInterface;
 use Sylius\Component\Taxation\Calculator\CalculatorInterface;
 use Sylius\Component\Taxation\Resolver\TaxRateResolverInterface;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Mark McKelvie <mark.mckelvie@reiss.com>
- */
 class OrderItemsTaxesApplicator implements OrderTaxesApplicatorInterface
 {
-    /**
-     * @var CalculatorInterface
-     */
+    /** @var CalculatorInterface */
     private $calculator;
 
-    /**
-     * @var AdjustmentFactoryInterface
-     */
+    /** @var AdjustmentFactoryInterface */
     private $adjustmentFactory;
 
-    /**
-     * @var IntegerDistributorInterface
-     */
+    /** @var IntegerDistributorInterface */
     private $distributor;
 
-    /**
-     * @var TaxRateResolverInterface
-     */
+    /** @var TaxRateResolverInterface */
     private $taxRateResolver;
 
-    /**
-     * @param CalculatorInterface $calculator
-     * @param AdjustmentFactoryInterface $adjustmentFactory
-     * @param IntegerDistributorInterface $distributor
-     * @param TaxRateResolverInterface $taxRateResolver
-     */
     public function __construct(
         CalculatorInterface $calculator,
         AdjustmentFactoryInterface $adjustmentFactory,
@@ -66,14 +51,14 @@ class OrderItemsTaxesApplicator implements OrderTaxesApplicatorInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \InvalidArgumentException
      */
-    public function apply(OrderInterface $order, ZoneInterface $zone)
+    public function apply(OrderInterface $order, ZoneInterface $zone): void
     {
         foreach ($order->getItems() as $item) {
             $quantity = $item->getQuantity();
-            if (0 === $quantity) {
-                throw new \InvalidArgumentException('Cannot apply tax to order item with 0 quantity.');
-            }
+            Assert::notSame($quantity, 0, 'Cannot apply tax to order item with 0 quantity.');
 
             $taxRate = $this->taxRateResolver->resolve($item->getVariant(), ['zone' => $zone]);
 
@@ -91,18 +76,12 @@ class OrderItemsTaxesApplicator implements OrderTaxesApplicatorInterface
                 }
 
                 $this->addAdjustment($unit, $splitTaxes[$i], $taxRate->getLabel(), $taxRate->isIncludedInPrice());
-                $i++;
+                ++$i;
             }
         }
     }
 
-    /**
-     * @param OrderItemUnitInterface $unit
-     * @param int $taxAmount
-     * @param string $label
-     * @param bool $included
-     */
-    private function addAdjustment(OrderItemUnitInterface $unit, $taxAmount, $label, $included)
+    private function addAdjustment(OrderItemUnitInterface $unit, int $taxAmount, string $label, bool $included): void
     {
         $unitTaxAdjustment = $this->adjustmentFactory
             ->createWithData(AdjustmentInterface::TAX_ADJUSTMENT, $label, $taxAmount, $included)

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Domain;
 
 use Behat\Behat\Context\Context;
@@ -17,25 +19,14 @@ use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Order\Remover\ExpiredCartsRemoverInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class CartContext implements Context
 {
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $orderManager;
 
-    /**
-     * @var ExpiredCartsRemoverInterface
-     */
+    /** @var ExpiredCartsRemoverInterface */
     private $expiredCartsRemover;
 
-    /**
-     * @param ObjectManager $orderManager
-     * @param ExpiredCartsRemoverInterface $expiredCartsRemover
-     */
     public function __construct(
         ObjectManager $orderManager,
         ExpiredCartsRemoverInterface $expiredCartsRemover
@@ -49,7 +40,7 @@ final class CartContext implements Context
      */
     public function theyAbandonedTheirCart(OrderInterface $cart, $amount, $time)
     {
-        $cart->setUpdatedAt(new \DateTime('-'.$amount.' '.$time));
+        $cart->setUpdatedAt(new \DateTime('-' . $amount . ' ' . $time));
         $this->orderManager->flush();
     }
 
@@ -60,10 +51,7 @@ final class CartContext implements Context
     {
         $this->expiredCartsRemover->remove();
 
-        Assert::null(
-            $cart->getId(),
-            'This cart should not exist in registry but it does.'
-        );
+        Assert::null($cart->getId());
     }
 
     /**
@@ -73,9 +61,6 @@ final class CartContext implements Context
     {
         $this->expiredCartsRemover->remove();
 
-        Assert::notNull(
-            $cart->getId(),
-            'This cart should be in registry but it is not.'
-        );
+        Assert::notNull($cart->getId());
     }
 }

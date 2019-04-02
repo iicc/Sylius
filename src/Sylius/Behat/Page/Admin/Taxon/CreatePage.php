@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Taxon;
 
 use Behat\Mink\Driver\Selenium2Driver;
@@ -16,44 +18,33 @@ use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
+use Sylius\Behat\Service\SlugGenerationHelper;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class CreatePage extends BaseCreatePage implements CreatePageInterface
 {
     use SpecifiesItsCode;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function countTaxons()
+    public function countTaxons(): int
     {
         return count($this->getLeaves());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function countTaxonsByName($name)
+    public function countTaxonsByName(string $name): int
     {
         $matchedLeavesCounter = 0;
         $leaves = $this->getLeaves();
         foreach ($leaves as $leaf) {
             if (strpos($leaf->getText(), $name) !== false) {
-                $matchedLeavesCounter++;
+                ++$matchedLeavesCounter;
             }
         }
 
         return $matchedLeavesCounter;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function deleteTaxonOnPageByName($name)
+    public function deleteTaxonOnPageByName(string $name): void
     {
         $leaves = $this->getLeaves();
         foreach ($leaves as $leaf) {
@@ -67,59 +58,46 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         throw new ElementNotFoundException($this->getDriver(), 'Delete button');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function describeItAs($description, $languageCode)
+    public function describeItAs(string $description, string $languageCode): void
     {
         $this->getDocument()->fillField(sprintf('sylius_taxon_translations_%s_description', $languageCode), $description);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasTaxonWithName($name)
+    public function hasTaxonWithName(string $name): bool
     {
         return 0 !== $this->countTaxonsByName($name);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function nameIt($name, $languageCode)
+    public function nameIt(string $name, string $languageCode): void
     {
         $this->activateLanguageTab($languageCode);
         $this->getElement('name', ['%language%' => $languageCode])->setValue($name);
 
-        $this->waitForSlugGenerationIfNecessary($languageCode);
+        if ($this->getDriver() instanceof Selenium2Driver) {
+            SlugGenerationHelper::waitForSlugGeneration(
+                $this->getSession(),
+                $this->getElement('slug', ['%language%' => $languageCode])
+            );
+        }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function specifySlug($slug, $languageCode)
+    public function specifySlug(string $slug, string $languageCode): void
     {
         $this->getDocument()->fillField(sprintf('sylius_taxon_translations_%s_slug', $languageCode), $slug);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attachImage($path, $code = null)
+    public function attachImage(string $path, string $type = null): void
     {
         $filesPath = $this->getParameter('files_path');
 
         $this->getDocument()->find('css', '[data-form-collection="add"]')->click();
 
         $imageForm = $this->getLastImageElement();
-        $imageForm->fillField('Code', $code);
-        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
+        $imageForm->fillField('Type', $type);
+        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath . $path);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getLeaves(TaxonInterface $parentTaxon = null)
+    public function getLeaves(TaxonInterface $parentTaxon = null): array
     {
         $tree = $this->getElement('tree');
         Assert::notNull($tree);
@@ -139,10 +117,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         return [];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function activateLanguageTab($locale)
+    public function activateLanguageTab(string $locale): void
     {
         if (!$this->getDriver() instanceof Selenium2Driver) {
             return;
@@ -154,10 +129,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getElement($name, array $parameters = [])
+    protected function getElement(string $name, array $parameters = []): NodeElement
     {
         if (!isset($parameters['%language%'])) {
             $parameters['%language%'] = 'en_US';
@@ -166,10 +138,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         return parent::getElement($name, $parameters);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'code' => '#sylius_taxon_code',
@@ -182,10 +151,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         ]);
     }
 
-    /**
-     * @return NodeElement
-     */
-    private function getLastImageElement()
+    private function getLastImageElement(): NodeElement
     {
         $images = $this->getElement('images');
         $items = $images->findAll('css', 'div[data-form-collection="item"]');
@@ -193,17 +159,5 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         Assert::notEmpty($items);
 
         return end($items);
-    }
-
-    /**
-     * @param string $languageCode
-     */
-    private function waitForSlugGenerationIfNecessary($languageCode)
-    {
-        if ($this->getDriver() instanceof Selenium2Driver) {
-            $this->getDocument()->waitFor(10, function () use ($languageCode) {
-                return '' !== $this->getElement('slug', ['%language%' => $languageCode])->getValue();
-            });
-        }
     }
 }

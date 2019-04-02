@@ -9,27 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Promotion\Checker\Rule;
 
-use Sylius\Bundle\PromotionBundle\Form\Type\Rule\ItemTotalConfigurationType;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Promotion\Checker\Rule\RuleCheckerInterface;
+use Sylius\Component\Promotion\Exception\UnsupportedTypeException;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
-use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-final class ItemTotalRuleChecker implements RuleCheckerInterface, ChannelBasedRuleCheckerInterface
+final class ItemTotalRuleChecker implements RuleCheckerInterface
 {
-    /**
-     * @var RuleCheckerInterface
-     */
+    /** @var RuleCheckerInterface */
     private $itemTotalRuleChecker;
 
-    /**
-     * @param RuleCheckerInterface $itemTotalRuleChecker
-     */
     public function __construct(RuleCheckerInterface $itemTotalRuleChecker)
     {
         $this->itemTotalRuleChecker = $itemTotalRuleChecker;
@@ -37,10 +30,14 @@ final class ItemTotalRuleChecker implements RuleCheckerInterface, ChannelBasedRu
 
     /**
      * {@inheritdoc}
+     *
+     * @throws UnsupportedTypeException
      */
-    public function isEligible(PromotionSubjectInterface $subject, array $configuration)
+    public function isEligible(PromotionSubjectInterface $subject, array $configuration): bool
     {
-        Assert::isInstanceOf($subject, OrderInterface::class);
+        if (!$subject instanceof OrderInterface) {
+            throw new UnsupportedTypeException($subject, OrderInterface::class);
+        }
 
         $channelCode = $subject->getChannel()->getCode();
         if (!isset($configuration[$channelCode])) {
@@ -48,13 +45,5 @@ final class ItemTotalRuleChecker implements RuleCheckerInterface, ChannelBasedRu
         }
 
         return $this->itemTotalRuleChecker->isEligible($subject, $configuration[$channelCode]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return ItemTotalConfigurationType::class;
     }
 }

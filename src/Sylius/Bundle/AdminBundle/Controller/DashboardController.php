@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AdminBundle\Controller;
 
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
@@ -19,39 +21,21 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
-use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class DashboardController
+final class DashboardController
 {
-    /**
-     * @var DashboardStatisticsProviderInterface
-     */
+    /** @var DashboardStatisticsProviderInterface */
     private $statisticsProvider;
 
-    /**
-     * @var ChannelRepositoryInterface
-     */
+    /** @var ChannelRepositoryInterface */
     private $channelRepository;
 
-    /**
-     * @var EngineInterface
-     */
+    /** @var EngineInterface */
     private $templatingEngine;
 
-    /**
-     * @var RouterInterface
-     */
+    /** @var RouterInterface */
     private $router;
 
-    /**
-     * @param DashboardStatisticsProviderInterface $statisticsProvider
-     * @param ChannelRepositoryInterface $channelRepository
-     * @param EngineInterface $templatingEngine
-     * @param RouterInterface $router
-     */
     public function __construct(
         DashboardStatisticsProviderInterface $statisticsProvider,
         ChannelRepositoryInterface $channelRepository,
@@ -64,12 +48,7 @@ class DashboardController
         $this->router = $router;
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function indexAction(Request $request)
+    public function indexAction(Request $request): Response
     {
         $channelCode = $request->query->get('channel');
 
@@ -83,17 +62,12 @@ class DashboardController
         $statistics = $this->statisticsProvider->getStatisticsForChannel($channel);
 
         return $this->templatingEngine->renderResponse(
-            'SyliusAdminBundle:Dashboard:index.html.twig',
+            '@SyliusAdmin/Dashboard/index.html.twig',
             ['statistics' => $statistics, 'channel' => $channel]
         );
     }
 
-    /**
-     * @param string $channelCode
-     *
-     * @return ChannelInterface|null
-     */
-    private function findChannelByCodeOrFindFirst($channelCode)
+    private function findChannelByCodeOrFindFirst(?string $channelCode): ?ChannelInterface
     {
         $channel = null;
         if (null !== $channelCode) {

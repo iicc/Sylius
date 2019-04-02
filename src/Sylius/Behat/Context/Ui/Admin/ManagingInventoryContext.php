@@ -9,25 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Page\Admin\Inventory\IndexPageInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class ManagingInventoryContext implements Context
 {
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @param IndexPageInterface $indexPage
-     */
     public function __construct(IndexPageInterface $indexPage)
     {
         $this->indexPage = $indexPage;
@@ -57,13 +51,7 @@ final class ManagingInventoryContext implements Context
      */
     public function iShouldSeeOnlyOneTrackedVariantInTheList()
     {
-        $foundRows = $this->indexPage->countItems();
-
-        Assert::same(
-            1,
-            $foundRows,
-            '%s rows with tracked product variants should appear on page, %s rows has been found.'
-        );
+        Assert::same($this->indexPage->countItems(), 1);
     }
 
     /**
@@ -71,16 +59,9 @@ final class ManagingInventoryContext implements Context
      */
     public function iShouldSeeThatTheProductVariantHasQuantityOnHand($productVariantName, $quantity)
     {
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage([
-                'name' => $productVariantName,
-                'inventory' => sprintf('%s Available on hand', $quantity)
-            ]),
-            sprintf(
-                'This "%s" variant should have %s on hand quantity, but it does not.',
-                $productVariantName,
-                $quantity
-            )
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([
+            'name' => $productVariantName,
+            'inventory' => sprintf('%s Available on hand', $quantity),
+        ]));
     }
 }

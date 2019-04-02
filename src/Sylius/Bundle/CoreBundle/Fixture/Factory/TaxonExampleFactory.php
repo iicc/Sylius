@@ -9,9 +9,10 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture\Factory;
 
-use Doctrine\Common\Persistence\ObjectManager;
 use Sylius\Component\Core\Formatter\StringInflector;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
@@ -22,47 +23,26 @@ use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 class TaxonExampleFactory extends AbstractExampleFactory implements ExampleFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $taxonFactory;
 
-    /**
-     * @var TaxonRepositoryInterface
-     */
+    /** @var TaxonRepositoryInterface */
     private $taxonRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $localeRepository;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @var TaxonSlugGeneratorInterface
-     */
+    /** @var TaxonSlugGeneratorInterface */
     private $taxonSlugGenerator;
 
-    /**
-     * @var OptionsResolver
-     */
+    /** @var OptionsResolver */
     private $optionsResolver;
 
-    /**
-     * @param FactoryInterface $taxonFactory
-     * @param TaxonRepositoryInterface $taxonRepository
-     * @param RepositoryInterface $localeRepository
-     * @param TaxonSlugGeneratorInterface $taxonSlugGenerator
-     */
     public function __construct(
         FactoryInterface $taxonFactory,
         TaxonRepositoryInterface $taxonRepository,
@@ -83,7 +63,7 @@ class TaxonExampleFactory extends AbstractExampleFactory implements ExampleFacto
     /**
      * {@inheritdoc}
      */
-    public function create(array $options = [])
+    public function create(array $options = []): TaxonInterface
     {
         $options = $this->optionsResolver->resolve($options);
 
@@ -91,18 +71,20 @@ class TaxonExampleFactory extends AbstractExampleFactory implements ExampleFacto
         $taxon = $this->taxonRepository->findOneBy(['code' => $options['code']]);
 
         if (null === $taxon) {
+            /** @var TaxonInterface $taxon */
             $taxon = $this->taxonFactory->createNew();
         }
 
         $taxon->setCode($options['code']);
 
+        // add translation for each defined locales
         foreach ($this->getLocales() as $localeCode) {
-            $taxon->setCurrentLocale($localeCode);
-            $taxon->setFallbackLocale($localeCode);
+            $this->createTranslation($taxon, $localeCode, $options);
+        }
 
-            $taxon->setName($options['name']);
-            $taxon->setDescription($options['description']);
-            $taxon->setSlug($options['slug']);
+        // create or replace with custom translations
+        foreach ($options['translations'] as $localeCode => $translationOptions) {
+            $this->createTranslation($taxon, $localeCode, $translationOptions);
         }
 
         foreach ($options['children'] as $childOptions) {
@@ -112,33 +94,42 @@ class TaxonExampleFactory extends AbstractExampleFactory implements ExampleFacto
         return $taxon;
     }
 
+    protected function createTranslation(TaxonInterface $taxon, string $localeCode, array $options = []): void
+    {
+        $options = $this->optionsResolver->resolve($options);
+
+        $taxon->setCurrentLocale($localeCode);
+        $taxon->setFallbackLocale($localeCode);
+
+        $taxon->setName($options['name']);
+        $taxon->setDescription($options['description']);
+        $taxon->setSlug($options['slug'] ?: $this->taxonSlugGenerator->generate($taxon, $localeCode));
+    }
+
     /**
      * {@inheritdoc}
      */
-    protected function configureOptions(OptionsResolver $resolver)
+    protected function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
-            ->setDefault('name', function (Options $options) {
+            ->setDefault('name', function (Options $options): string {
                 return $this->faker->words(3, true);
             })
-            ->setDefault('code', function (Options $options) {
+            ->setDefault('code', function (Options $options): string {
                 return StringInflector::nameToCode($options['name']);
             })
-            ->setDefault('slug', function (Options $options) {
-                return $this->taxonSlugGenerator->generate($options['name']);
-            })
-            ->setDefault('description', function (Options $options) {
+            ->setDefault('slug', null)
+            ->setDefault('description', function (Options $options): string {
                 return $this->faker->paragraph;
             })
+            ->setDefault('translations', [])
+            ->setAllowedTypes('translations', ['array'])
             ->setDefault('children', [])
             ->setAllowedTypes('children', ['array'])
         ;
     }
 
-    /**
-     * @return array
-     */
-    private function getLocales()
+    private function getLocales(): iterable
     {
         /** @var LocaleInterface[] $locales */
         $locales = $this->localeRepository->findAll();

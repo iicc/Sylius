@@ -9,33 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Locale\Provider;
 
 use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class LocaleProvider implements LocaleProviderInterface
 {
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $localeRepository;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $defaultLocaleCode;
 
-    /**
-     * @param RepositoryInterface $localeRepository
-     * @param string $defaultLocaleCode
-     */
-    public function __construct(RepositoryInterface $localeRepository, $defaultLocaleCode)
+    public function __construct(RepositoryInterface $localeRepository, string $defaultLocaleCode)
     {
         $this->localeRepository = $localeRepository;
         $this->defaultLocaleCode = $defaultLocaleCode;
@@ -44,9 +33,9 @@ final class LocaleProvider implements LocaleProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getAvailableLocalesCodes()
+    public function getAvailableLocalesCodes(): array
     {
-        $locales = $this->localeRepository->findBy(['enabled' => true]);
+        $locales = $this->localeRepository->findAll();
 
         return array_map(
             function (LocaleInterface $locale) {
@@ -59,7 +48,7 @@ final class LocaleProvider implements LocaleProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getDefaultLocaleCode()
+    public function getDefaultLocaleCode(): string
     {
         return $this->defaultLocaleCode;
     }

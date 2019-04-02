@@ -9,21 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PaymentBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class RegisterPaymentMethodsResolversPass implements CompilerPassInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('sylius.registry.payment_methods_resolver')) {
             return;
@@ -37,7 +36,7 @@ final class RegisterPaymentMethodsResolversPass implements CompilerPassInterface
                 throw new \InvalidArgumentException('Tagged payment methods resolvers need to have `type` and `label` attributes.');
             }
 
-            $priority = isset($attributes[0]['priority']) ? (int) $attributes[0]['priority'] : 0;
+            $priority = (int) ($attributes[0]['priority'] ?? 0);
 
             $resolvers[$attributes[0]['type']] = $attributes[0]['label'];
 

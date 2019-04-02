@@ -9,53 +9,42 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Product;
 
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
-use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\ChecksCodeImmutability;
 use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConfigurableProductPageInterface
 {
     use ChecksCodeImmutability;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function nameItIn($name, $localeCode)
+    /** @var array */
+    private $imageUrls = [];
+
+    public function nameItIn(string $name, string $localeCode): void
     {
         $this->getDocument()->fillField(
             sprintf('sylius_product_translations_%s_name', $localeCode), $name
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isProductOptionChosen($option)
+    public function isProductOptionChosen(string $option): bool
     {
-        return $this->getElement('options')->find('named', array('option', $option))->hasAttribute('selected');
+        return $this->getElement('options')->find('named', ['option', $option])->hasAttribute('selected');
     }
 
-    /**
-     * @return bool
-     */
-    public function isProductOptionsDisabled()
+    public function isProductOptionsDisabled(): bool
     {
         return 'disabled' === $this->getElement('options')->getAttribute('disabled');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isMainTaxonChosen($taxonName)
+    public function isMainTaxonChosen(string $taxonName): bool
     {
         $this->openTaxonBookmarks();
         Assert::notNull($this->getDocument()->find('css', '.search > .text'));
@@ -63,15 +52,12 @@ class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConf
         return $taxonName === $this->getDocument()->find('css', '.search > .text')->getText();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function selectMainTaxon(TaxonInterface $taxon)
+    public function selectMainTaxon(TaxonInterface $taxon): void
     {
         $this->openTaxonBookmarks();
-        
+
         Assert::isInstanceOf($this->getDriver(), Selenium2Driver::class);
-        
+
         $this->getDriver()->executeScript(sprintf('$(\'input.search\').val(\'%s\')', $taxon->getName()));
         $this->getElement('search')->click();
         $this->getElement('search')->waitFor(10, function () {
@@ -81,26 +67,20 @@ class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConf
         $itemSelected->click();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function checkChannel($channelName)
+    public function checkChannel(string $channelName): void
     {
         $this->getElement('channel_checkbox', ['%channel%' => $channelName])->check();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isImageWithCodeDisplayed($code)
+    public function isImageWithTypeDisplayed(string $type): bool
     {
-        $imageElement = $this->getImageElementByCode($code);
+        $imageElement = $this->getImageElementByType($type);
 
-        if (null === $imageElement) {
+        $imageUrl = $imageElement ? $imageElement->find('css', 'img')->getAttribute('src') : $this->provideImageUrlForType($type);
+        if (null === $imageElement && null === $imageUrl) {
             return false;
         }
 
-        $imageUrl = $imageElement->find('css', 'img')->getAttribute('src');
         $this->getDriver()->visit($imageUrl);
         $pageText = $this->getDocument()->getText();
         $this->getDriver()->back();
@@ -108,10 +88,7 @@ class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConf
         return false === stripos($pageText, '404 Not Found');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attachImage($path, $code = null)
+    public function attachImage(string $path, string $type = null): void
     {
         $this->clickTabIfItsNotActive('media');
 
@@ -120,88 +97,72 @@ class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConf
         $this->getDocument()->clickLink('Add');
 
         $imageForm = $this->getLastImageElement();
-        if (null !== $code) {
-            $imageForm->fillField('Code', $code);
+        if (null !== $type) {
+            $imageForm->fillField('Type', $type);
         }
 
-        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
+        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath . $path);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function changeImageWithCode($code, $path)
+    public function changeImageWithType(string $type, string $path): void
     {
         $filesPath = $this->getParameter('files_path');
 
-        $imageForm = $this->getImageElementByCode($code);
-        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
+        $imageForm = $this->getImageElementByType($type);
+        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath . $path);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeImageWithCode($code)
+    public function removeImageWithType(string $type): void
     {
         $this->clickTabIfItsNotActive('media');
 
-        $imageElement = $this->getImageElementByCode($code);
+        $imageElement = $this->getImageElementByType($type);
+        $imageSourceElement = $imageElement->find('css', 'img');
+        if (null !== $imageSourceElement) {
+            $this->saveImageUrlForType($type, $imageSourceElement->getAttribute('src'));
+        }
+
         $imageElement->clickLink('Delete');
     }
 
-    public function removeFirstImage()
+    public function removeFirstImage(): void
     {
+        $this->clickTabIfItsNotActive('media');
         $imageElement = $this->getFirstImageElement();
+        $imageTypeElement = $imageElement->find('css', 'input[type=text]');
+        $imageSourceElement = $imageElement->find('css', 'img');
+
+        if (null !== $imageTypeElement && null !== $imageSourceElement) {
+            $this->saveImageUrlForType(
+                $imageTypeElement->getValue(),
+                $imageSourceElement->getAttribute('src')
+            );
+        }
+
         $imageElement->clickLink('Delete');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function countImages()
+    public function modifyFirstImageType(string $type): void
+    {
+        $this->clickTabIfItsNotActive('media');
+
+        $firstImage = $this->getFirstImageElement();
+        $this->setImageType($firstImage, $type);
+    }
+
+    public function countImages(): int
     {
         $imageElements = $this->getImageElements();
 
         return count($imageElements);
     }
 
-    /**
-     * @return bool
-     */
-    public function isImageCodeDisabled()
-    {
-        return 'disabled' === $this->getLastImageElement()->findField('Code')->getAttribute('disabled');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getValidationMessageForImage()
-    {
-        $this->clickTabIfItsNotActive('media');
-
-        $imageForm = $this->getLastImageElement();
-
-        $foundElement = $imageForm->find('css', '.sylius-validation-error');
-        if (null === $foundElement) {
-            throw new ElementNotFoundException($this->getSession(), 'Tag', 'css', '.sylius-validation-error');
-        }
-
-        return $foundElement->getText();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getCodeElement()
+    protected function getCodeElement(): NodeElement
     {
         return $this->getElement('code');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'channel_checkbox' => '.checkbox:contains("%channel%") input',
@@ -218,15 +179,12 @@ class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConf
         ]);
     }
 
-    private function openTaxonBookmarks()
+    private function openTaxonBookmarks(): void
     {
         $this->getElement('taxonomy')->click();
     }
 
-    /**
-     * @param string $tabName
-     */
-    private function clickTabIfItsNotActive($tabName)
+    private function clickTabIfItsNotActive(string $tabName): void
     {
         $attributesTab = $this->getElement('tab', ['%name%' => $tabName]);
         if (!$attributesTab->hasClass('active')) {
@@ -234,37 +192,29 @@ class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConf
         }
     }
 
-    /**
-     * @param string $code
-     *
-     * @return NodeElement
-     */
-    private function getImageElementByCode($code)
+    private function getImageElementByType(string $type): ?NodeElement
     {
         $images = $this->getElement('images');
-        $inputCode = $images->find('css', 'input[value="'.$code.'"]');
+        $typeInput = $images->find('css', 'input[value="' . $type . '"]');
 
-        if (null === $inputCode) {
+        if (null === $typeInput) {
             return null;
         }
 
-        return $inputCode->getParent()->getParent()->getParent();
+        return $typeInput->getParent()->getParent()->getParent();
     }
 
     /**
      * @return NodeElement[]
      */
-    private function getImageElements()
+    private function getImageElements(): array
     {
         $images = $this->getElement('images');
 
         return $images->findAll('css', 'div[data-form-collection="item"]');
     }
 
-    /**
-     * @return NodeElement
-     */
-    private function getLastImageElement()
+    private function getLastImageElement(): NodeElement
     {
         $imageElements = $this->getImageElements();
 
@@ -273,15 +223,28 @@ class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConf
         return end($imageElements);
     }
 
-    /**
-     * @return NodeElement
-     */
-    private function getFirstImageElement()
+    private function getFirstImageElement(): NodeElement
     {
         $imageElements = $this->getImageElements();
 
         Assert::notEmpty($imageElements);
 
         return reset($imageElements);
+    }
+
+    private function setImageType(NodeElement $imageElement, string $type): void
+    {
+        $typeField = $imageElement->findField('Type');
+        $typeField->setValue($type);
+    }
+
+    private function provideImageUrlForType(string $type): ?string
+    {
+        return $this->imageUrls[$type] ?? null;
+    }
+
+    private function saveImageUrlForType(string $type, string $imageUrl): void
+    {
+        $this->imageUrls[$type] = $imageUrl;
     }
 }

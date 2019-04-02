@@ -9,77 +9,44 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Attribute\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface AttributeValueInterface extends ResourceInterface
 {
-    const STORAGE_BOOLEAN = 'boolean';
-    const STORAGE_DATE = 'date';
-    const STORAGE_DATETIME = 'datetime';
-    const STORAGE_FLOAT = 'float';
-    const STORAGE_INTEGER = 'integer';
-    const STORAGE_JSON = 'json';
-    const STORAGE_TEXT = 'text';
+    public const STORAGE_BOOLEAN = 'boolean';
+    public const STORAGE_DATE = 'date';
+    public const STORAGE_DATETIME = 'datetime';
+    public const STORAGE_FLOAT = 'float';
+    public const STORAGE_INTEGER = 'integer';
+    public const STORAGE_JSON = 'json';
+    public const STORAGE_TEXT = 'text';
 
-    /**
-     * @return AttributeSubjectInterface
-     */
-    public function getSubject();
+    public function getSubject(): ?AttributeSubjectInterface;
 
-    /**
-     * @param AttributeSubjectInterface|null $subject
-     */
-    public function setSubject(AttributeSubjectInterface $subject = null);
+    public function setSubject(?AttributeSubjectInterface $subject): void;
 
-    /**
-     * @return AttributeInterface
-     */
-    public function getAttribute();
+    public function getAttribute(): ?AttributeInterface;
 
-    /**
-     * @param AttributeInterface $attribute
-     */
-    public function setAttribute(AttributeInterface $attribute);
+    public function setAttribute(?AttributeInterface $attribute): void;
 
-    /**
-     * @return mixed
-     */
     public function getValue();
 
-    /**
-     * @param mixed $value
-     */
-    public function setValue($value);
+    public function setValue($value): void;
+
+    public function getCode(): ?string;
+
+    public function getName(): ?string;
+
+    public function getType(): ?string;
 
     /**
-     * @return string
-     */
-    public function getCode();
-
-    /**
-     * @return string
-     */
-    public function getName();
-
-    /**
-     * @return string
-     */
-    public function getType();
-
-    /**
-     * @return string
-     *
      * @throws \InvalidArgumentException
      */
-    public function getLocaleCode();
+    public function getLocaleCode(): ?string;
 
-    /**
-     * @param string
-     */
-    public function setLocaleCode($localeCode);
+    public function setLocaleCode(?string $localeCode): void;
 }

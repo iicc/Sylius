@@ -9,19 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Customer\Statistics;
 
 use Sylius\Component\Core\Model\CustomerInterface;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 interface CustomerStatisticsProviderInterface
 {
-    /**
-     * @param CustomerInterface $customer
-     *
-     * @return CustomerStatistics
-     */
-    public function getCustomerStatistics(CustomerInterface $customer);
+    public function getCustomerStatistics(CustomerInterface $customer): CustomerStatistics;
 }

@@ -9,17 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Exception\RuntimeException;
 
 final class InstallCommand extends AbstractInstallCommand
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $commands = [
         [
             'command' => 'check-requirements',
@@ -42,7 +44,7 @@ final class InstallCommand extends AbstractInstallCommand
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('sylius:install')
@@ -51,47 +53,79 @@ final class InstallCommand extends AbstractInstallCommand
 The <info>%command.name%</info> command installs Sylius.
 EOT
             )
+            ->addOption('fixture-suite', 's', InputOption::VALUE_OPTIONAL, 'Load specified fixture suite during install', null)
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $output->writeln('<info>Installing Sylius...</info>');
-        $output->writeln('');
+        $suite = $input->getOption('fixture-suite');
+
+        $outputStyle = new SymfonyStyle($input, $output);
+        $outputStyle->writeln('<info>Installing Sylius...</info>');
+        $outputStyle->writeln($this->getSyliusLogo());
 
         $this->ensureDirectoryExistsAndIsWritable($this->getContainer()->getParameter('kernel.cache_dir'), $output);
 
         $errored = false;
         foreach ($this->commands as $step => $command) {
             try {
-                $output->writeln(sprintf('<comment>Step %d of %d.</comment> <info>%s</info>', $step + 1, count($this->commands), $command['message']));
-                $this->commandExecutor->runCommand('sylius:install:'.$command['command'], [], $output);
-                $output->writeln('');
+                $outputStyle->newLine();
+                $outputStyle->section(sprintf(
+                    'Step %d of %d. <info>%s</info>',
+                    $step + 1,
+                    count($this->commands),
+                    $command['message']
+                ));
+
+                $parameters = [];
+                if ('database' === $command['command'] && null !== $suite) {
+                    $parameters['--fixture-suite'] = $suite;
+                }
+
+                $this->commandExecutor->runCommand('sylius:install:' . $command['command'], $parameters, $output);
             } catch (RuntimeException $exception) {
                 $errored = true;
             }
         }
 
-        $frontControllerPath = 'prod' === $this->getEnvironment() ? '/' : sprintf('/app_%s.php', $this->getEnvironment());
-
-        $output->writeln($this->getProperFinalMessage($errored));
-        $output->writeln(sprintf('You can now open your store at the following path under the website root: <info>%s.</info>', $frontControllerPath));
+        $outputStyle->newLine(2);
+        $outputStyle->success($this->getProperFinalMessage($errored));
+        $outputStyle->writeln('You can now open your store at the following path under the website root: /');
     }
 
-    /**
-     * @param bool $errored
-     *
-     * @return string
-     */
-    private function getProperFinalMessage($errored)
+    private function getProperFinalMessage(bool $errored): string
     {
         if ($errored) {
-            return '<info>Sylius has been installed, but some error occurred.</info>';
+            return 'Sylius has been installed, but some error occurred.';
         }
 
-        return '<info>Sylius has been successfully installed.</info>';
+        return 'Sylius has been successfully installed.';
+    }
+
+    private function getSyliusLogo(): string
+    {
+        return '                                                                  
+           <info>,</info>                                                       
+         <info>,;:,</info>                                                      
+       <info>`;;;.:`</info>                                                     
+      <info>`::;`  :`</info>                                                    
+       <info>:::`   `</info>          .\'++:           \'\'.   \'.                  
+       <info>`:::</info>             :+\',;+\'          :+;  `+.                  
+        <info>::::</info>            +\'   :\'          `+;                       
+        <info>`:::,</info>           \'+`     ++    :+.`+; `++. ;+\'    \'\'  ,++++.
+         <info>,:::`</info>          `++\'.   .+:  `+\' `+;  .+,  ;+    +\'  +;  \'\'
+          <info>::::`</info>           ,+++.  \'+` :+. `+;  `+,  ;+    +\'  \'+.   
+   <info>,.     .::::</info>             .++` `+: +\'  `+;  `+,  ;+    +\'  `;++; 
+<info>`;;.:::`   :::::</info>             :+.  \'+,+.  `+;  `+,  ;+   `+\'     .++
+ <info>.;;;;;;::`.::::,</info>       +\'` `++   `++\'   `+;  `+:  :+. `++\'  \'.  ;+
+  <info>,;;;;;;;;;:::::</info>       .+++++`    ;+,    ++;  ++, `\'+++,\'+\' :++++,
+   <info>,;;;;;;;;;:::</info>`                  ;\'                              
+    <info>:;;;;;;;;;:,</info>                :.:+,                              
+     <info>;;;;;;;;;:</info>                 ;++,'
+        ;
     }
 }

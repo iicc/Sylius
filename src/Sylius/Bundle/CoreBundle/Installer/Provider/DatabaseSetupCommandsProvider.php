@@ -9,28 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Installer\Provider;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class DatabaseSetupCommandsProvider implements DatabaseSetupCommandsProviderInterface
 {
-    /**
-     * @var Registry
-     */
+    /** @var Registry */
     private $doctrineRegistry;
 
-    /**
-     * @param Registry $doctrineRegistry
-     */
     public function __construct(Registry $doctrineRegistry)
     {
         $this->doctrineRegistry = $doctrineRegistry;
@@ -39,18 +35,16 @@ final class DatabaseSetupCommandsProvider implements DatabaseSetupCommandsProvid
     /**
      * {@inheritdoc}
      */
-    public function getCommands(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper)
+    public function getCommands(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper): array
     {
         if (!$this->isDatabasePresent()) {
             return [
                 'doctrine:database:create',
-                'doctrine:schema:create',
-                'cache:clear',
+                'doctrine:migrations:migrate' => ['--no-interaction' => true],
             ];
         }
 
         return array_merge($this->getRequiredCommands($input, $output, $questionHelper), [
-            'cache:clear',
             'doctrine:migrations:version' => [
                 '--add' => true,
                 '--all' => true,
@@ -60,17 +54,15 @@ final class DatabaseSetupCommandsProvider implements DatabaseSetupCommandsProvid
     }
 
     /**
-     * @return bool
-     *
      * @throws \Exception
      */
-    private function isDatabasePresent()
+    private function isDatabasePresent(): bool
     {
         $databaseName = $this->getDatabaseName();
 
         try {
             $schemaManager = $this->getSchemaManager();
-            
+
             return in_array($databaseName, $schemaManager->listDatabases());
         } catch (\Exception $exception) {
             $message = $exception->getMessage();
@@ -86,76 +78,64 @@ final class DatabaseSetupCommandsProvider implements DatabaseSetupCommandsProvid
         }
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @param QuestionHelper $questionHelper
-     *
-     * @return array
-     */
-    private function getRequiredCommands(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper)
+    private function getRequiredCommands(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper): array
     {
         if ($input->getOption('no-interaction')) {
-            $commands['doctrine:schema:update'] = ['--force' => true];
+            $commands['doctrine:migrations:migrate'] = ['--no-interaction' => true];
         }
 
         return $this->setupDatabase($input, $output, $questionHelper);
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @param QuestionHelper $questionHelper
-     *
-     * @return array
-     */
-    private function setupDatabase(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper)
+    private function setupDatabase(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper): array
     {
-        $question = new ConfirmationQuestion('It appears that your database already exists. Would you like to reset it? (y/N) ', false);
+        $outputStyle = new SymfonyStyle($input, $output);
+        $outputStyle->writeln('It appears that your database already exists.');
+        $outputStyle->writeln('<error>Warning! This action will erase your database.</error>');
+
+        $question = new ConfirmationQuestion('Would you like to reset it? (y/N) ', false);
         if ($questionHelper->ask($input, $output, $question)) {
             return [
                 'doctrine:database:drop' => ['--force' => true],
                 'doctrine:database:create',
-                'doctrine:schema:create',
+                'doctrine:migrations:migrate' => ['--no-interaction' => true],
             ];
         }
 
         if (!$this->isSchemaPresent()) {
-            return ['doctrine:schema:create'];
+            return ['doctrine:migrations:migrate' => ['--no-interaction' => true]];
         }
 
-        $question = new ConfirmationQuestion('Seems like your database contains schema. Do you want to reset it? (y/N) ', false);
+        $outputStyle->writeln('Seems like your database contains schema.');
+        $outputStyle->writeln('<error>Warning! This action will erase your database.</error>');
+        $question = new ConfirmationQuestion('Do you want to reset it? (y/N) ', false);
         if ($questionHelper->ask($input, $output, $question)) {
             return [
                 'doctrine:schema:drop' => ['--force' => true],
-                'doctrine:schema:create',
+                'doctrine:migrations:migrate' => ['--no-interaction' => true],
             ];
         }
 
         return [];
     }
 
-    /**
-     * @return bool
-     */
-    private function isSchemaPresent()
+    private function isSchemaPresent(): bool
     {
         return 0 !== count($this->getSchemaManager()->listTableNames());
     }
 
-    /**
-     * @return string
-     */
-    private function getDatabaseName()
+    private function getDatabaseName(): string
     {
-        return $this->doctrineRegistry->getManager()->getConnection()->getDatabase();
+        return (string) $this->getEntityManager()->getConnection()->getDatabase();
     }
 
-    /**
-     * @return AbstractSchemaManager
-     */
-    private function getSchemaManager()
+    private function getSchemaManager(): AbstractSchemaManager
     {
-        return $this->doctrineRegistry->getManager()->getConnection()->getSchemaManager();
+        return $this->getEntityManager()->getConnection()->getSchemaManager();
+    }
+
+    private function getEntityManager(): EntityManagerInterface
+    {
+        return $this->doctrineRegistry->getManager();
     }
 }

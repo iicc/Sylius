@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ProductBundle\Form\DataTransformer;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -21,36 +23,20 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class ProductsToProductAssociationsTransformer implements DataTransformerInterface
 {
-    /**
-     * @var FactoryInterface
-     */
-    protected $productAssociationFactory;
+    /** @var FactoryInterface */
+    private $productAssociationFactory;
 
-    /**
-     * @var ProductRepositoryInterface
-     */
-    protected $productRepository;
+    /** @var ProductRepositoryInterface */
+    private $productRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
-    protected $productAssociationTypeRepository;
+    /** @var RepositoryInterface */
+    private $productAssociationTypeRepository;
 
-    /**
-     * @var Collection
-     */
+    /** @var Collection */
     private $productAssociations;
 
-    /**
-     * @param FactoryInterface $productAssociationFactory
-     * @param ProductRepositoryInterface $productRepository
-     * @param RepositoryInterface $productAssociationTypeRepository
-     */
     public function __construct(
         FactoryInterface $productAssociationFactory,
         ProductRepositoryInterface $productRepository,
@@ -76,9 +62,9 @@ final class ProductsToProductAssociationsTransformer implements DataTransformerI
 
         /** @var ProductAssociationInterface $productAssociation */
         foreach ($productAssociations as $productAssociation) {
-            $productIdsAsString = $this->getIdsAsStringFromProducts($productAssociation->getAssociatedProducts());
+            $productCodesAsString = $this->getCodesAsStringFromProducts($productAssociation->getAssociatedProducts());
 
-            $values[$productAssociation->getType()->getCode()] = $productIdsAsString;
+            $values[$productAssociation->getType()->getCode()] = $productCodesAsString;
         }
 
         return $values;
@@ -87,21 +73,21 @@ final class ProductsToProductAssociationsTransformer implements DataTransformerI
     /**
      * {@inheritdoc}
      */
-    public function reverseTransform($values)
+    public function reverseTransform($values): ?Collection
     {
         if (null === $values || '' === $values || !is_array($values)) {
             return null;
         }
 
         $productAssociations = new ArrayCollection();
-        foreach ($values as $productAssociationTypeCode => $productIds) {
-            if (null === $productIds) {
+        foreach ($values as $productAssociationTypeCode => $productCodes) {
+            if (null === $productCodes) {
                 continue;
             }
 
             /** @var ProductAssociationInterface $productAssociation */
             $productAssociation = $this->getProductAssociationByTypeCode($productAssociationTypeCode);
-            $this->setAssociatedProductsByProductIds($productAssociation, $productIds);
+            $this->setAssociatedProductsByProductCodes($productAssociation, $productCodes);
             $productAssociations->add($productAssociation);
         }
 
@@ -110,33 +96,23 @@ final class ProductsToProductAssociationsTransformer implements DataTransformerI
         return $productAssociations;
     }
 
-    /**
-     * @param Collection $products
-     *
-     * @return string
-     */
-    private function getIdsAsStringFromProducts(Collection $products)
+    private function getCodesAsStringFromProducts(Collection $products): ?string
     {
         if ($products->isEmpty()) {
             return null;
         }
 
-        $ids = [];
+        $codes = [];
 
         /** @var ProductInterface $product */
         foreach ($products as $product) {
-            $ids[] = $product->getId();
+            $codes[] = $product->getCode();
         }
 
-        return implode(',', $ids);
+        return implode(',', $codes);
     }
 
-    /**
-     * @param string $productAssociationTypeCode
-     *
-     * @return ProductAssociationInterface
-     */
-    private function getProductAssociationByTypeCode($productAssociationTypeCode)
+    private function getProductAssociationByTypeCode(string $productAssociationTypeCode): ProductAssociationInterface
     {
         foreach ($this->productAssociations as $productAssociation) {
             if ($productAssociationTypeCode === $productAssociation->getType()->getCode()) {
@@ -156,13 +132,11 @@ final class ProductsToProductAssociationsTransformer implements DataTransformerI
         return $productAssociation;
     }
 
-    /**
-     * @param ProductAssociationInterface $productAssociation
-     * @param string $productIds
-     */
-    private function setAssociatedProductsByProductIds(ProductAssociationInterface $productAssociation, $productIds)
-    {
-        $products = $this->productRepository->findBy(['id' => explode(',', $productIds)]);
+    private function setAssociatedProductsByProductCodes(
+        ProductAssociationInterface $productAssociation,
+        string $productCodes
+    ): void {
+        $products = $this->productRepository->findBy(['code' => explode(',', $productCodes)]);
 
         $productAssociation->clearAssociatedProducts();
         foreach ($products as $product) {
@@ -170,10 +144,7 @@ final class ProductsToProductAssociationsTransformer implements DataTransformerI
         }
     }
 
-    /**
-     * @param Collection|null $productAssociations
-     */
-    private function setProductAssociations($productAssociations)
+    private function setProductAssociations(?Collection $productAssociations): void
     {
         $this->productAssociations = $productAssociations;
     }

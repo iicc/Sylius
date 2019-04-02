@@ -9,28 +9,30 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PromotionBundle\Form\Type;
 
 use Sylius\Bundle\PromotionBundle\Form\Type\Core\AbstractConfigurationCollectionType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Arnaud Langlade <arn0d.dev@gmail.com>
- */
 final class PromotionRuleCollectionType extends AbstractConfigurationCollectionType
 {
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        return 'sylius_promotion_rule_collection';
+        parent::configureOptions($resolver);
+
+        $resolver->setDefault('entry_type', PromotionRuleType::class);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getEntryType()
+    public function getBlockPrefix(): string
     {
-        return PromotionRuleType::class;
+        return 'sylius_promotion_rule_collection';
     }
 }

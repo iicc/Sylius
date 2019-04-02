@@ -9,12 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UserBundle\DependencyInjection;
 
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
+use Sylius\Bundle\UserBundle\EventListener\UpdateUserEncoderListener;
 use Sylius\Bundle\UserBundle\EventListener\UserDeleteListener;
 use Sylius\Bundle\UserBundle\EventListener\UserLastLoginSubscriber;
 use Sylius\Bundle\UserBundle\EventListener\UserReloaderListener;
+use Sylius\Bundle\UserBundle\Factory\UserWithEncoderFactory;
 use Sylius\Bundle\UserBundle\Provider\AbstractUserProvider;
 use Sylius\Bundle\UserBundle\Provider\EmailProvider;
 use Sylius\Bundle\UserBundle\Provider\UsernameOrEmailProvider;
@@ -24,24 +28,22 @@ use Sylius\Component\User\Security\Checker\TokenUniquenessChecker;
 use Sylius\Component\User\Security\Generator\UniquePinGenerator;
 use Sylius\Component\User\Security\Generator\UniqueTokenGenerator;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Security\Http\SecurityEvents;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class SyliusUserExtension extends AbstractResourceExtension
 {
     /**
      * {@inheritdoc}
      */
-    public function load(array $config, ContainerBuilder $container)
+    public function load(array $config, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $loader->load(sprintf('services/integrations/%s.xml', $config['driver']));
 
@@ -50,15 +52,10 @@ final class SyliusUserExtension extends AbstractResourceExtension
         $loader->load('services.xml');
 
         $this->createServices($config['resources'], $container);
+        $this->loadEncodersAwareServices($config['encoder'], $config['resources'], $container);
     }
 
-    /**
-     * @param array $resources
-     * @param ContainerBuilder $container
-     *
-     * @return array
-     */
-    private function resolveResources(array $resources, ContainerBuilder $container)
+    private function resolveResources(array $resources, ContainerBuilder $container): array
     {
         $container->setParameter('sylius.user.users', $resources);
 
@@ -66,7 +63,7 @@ final class SyliusUserExtension extends AbstractResourceExtension
         foreach ($resources as $variableName => $variableConfig) {
             foreach ($variableConfig as $resourceName => $resourceConfig) {
                 if (is_array($resourceConfig)) {
-                    $resolvedResources[$variableName.'_'.$resourceName] = $resourceConfig;
+                    $resolvedResources[$variableName . '_' . $resourceName] = $resourceConfig;
                 }
             }
         }
@@ -74,11 +71,7 @@ final class SyliusUserExtension extends AbstractResourceExtension
         return $resolvedResources;
     }
 
-    /**
-     * @param array $resources
-     * @param ContainerBuilder $container
-     */
-    private function createServices(array $resources, ContainerBuilder $container)
+    private function createServices(array $resources, ContainerBuilder $container): void
     {
         foreach ($resources as $userType => $config) {
             $userClass = $config['user']['classes']['model'];
@@ -91,12 +84,21 @@ final class SyliusUserExtension extends AbstractResourceExtension
         }
     }
 
-    /**
-     * @param string $userType
-     * @param array $config
-     * @param ContainerBuilder $container
-     */
-    private function createTokenGenerators($userType, array $config, ContainerBuilder $container)
+    private function loadEncodersAwareServices(?string $globalEncoder, array $resources, ContainerBuilder $container): void
+    {
+        foreach ($resources as $userType => $config) {
+            $encoder = $config['user']['encoder'] ?? $globalEncoder;
+
+            if (null === $encoder || false === $encoder) {
+                continue;
+            }
+
+            $this->overwriteResourceFactoryWithEncoderAwareFactory($container, $userType, $encoder);
+            $this->registerUpdateUserEncoderListener($container, $userType, $encoder, $config);
+        }
+    }
+
+    private function createTokenGenerators(string $userType, array $config, ContainerBuilder $container): void
     {
         $this->createUniquenessCheckers($userType, $config, $container);
 
@@ -105,42 +107,39 @@ final class SyliusUserExtension extends AbstractResourceExtension
             $this->createTokenGeneratorDefinition(
                 UniqueTokenGenerator::class,
                 [
+                    new Reference('sylius.random_generator'),
                     new Reference(sprintf('sylius.%s_user.token_uniqueness_checker.password_reset', $userType)),
-                    $config['resetting']['token']['length']
+                    $config['resetting']['token']['length'],
                 ]
             )
-        );
+        )->setPublic(true);
 
         $container->setDefinition(
             sprintf('sylius.%s_user.pin_generator.password_reset', $userType),
             $this->createTokenGeneratorDefinition(
                 UniquePinGenerator::class,
                 [
+                    new Reference('sylius.random_generator'),
                     new Reference(sprintf('sylius.%s_user.pin_uniqueness_checker.password_reset', $userType)),
-                    $config['resetting']['pin']['length']
+                    $config['resetting']['pin']['length'],
                 ]
             )
-        );
+        )->setPublic(true);
 
         $container->setDefinition(
             sprintf('sylius.%s_user.token_generator.email_verification', $userType),
             $this->createTokenGeneratorDefinition(
                 UniqueTokenGenerator::class,
                 [
+                    new Reference('sylius.random_generator'),
                     new Reference(sprintf('sylius.%s_user.token_uniqueness_checker.email_verification', $userType)),
-                    $config['verification']['token']['length']
+                    $config['verification']['token']['length'],
                 ]
             )
-        );
+        )->setPublic(true);
     }
 
-    /**
-     * @param string $generatorClass
-     * @param array $arguments
-     *
-     * @return Definition
-     */
-    private function createTokenGeneratorDefinition($generatorClass, array $arguments)
+    private function createTokenGeneratorDefinition(string $generatorClass, array $arguments): Definition
     {
         $generatorDefinition = new Definition($generatorClass);
         $generatorDefinition->setArguments($arguments);
@@ -148,12 +147,7 @@ final class SyliusUserExtension extends AbstractResourceExtension
         return $generatorDefinition;
     }
 
-    /**
-     * @param string $userType
-     * @param array $config
-     * @param ContainerBuilder $container
-     */
-    private function createUniquenessCheckers($userType, array $config, ContainerBuilder $container)
+    private function createUniquenessCheckers(string $userType, array $config, ContainerBuilder $container): void
     {
         $repositoryServiceId = sprintf('sylius.repository.%s_user', $userType);
 
@@ -182,11 +176,7 @@ final class SyliusUserExtension extends AbstractResourceExtension
         );
     }
 
-    /**
-     * @param string $userType
-     * @param ContainerBuilder $container
-     */
-    private function createReloaders($userType, ContainerBuilder $container)
+    private function createReloaders(string $userType, ContainerBuilder $container): void
     {
         $managerServiceId = sprintf('sylius.manager.%s_user', $userType);
         $reloaderServiceId = sprintf('sylius.%s_user.reloader', $userType);
@@ -203,12 +193,7 @@ final class SyliusUserExtension extends AbstractResourceExtension
         $container->setDefinition($reloaderListenerServiceId, $userReloaderListenerDefinition);
     }
 
-    /**
-     * @param string $userType
-     * @param string $userClass
-     * @param ContainerBuilder $container
-     */
-    private function createLastLoginListeners($userType, $userClass, ContainerBuilder $container)
+    private function createLastLoginListeners(string $userType, string $userClass, ContainerBuilder $container): void
     {
         $managerServiceId = sprintf('sylius.manager.%s_user', $userType);
         $lastLoginListenerServiceId = sprintf('sylius.listener.%s_user_last_login', $userType);
@@ -219,11 +204,7 @@ final class SyliusUserExtension extends AbstractResourceExtension
         $container->setDefinition($lastLoginListenerServiceId, $lastLoginListenerDefinition);
     }
 
-    /**
-     * @param string $userType
-     * @param ContainerBuilder $container
-     */
-    public function createUserDeleteListeners($userType, ContainerBuilder $container)
+    public function createUserDeleteListeners(string $userType, ContainerBuilder $container): void
     {
         $userDeleteListenerServiceId = sprintf('sylius.listener.%s_user_delete', $userType);
         $userPreDeleteEventName = sprintf('sylius.%s_user.pre_delete', $userType);
@@ -235,12 +216,7 @@ final class SyliusUserExtension extends AbstractResourceExtension
         $container->setDefinition($userDeleteListenerServiceId, $userDeleteListenerDefinition);
     }
 
-    /**
-     * @param string $userType
-     * @param string $userModel
-     * @param ContainerBuilder $container
-     */
-    private function createProviders($userType, $userModel, ContainerBuilder $container)
+    private function createProviders(string $userType, string $userModel, ContainerBuilder $container): void
     {
         $repositoryServiceId = sprintf('sylius.repository.%s_user', $userType);
         $abstractProviderServiceId = sprintf('sylius.%s_user_provider', $userType);
@@ -256,16 +232,49 @@ final class SyliusUserExtension extends AbstractResourceExtension
         $abstractProviderDefinition->addArgument(new Reference('sylius.canonicalizer'));
         $container->setDefinition($abstractProviderServiceId, $abstractProviderDefinition);
 
-        $emailBasedProviderDefinition = new DefinitionDecorator($abstractProviderServiceId);
+        $emailBasedProviderDefinition = new ChildDefinition($abstractProviderServiceId);
         $emailBasedProviderDefinition->setClass(EmailProvider::class);
         $container->setDefinition($providerEmailBasedServiceId, $emailBasedProviderDefinition);
 
-        $nameBasedProviderDefinition = new DefinitionDecorator($abstractProviderServiceId);
+        $nameBasedProviderDefinition = new ChildDefinition($abstractProviderServiceId);
         $nameBasedProviderDefinition->setClass(UsernameProvider::class);
         $container->setDefinition($providerNameBasedServiceId, $nameBasedProviderDefinition);
 
-        $emailOrNameBasedProviderDefinition = new DefinitionDecorator($abstractProviderServiceId);
+        $emailOrNameBasedProviderDefinition = new ChildDefinition($abstractProviderServiceId);
         $emailOrNameBasedProviderDefinition->setClass(UsernameOrEmailProvider::class);
         $container->setDefinition($providerEmailOrNameBasedServiceId, $emailOrNameBasedProviderDefinition);
+    }
+
+    private function overwriteResourceFactoryWithEncoderAwareFactory(ContainerBuilder $container, string $userType, string $encoder): void
+    {
+        $factoryServiceId = sprintf('sylius.factory.%s_user', $userType);
+
+        $factoryDefinition = new Definition(
+            UserWithEncoderFactory::class,
+            [
+                $container->getDefinition($factoryServiceId),
+                $encoder,
+            ]
+        );
+        $factoryDefinition->setPublic(true);
+
+        $container->setDefinition($factoryServiceId, $factoryDefinition);
+    }
+
+    private function registerUpdateUserEncoderListener(ContainerBuilder $container, string $userType, string $encoder, array $resourceConfig): void
+    {
+        $updateUserEncoderListenerDefinition = new Definition(UpdateUserEncoderListener::class, [
+            new Reference(sprintf('sylius.manager.%s_user', $userType)),
+            $encoder,
+            $resourceConfig['user']['classes']['model'],
+            $resourceConfig['user']['classes']['interface'],
+            '_password',
+        ]);
+        $updateUserEncoderListenerDefinition->addTag('kernel.event_listener', ['event' => SecurityEvents::INTERACTIVE_LOGIN]);
+
+        $container->setDefinition(
+            sprintf('sylius.%s_user.listener.update_user_encoder', $userType),
+            $updateUserEncoderListenerDefinition
+        );
     }
 }

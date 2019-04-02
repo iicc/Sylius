@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Domain;
 
 use Behat\Behat\Context\Context;
@@ -22,61 +24,32 @@ use Sylius\Component\Product\Resolver\ProductVariantResolverInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class ManagingOrdersContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var OrderRepositoryInterface
-     */
+    /** @var OrderRepositoryInterface */
     private $orderRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $orderItemRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $addressRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $adjustmentRepository;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $orderManager;
 
-    /**
-     * @var ProductVariantResolverInterface
-     */
+    /** @var ProductVariantResolverInterface */
     private $variantResolver;
 
-    /**
-     * @var UnpaidOrdersStateUpdaterInterface
-     */
+    /** @var UnpaidOrdersStateUpdaterInterface */
     private $unpaidOrdersStateUpdater;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param OrderRepositoryInterface $orderRepository
-     * @param RepositoryInterface $orderItemRepository
-     * @param RepositoryInterface $addressRepository
-     * @param RepositoryInterface $adjustmentRepository
-     * @param ObjectManager $orderManager
-     * @param ProductVariantResolverInterface $variantResolver
-     * @param UnpaidOrdersStateUpdaterInterface $unpaidOrdersStateUpdater
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         OrderRepositoryInterface $orderRepository,
@@ -167,7 +140,7 @@ final class ManagingOrdersContext implements Context
      */
     public function thisOrderHasNotBeenPaidForDays(OrderInterface $order, $amount, $time)
     {
-        $order->setCheckoutCompletedAt(new \DateTime('-'.$amount.' '.$time));
+        $order->setCheckoutCompletedAt(new \DateTime('-' . $amount . ' ' . $time));
         $this->orderManager->flush();
 
         $this->unpaidOrdersStateUpdater->cancel();
@@ -178,11 +151,7 @@ final class ManagingOrdersContext implements Context
      */
     public function thisOrderShouldBeAutomaticallyCancelled(OrderInterface $order)
     {
-        Assert::same(
-            OrderInterface::STATE_CANCELLED,
-            $order->getState(),
-            'Order should be cancelled, but its not.'
-        );
+        Assert::same($order->getState(), OrderInterface::STATE_CANCELLED);
     }
 
     /**
@@ -190,10 +159,6 @@ final class ManagingOrdersContext implements Context
      */
     public function thisOrderShouldNotBeCancelled(OrderInterface $order)
     {
-        Assert::notSame(
-            OrderInterface::STATE_CANCELLED,
-            $order->getState(),
-            'Order should not be cancelled, but its is.'
-        );
+        Assert::notSame($order->getState(), OrderInterface::STATE_CANCELLED);
     }
 }

@@ -9,13 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use SM\Factory\FactoryInterface as StateMachineFactoryInterface;
 use Sylius\Bundle\FixturesBundle\Fixture\AbstractFixture;
+use Sylius\Component\Core\Checker\OrderPaymentMethodSelectionRequirementCheckerInterface;
+use Sylius\Component\Core\Checker\OrderShippingMethodSelectionRequirementCheckerInterface;
 use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\OrderCheckoutTransitions;
 use Sylius\Component\Core\Repository\PaymentMethodRepositoryInterface;
 use Sylius\Component\Core\Repository\ShippingMethodRepositoryInterface;
@@ -25,90 +30,53 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class OrderFixture extends AbstractFixture
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $orderFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $orderItemFactory;
 
-    /**
-     * @var OrderItemQuantityModifierInterface
-     */
+    /** @var OrderItemQuantityModifierInterface */
     private $orderItemQuantityModifier;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $orderManager;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $channelRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $customerRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $productRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $countryRepository;
 
-    /**
-     * @var PaymentMethodRepositoryInterface
-     */
+    /** @var PaymentMethodRepositoryInterface */
     private $paymentMethodRepository;
 
-    /**
-     * @var ShippingMethodRepositoryInterface
-     */
+    /** @var ShippingMethodRepositoryInterface */
     private $shippingMethodRepository;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $addressFactory;
 
-    /**
-     * @var StateMachineFactoryInterface
-     */
+    /** @var StateMachineFactoryInterface */
     private $stateMachineFactory;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var OrderShippingMethodSelectionRequirementCheckerInterface */
+    private $orderShippingMethodSelectionRequirementChecker;
+
+    /** @var OrderPaymentMethodSelectionRequirementCheckerInterface */
+    private $orderPaymentMethodSelectionRequirementChecker;
+
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @param FactoryInterface $orderFactory
-     * @param FactoryInterface $orderItemFactory
-     * @param OrderItemQuantityModifierInterface $orderItemQuantityModifier
-     * @param ObjectManager $orderManager
-     * @param RepositoryInterface $channelRepository
-     * @param RepositoryInterface $customerRepository
-     * @param RepositoryInterface $productRepository
-     * @param RepositoryInterface $countryRepository
-     * @param PaymentMethodRepositoryInterface $paymentMethodRepository
-     * @param ShippingMethodRepositoryInterface $shippingMethodRepository
-     * @param FactoryInterface $addressFactory
-     * @param StateMachineFactoryInterface $stateMachineFactory
-     */
     public function __construct(
         FactoryInterface $orderFactory,
         FactoryInterface $orderItemFactory,
@@ -121,7 +89,9 @@ class OrderFixture extends AbstractFixture
         PaymentMethodRepositoryInterface $paymentMethodRepository,
         ShippingMethodRepositoryInterface $shippingMethodRepository,
         FactoryInterface $addressFactory,
-        StateMachineFactoryInterface $stateMachineFactory
+        StateMachineFactoryInterface $stateMachineFactory,
+        OrderShippingMethodSelectionRequirementCheckerInterface $orderShippingMethodSelectionRequirementChecker,
+        OrderPaymentMethodSelectionRequirementCheckerInterface $orderPaymentMethodSelectionRequirementChecker
     ) {
         $this->orderFactory = $orderFactory;
         $this->orderItemFactory = $orderItemFactory;
@@ -135,6 +105,8 @@ class OrderFixture extends AbstractFixture
         $this->shippingMethodRepository = $shippingMethodRepository;
         $this->addressFactory = $addressFactory;
         $this->stateMachineFactory = $stateMachineFactory;
+        $this->orderShippingMethodSelectionRequirementChecker = $orderShippingMethodSelectionRequirementChecker;
+        $this->orderPaymentMethodSelectionRequirementChecker = $orderPaymentMethodSelectionRequirementChecker;
 
         $this->faker = \Faker\Factory::create();
     }
@@ -142,13 +114,13 @@ class OrderFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    public function load(array $options)
+    public function load(array $options): void
     {
         $channels = $this->channelRepository->findAll();
         $customers = $this->customerRepository->findAll();
         $countries = $this->countryRepository->findAll();
 
-        for ($i = 0; $i < $options['amount']; $i++) {
+        for ($i = 0; $i < $options['amount']; ++$i) {
             $channel = $this->faker->randomElement($channels);
             $customer = $this->faker->randomElement($customers);
             $countryCode = $this->faker->randomElement($countries)->getCode();
@@ -156,6 +128,7 @@ class OrderFixture extends AbstractFixture
             $currencyCode = $channel->getBaseCurrency()->getCode();
             $localeCode = $this->faker->randomElement($channel->getLocales()->toArray())->getCode();
 
+            /** @var OrderInterface $order */
             $order = $this->orderFactory->createNew();
             $order->setChannel($channel);
             $order->setCustomer($customer);
@@ -182,7 +155,7 @@ class OrderFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'order';
     }
@@ -190,7 +163,7 @@ class OrderFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    protected function configureOptionsNode(ArrayNodeDefinition $optionsNode)
+    protected function configureOptionsNode(ArrayNodeDefinition $optionsNode): void
     {
         $optionsNode
             ->children()
@@ -198,38 +171,32 @@ class OrderFixture extends AbstractFixture
         ;
     }
 
-    /**
-     * @param OrderInterface $order
-     */
-    private function generateItems(OrderInterface $order)
+    private function generateItems(OrderInterface $order): void
     {
-        $numberOfItems = rand(1, 5);
+        $numberOfItems = random_int(1, 5);
         $products = $this->productRepository->findAll();
 
-        for ($i = 0; $i < $numberOfItems; $i++) {
+        for ($i = 0; $i < $numberOfItems; ++$i) {
+            /** @var OrderItemInterface $item */
             $item = $this->orderItemFactory->createNew();
 
             $product = $this->faker->randomElement($products);
             $variant = $this->faker->randomElement($product->getVariants()->toArray());
 
             $item->setVariant($variant);
-            $this->orderItemQuantityModifier->modify($item, rand(1, 5));
+            $this->orderItemQuantityModifier->modify($item, random_int(1, 5));
 
             $order->addItem($item);
         }
     }
 
-    /**
-     * @param OrderInterface $order
-     * @param string $countryCode
-     */
-    private function address(OrderInterface $order, $countryCode)
+    private function address(OrderInterface $order, string $countryCode): void
     {
         /** @var AddressInterface $address */
         $address = $this->addressFactory->createNew();
-        $address->setFirstname($this->faker->firstName);
-        $address->setLastname($this->faker->lastName);
-        $address->setStreet($this->faker->streetName);
+        $address->setFirstName($this->faker->firstName);
+        $address->setLastName($this->faker->lastName);
+        $address->setStreet($this->faker->streetAddress);
         $address->setCountryCode($countryCode);
         $address->setCity($this->faker->city);
         $address->setPostcode($this->faker->postcode);
@@ -240,10 +207,7 @@ class OrderFixture extends AbstractFixture
         $this->applyCheckoutStateTransition($order, OrderCheckoutTransitions::TRANSITION_ADDRESS);
     }
 
-    /**
-     * @param OrderInterface $order
-     */
-    private function selectShipping(OrderInterface $order)
+    private function selectShipping(OrderInterface $order): void
     {
         $shippingMethod = $this
             ->faker
@@ -255,13 +219,12 @@ class OrderFixture extends AbstractFixture
             $shipment->setMethod($shippingMethod);
         }
 
-        $this->applyCheckoutStateTransition($order, OrderCheckoutTransitions::TRANSITION_SELECT_SHIPPING);
+        if ($this->orderShippingMethodSelectionRequirementChecker->isShippingMethodSelectionRequired($order)) {
+            $this->applyCheckoutStateTransition($order, OrderCheckoutTransitions::TRANSITION_SELECT_SHIPPING);
+        }
     }
 
-    /**
-     * @param OrderInterface $order
-     */
-    private function selectPayment(OrderInterface $order)
+    private function selectPayment(OrderInterface $order): void
     {
         $paymentMethod = $this
             ->faker
@@ -273,13 +236,12 @@ class OrderFixture extends AbstractFixture
             $payment->setMethod($paymentMethod);
         }
 
-        $this->applyCheckoutStateTransition($order, OrderCheckoutTransitions::TRANSITION_SELECT_PAYMENT);
+        if ($this->orderPaymentMethodSelectionRequirementChecker->isPaymentMethodSelectionRequired($order)) {
+            $this->applyCheckoutStateTransition($order, OrderCheckoutTransitions::TRANSITION_SELECT_PAYMENT);
+        }
     }
 
-    /**
-     * @param OrderInterface $order
-     */
-    private function completeCheckout(OrderInterface $order)
+    private function completeCheckout(OrderInterface $order): void
     {
         if ($this->faker->boolean(25)) {
             $order->setNotes($this->faker->sentence);
@@ -288,11 +250,7 @@ class OrderFixture extends AbstractFixture
         $this->applyCheckoutStateTransition($order, OrderCheckoutTransitions::TRANSITION_COMPLETE);
     }
 
-    /**
-     * @param OrderInterface $order
-     * @param string $transition
-     */
-    private function applyCheckoutStateTransition(OrderInterface $order, $transition)
+    private function applyCheckoutStateTransition(OrderInterface $order, string $transition): void
     {
         $this->stateMachineFactory->get($order, OrderCheckoutTransitions::GRAPH)->apply($transition);
     }

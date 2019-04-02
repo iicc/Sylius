@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Resource\Repository;
 
 use ArrayObject;
@@ -21,24 +23,15 @@ use Sylius\Component\Resource\Repository\Exception\ExistingResourceException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 class InMemoryRepository implements RepositoryInterface
 {
-    /**
-     * @var PropertyAccessor
-     */
+    /** @var PropertyAccessor */
     protected $accessor;
 
-    /**
-     * @var ArrayObject
-     */
+    /** @var ArrayObject */
     protected $arrayObject;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $interface;
 
     /**
@@ -47,13 +40,9 @@ class InMemoryRepository implements RepositoryInterface
      * @throws \InvalidArgumentException
      * @throws UnexpectedTypeException
      */
-    public function __construct($interface)
+    public function __construct(string $interface)
     {
-        if (null === $interface) {
-            throw new \InvalidArgumentException('Resource\'s interface needs to be stated.');
-        }
-
-        if (!in_array(ResourceInterface::class, class_implements($interface))) {
+        if (!in_array(ResourceInterface::class, class_implements($interface), true)) {
             throw new UnexpectedTypeException($interface, ResourceInterface::class);
         }
 
@@ -68,7 +57,7 @@ class InMemoryRepository implements RepositoryInterface
      * @throws ExistingResourceException
      * @throws UnexpectedTypeException
      */
-    public function add(ResourceInterface $resource)
+    public function add(ResourceInterface $resource): void
     {
         if (!$resource instanceof $this->interface) {
             throw new UnexpectedTypeException($resource, $this->interface);
@@ -84,7 +73,7 @@ class InMemoryRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function remove(ResourceInterface $resource)
+    public function remove(ResourceInterface $resource): void
     {
         $newResources = array_filter($this->findAll(), function ($object) use ($resource) {
             return $object !== $resource;
@@ -98,15 +87,15 @@ class InMemoryRepository implements RepositoryInterface
      *
      * @throws UnsupportedMethodException
      */
-    public function find($id = null)
+    public function find($id)
     {
-        throw new UnsupportedMethodException('find');
+        return $this->findOneBy(['id' => $id]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function findAll()
+    public function findAll(): array
     {
         return $this->arrayObject->getArrayCopy();
     }
@@ -114,7 +103,7 @@ class InMemoryRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+    public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null): array
     {
         $results = $this->findAll();
 
@@ -126,9 +115,7 @@ class InMemoryRepository implements RepositoryInterface
             $results = $this->applyOrder($results, $orderBy);
         }
 
-        $results = array_slice($results, $offset, $limit);
-
-        return $results;
+        return array_slice($results, $offset ?? 0, $limit);
     }
 
     /**
@@ -136,7 +123,7 @@ class InMemoryRepository implements RepositoryInterface
      *
      * @throws \InvalidArgumentException
      */
-    public function findOneBy(array $criteria)
+    public function findOneBy(array $criteria): ?ResourceInterface
     {
         if (empty($criteria)) {
             throw new \InvalidArgumentException('The criteria array needs to be set.');
@@ -154,7 +141,7 @@ class InMemoryRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getClassName()
+    public function getClassName(): string
     {
         return $this->interface;
     }
@@ -162,7 +149,7 @@ class InMemoryRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createPaginator(array $criteria = [], array $sorting = [])
+    public function createPaginator(array $criteria = [], array $sorting = []): iterable
     {
         $resources = $this->findAll();
 
@@ -174,19 +161,15 @@ class InMemoryRepository implements RepositoryInterface
             $resources = $this->applyCriteria($resources, $criteria);
         }
 
-        $adapter = new ArrayAdapter($resources);
-        $pagerfanta = new Pagerfanta($adapter);
-
-        return $pagerfanta;
+        return new Pagerfanta(new ArrayAdapter($resources));
     }
 
     /**
      * @param ResourceInterface[] $resources
-     * @param array               $criteria
      *
      * @return ResourceInterface[]|array
      */
-    private function applyCriteria(array $resources, array $criteria)
+    private function applyCriteria(array $resources, array $criteria): array
     {
         foreach ($this->arrayObject as $object) {
             foreach ($criteria as $criterion => $value) {
@@ -202,11 +185,10 @@ class InMemoryRepository implements RepositoryInterface
 
     /**
      * @param ResourceInterface[] $resources
-     * @param array               $orderBy
      *
      * @return ResourceInterface[]
      */
-    private function applyOrder(array $resources, array $orderBy)
+    private function applyOrder(array $resources, array $orderBy): array
     {
         $results = $resources;
 

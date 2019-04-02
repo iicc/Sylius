@@ -9,43 +9,31 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Resolver;
 
 use Sylius\Component\Addressing\Matcher\ZoneMatcherInterface;
-use Sylius\Component\Core\Model\Scope;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\Scope;
 use Sylius\Component\Core\Model\ShipmentInterface;
+use Sylius\Component\Core\Repository\ShippingMethodRepositoryInterface;
 use Sylius\Component\Shipping\Checker\ShippingMethodEligibilityCheckerInterface;
 use Sylius\Component\Shipping\Model\ShippingSubjectInterface;
-use Sylius\Component\Core\Repository\ShippingMethodRepositoryInterface;
 use Sylius\Component\Shipping\Resolver\ShippingMethodsResolverInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 class ZoneAndChannelBasedShippingMethodsResolver implements ShippingMethodsResolverInterface
 {
-    /**
-     * @var ShippingMethodRepositoryInterface
-     */
+    /** @var ShippingMethodRepositoryInterface */
     private $shippingMethodRepository;
 
-    /**
-     * @var ZoneMatcherInterface
-     */
+    /** @var ZoneMatcherInterface */
     private $zoneMatcher;
 
-    /**
-     * @var ShippingMethodEligibilityCheckerInterface
-     */
+    /** @var ShippingMethodEligibilityCheckerInterface */
     private $eligibilityChecker;
 
-    /**
-     * @param ShippingMethodRepositoryInterface $shippingMethodRepository
-     * @param ZoneMatcherInterface $zoneMatcher
-     * @param ShippingMethodEligibilityCheckerInterface $eligibilityChecker
-     */
     public function __construct(
         ShippingMethodRepositoryInterface $shippingMethodRepository,
         ZoneMatcherInterface $zoneMatcher,
@@ -58,11 +46,15 @@ class ZoneAndChannelBasedShippingMethodsResolver implements ShippingMethodsResol
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \InvalidArgumentException
      */
-    public function getSupportedMethods(ShippingSubjectInterface $subject)
+    public function getSupportedMethods(ShippingSubjectInterface $subject): array
     {
         /** @var ShipmentInterface $subject */
+        Assert::isInstanceOf($subject, ShipmentInterface::class);
         Assert::true($this->supports($subject));
+
         /** @var OrderInterface $order */
         $order = $subject->getOrder();
 
@@ -86,7 +78,7 @@ class ZoneAndChannelBasedShippingMethodsResolver implements ShippingMethodsResol
     /**
      * {@inheritdoc}
      */
-    public function supports(ShippingSubjectInterface $subject)
+    public function supports(ShippingSubjectInterface $subject): bool
     {
         return $subject instanceof ShipmentInterface &&
             null !== $subject->getOrder() &&

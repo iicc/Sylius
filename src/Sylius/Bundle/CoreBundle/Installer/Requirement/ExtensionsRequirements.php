@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Installer\Requirement;
 
 use ReflectionExtension;
@@ -59,7 +61,7 @@ final class ExtensionsRequirements extends RequirementCollection
             ))
             ->add(new Requirement(
                 $translator->trans('sylius.installer.extensions.pcre', []),
-                defined('PCRE_VERSION') ? ((float) PCRE_VERSION) > 8.0 : false,
+                defined('PCRE_VERSION') ? ((float) substr(\PCRE_VERSION, 0, strpos(\PCRE_VERSION, ' '))) > 8.0 : false,
                 true,
                 $translator->trans('sylius.installer.extensions.help', ['%extension%' => 'PCRE (>=8.0)'])
             ))
@@ -121,7 +123,7 @@ final class ExtensionsRequirements extends RequirementCollection
 
         if (extension_loaded('intl')) {
             if (defined('INTL_ICU_VERSION')) {
-                $version = INTL_ICU_VERSION;
+                $version = \INTL_ICU_VERSION;
             } else {
                 $reflector = new ReflectionExtension('intl');
 

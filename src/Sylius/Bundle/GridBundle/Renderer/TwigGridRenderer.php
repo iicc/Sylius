@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\GridBundle\Renderer;
 
 use Sylius\Bundle\GridBundle\Form\Registry\FormTypeRegistryInterface;
@@ -23,61 +25,35 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class TwigGridRenderer implements GridRendererInterface
 {
-    /**
-     * @var \Twig_Environment
-     */
+    /** @var \Twig_Environment */
     private $twig;
 
-    /**
-     * @var ServiceRegistryInterface
-     */
+    /** @var ServiceRegistryInterface */
     private $fieldsRegistry;
 
-    /**
-     * @var FormFactoryInterface
-     */
+    /** @var FormFactoryInterface */
     private $formFactory;
 
-    /**
-     * @var FormTypeRegistryInterface
-     */
+    /** @var FormTypeRegistryInterface */
     private $formTypeRegistry;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $defaultTemplate;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $actionTemplates;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $filterTemplates;
 
-    /**
-     * @param \Twig_Environment $twig
-     * @param ServiceRegistryInterface $fieldsRegistry
-     * @param FormFactoryInterface $formFactory
-     * @param FormTypeRegistryInterface $formTypeRegistry
-     * @param string $defaultTemplate
-     * @param array $actionTemplates
-     * @param array $filterTemplates
-     */
     public function __construct(
         \Twig_Environment $twig,
         ServiceRegistryInterface $fieldsRegistry,
         FormFactoryInterface $formFactory,
         FormTypeRegistryInterface $formTypeRegistry,
-        $defaultTemplate,
+        string $defaultTemplate,
         array $actionTemplates = [],
         array $filterTemplates = []
     ) {
@@ -93,7 +69,7 @@ final class TwigGridRenderer implements GridRendererInterface
     /**
      * {@inheritdoc}
      */
-    public function render(GridViewInterface $gridView, $template = null)
+    public function render(GridViewInterface $gridView, ?string $template = null)
     {
         return $this->twig->render($template ?: $this->defaultTemplate, ['grid' => $gridView]);
     }
@@ -137,8 +113,9 @@ final class TwigGridRenderer implements GridRendererInterface
         $template = $this->getFilterTemplate($filter);
 
         $form = $this->formFactory->createNamed('criteria', FormType::class, [], [
+            'allow_extra_fields' => true,
             'csrf_protection' => false,
-            'required' => false
+            'required' => false,
         ]);
         $form->add(
             $filter->getName(),
@@ -157,13 +134,9 @@ final class TwigGridRenderer implements GridRendererInterface
     }
 
     /**
-     * @param Filter $filter
-     *
-     * @return string
-     *
      * @throws \InvalidArgumentException
      */
-    private function getFilterTemplate(Filter $filter)
+    private function getFilterTemplate(Filter $filter): string
     {
         $template = $filter->getTemplate();
         if (null !== $template) {

@@ -9,33 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\GridBundle\Form\Registry;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 interface FormTypeRegistryInterface
 {
-    /**
-     * @param string $identifier
-     * @param string $typeIdentifier
-     * @param string $formType
-     */
-    public function add($identifier, $typeIdentifier, $formType);
+    public function add(string $identifier, string $typeIdentifier, string $formType): void;
 
-    /**
-     * @param string $identifier
-     * @param string $typeIdentifier
-     *
-     * @return string
-     */
-    public function get($identifier, $typeIdentifier);
+    public function get(string $identifier, string $typeIdentifier): ?string;
 
-    /**
-     * @param string $identifier
-     * @param string $typeIdentifier
-     *
-     * @return bool
-     */
-    public function has($identifier, $typeIdentifier);
+    public function has(string $identifier, string $typeIdentifier): bool;
 }

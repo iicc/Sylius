@@ -9,63 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Country;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
-    public function enable();
-    public function disable();
+    public function enable(): void;
 
-    /**
-     * @return bool
-     */
-    public function isCodeFieldDisabled();
+    public function disable(): void;
 
-    /**
-     * @param string $provinceName
-     *
-     * @return bool
-     */
-    public function isThereProvince($provinceName);
+    public function isCodeFieldDisabled(): bool;
 
-    /**
-     * @param string $provinceCode
-     *
-     * @return bool
-     */
-    public function isThereProvinceWithCode($provinceCode);
+    public function isThereProvince(string $provinceName): bool;
 
-    /**
-     * @param string $name
-     * @param string $code
-     * @param string|null $abbreviation
-     */
-    public function addProvince($name, $code, $abbreviation = null);
+    public function isThereProvinceWithCode(string $provinceCode): bool;
 
-    /**
-     * @param string $provinceName
-     */
-    public function removeProvince($provinceName);
+    public function addProvince(string $name, string $code, string $abbreviation = null): void;
 
-    public function clickAddProvinceButton();
+    public function removeProvince(string $provinceName): void;
 
-    /**
-     * @param string $provinceName
-     */
-    public function nameProvince($provinceName);
+    public function clickAddProvinceButton(): void;
 
-    /**
-     * @param string $provinceName
-     */
-    public function removeProvinceName($provinceName);
+    public function nameProvince(string $provinceName): void;
 
-    /**
-     * @param string $provinceCode
-     */
-    public function specifyProvinceCode($provinceCode);
+    public function removeProvinceName(string $provinceName): void;
+
+    public function specifyProvinceCode(string $provinceCode): void;
 }

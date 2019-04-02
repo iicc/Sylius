@@ -9,19 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Channel;
 
 use Sylius\Behat\Page\Admin\Crud\IndexPageInterface as BaseIndexPageInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface IndexPageInterface extends BaseIndexPageInterface
 {
-    /**
-     * @param string $channelCode
-     *
-     * @return string|null
-     */
-    public function getUsedThemeName($channelCode);
+    public function getUsedThemeName(string $channelCode): ?string;
 }

@@ -9,13 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class ResourcesResolver implements ResourcesResolverInterface
 {
     /**
@@ -23,11 +22,16 @@ final class ResourcesResolver implements ResourcesResolverInterface
      */
     public function getResources(RequestConfiguration $requestConfiguration, RepositoryInterface $repository)
     {
-        $repositoryMethod = $requestConfiguration->getRepositoryMethod();
-        if (null !== $repositoryMethod) {
+        $method = $requestConfiguration->getRepositoryMethod();
+        if (null !== $method) {
+            if (is_array($method) && 2 === count($method)) {
+                $repository = $method[0];
+                $method = $method[1];
+            }
+
             $arguments = array_values($requestConfiguration->getRepositoryArguments());
 
-            return $repository->$repositoryMethod(...$arguments);
+            return $repository->$method(...$arguments);
         }
 
         $criteria = [];

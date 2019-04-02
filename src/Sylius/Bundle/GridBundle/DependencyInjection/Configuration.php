@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\GridBundle\DependencyInjection;
 
 use Sylius\Bundle\GridBundle\Doctrine\ORM\Driver as DoctrineORMDriver;
@@ -17,18 +19,21 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class Configuration implements ConfigurationInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('sylius_grid');
+        if (method_exists(TreeBuilder::class, 'getRootNode')) {
+            $treeBuilder = new TreeBuilder('sylius_grid');
+            $rootNode = $treeBuilder->getRootNode();
+        } else {
+            // BC layer for symfony/config 4.1 and older
+            $treeBuilder = new TreeBuilder();
+            $rootNode = $treeBuilder->root('sylius_grid');
+        }
 
         $this->addDriversSection($rootNode);
         $this->addTemplatesSection($rootNode);
@@ -37,25 +42,19 @@ final class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
-    private function addDriversSection(ArrayNodeDefinition $node)
+    private function addDriversSection(ArrayNodeDefinition $node): void
     {
         $node
             ->children()
                 ->arrayNode('drivers')
                     ->defaultValue([SyliusGridBundle::DRIVER_DOCTRINE_ORM])
-                    ->prototype('enum')->values(SyliusGridBundle::getAvailableDrivers())->end()
+                    ->enumPrototype()->values(SyliusGridBundle::getAvailableDrivers())->end()
                 ->end()
             ->end()
         ;
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
-    private function addTemplatesSection(ArrayNodeDefinition $node)
+    private function addTemplatesSection(ArrayNodeDefinition $node): void
     {
         $node
             ->children()
@@ -64,11 +63,15 @@ final class Configuration implements ConfigurationInterface
                     ->children()
                         ->arrayNode('filter')
                             ->useAttributeAsKey('name')
-                            ->prototype('scalar')->end()
+                            ->scalarPrototype()->end()
                         ->end()
                         ->arrayNode('action')
                             ->useAttributeAsKey('name')
-                            ->prototype('scalar')->end()
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->arrayNode('bulk_action')
+                            ->useAttributeAsKey('name')
+                            ->scalarPrototype()->end()
                         ->end()
                     ->end()
                 ->end()
@@ -76,16 +79,13 @@ final class Configuration implements ConfigurationInterface
         ;
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
-    private function addGridsSection(ArrayNodeDefinition $node)
+    private function addGridsSection(ArrayNodeDefinition $node): void
     {
         $node
             ->children()
                 ->arrayNode('grids')
                     ->useAttributeAsKey('code')
-                    ->prototype('array')
+                    ->arrayPrototype()
                         ->children()
                             ->scalarNode('extends')->cannotBeEmpty()->end()
                             ->arrayNode('driver')
@@ -93,7 +93,8 @@ final class Configuration implements ConfigurationInterface
                                 ->children()
                                     ->scalarNode('name')->cannotBeEmpty()->defaultValue(DoctrineORMDriver::NAME)->end()
                                     ->arrayNode('options')
-                                        ->prototype('variable')->end()
+                                        ->performNoDeepMerging()
+                                        ->variablePrototype()->end()
                                         ->defaultValue([])
                                     ->end()
                                 ->end()
@@ -101,11 +102,16 @@ final class Configuration implements ConfigurationInterface
                             ->arrayNode('sorting')
                                 ->performNoDeepMerging()
                                 ->useAttributeAsKey('name')
-                                ->prototype('enum')->values(['asc', 'desc'])->cannotBeEmpty()->end()
+                                ->enumPrototype()->values(['asc', 'desc'])->cannotBeEmpty()->end()
+                            ->end()
+                            ->arrayNode('limits')
+                                ->performNoDeepMerging()
+                                ->integerPrototype()->end()
+                                ->defaultValue([10, 25, 50])
                             ->end()
                             ->arrayNode('fields')
                                 ->useAttributeAsKey('name')
-                                ->prototype('array')
+                                ->arrayPrototype()
                                     ->children()
                                         ->scalarNode('type')->isRequired()->cannotBeEmpty()->end()
                                         ->scalarNode('label')->cannotBeEmpty()->end()
@@ -114,14 +120,15 @@ final class Configuration implements ConfigurationInterface
                                         ->scalarNode('enabled')->defaultTrue()->end()
                                         ->scalarNode('position')->defaultValue(100)->end()
                                         ->arrayNode('options')
-                                            ->prototype('variable')->end()
+                                            ->performNoDeepMerging()
+                                            ->variablePrototype()->end()
                                         ->end()
                                     ->end()
                                 ->end()
                             ->end()
                             ->arrayNode('filters')
                                 ->useAttributeAsKey('name')
-                                ->prototype('array')
+                                ->arrayPrototype()
                                     ->children()
                                         ->scalarNode('type')->isRequired()->cannotBeEmpty()->end()
                                         ->scalarNode('label')->cannotBeEmpty()->end()
@@ -129,10 +136,12 @@ final class Configuration implements ConfigurationInterface
                                         ->scalarNode('template')->end()
                                         ->scalarNode('position')->defaultValue(100)->end()
                                         ->arrayNode('options')
-                                            ->prototype('variable')->end()
+                                            ->performNoDeepMerging()
+                                            ->variablePrototype()->end()
                                         ->end()
                                         ->arrayNode('form_options')
-                                            ->prototype('variable')->end()
+                                            ->performNoDeepMerging()
+                                            ->variablePrototype()->end()
                                         ->end()
                                         ->variableNode('default_value')->end()
                                     ->end()
@@ -140,9 +149,9 @@ final class Configuration implements ConfigurationInterface
                             ->end()
                             ->arrayNode('actions')
                                 ->useAttributeAsKey('name')
-                                ->prototype('array')
+                                ->arrayPrototype()
                                     ->useAttributeAsKey('name')
-                                    ->prototype('array')
+                                    ->arrayPrototype()
                                         ->children()
                                             ->scalarNode('type')->isRequired()->end()
                                             ->scalarNode('label')->end()
@@ -150,7 +159,8 @@ final class Configuration implements ConfigurationInterface
                                             ->scalarNode('icon')->end()
                                             ->scalarNode('position')->defaultValue(100)->end()
                                             ->arrayNode('options')
-                                                ->prototype('variable')->end()
+                                                ->performNoDeepMerging()
+                                                ->variablePrototype()->end()
                                             ->end()
                                         ->end()
                                     ->end()

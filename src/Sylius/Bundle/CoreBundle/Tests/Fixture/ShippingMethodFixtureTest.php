@@ -9,24 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Tests\Fixture;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Matthias\SymfonyConfigTest\PhpUnit\ConfigurationTestCaseTrait;
+use PHPUnit\Framework\TestCase;
 use Sylius\Bundle\CoreBundle\Fixture\Factory\ExampleFactoryInterface;
 use Sylius\Bundle\CoreBundle\Fixture\ShippingMethodFixture;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
-final class ShippingMethodFixtureTest extends \PHPUnit_Framework_TestCase
+final class ShippingMethodFixtureTest extends TestCase
 {
     use ConfigurationTestCaseTrait;
 
     /**
      * @test
      */
-    public function shipping_methods_are_optional()
+    public function shipping_methods_are_optional(): void
     {
         $this->assertConfigurationIsValid([[]], 'custom');
     }
@@ -34,7 +34,7 @@ final class ShippingMethodFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shipping_methods_can_be_generated_randomly()
+    public function shipping_methods_can_be_generated_randomly(): void
     {
         $this->assertConfigurationIsValid([['random' => 4]], 'random');
         $this->assertPartialConfigurationIsInvalid([['random' => -1]], 'random');
@@ -43,7 +43,7 @@ final class ShippingMethodFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shipping_method_code_is_optional()
+    public function shipping_method_code_is_optional(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['code' => 'CUSTOM']]]], 'custom.*.code');
     }
@@ -51,7 +51,7 @@ final class ShippingMethodFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shipping_method_may_be_toggled()
+    public function shipping_method_may_be_toggled(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['enabled' => false]]]], 'custom.*.enabled');
     }
@@ -59,7 +59,7 @@ final class ShippingMethodFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shipping_method_zone_code_is_optional()
+    public function shipping_method_zone_code_is_optional(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['zone' => 'EUROPE']]]], 'custom.*.zone');
     }
@@ -67,7 +67,7 @@ final class ShippingMethodFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shipping_method_category_code_is_optional()
+    public function shipping_method_category_code_is_optional(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['category' => 'BOOKS']]]], 'custom.*.category');
     }
@@ -75,7 +75,7 @@ final class ShippingMethodFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shipping_method_calculator_configuration_is_optional()
+    public function shipping_method_calculator_configuration_is_optional(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['calculator' => [
             'type' => 'flat_rate',
@@ -86,7 +86,7 @@ final class ShippingMethodFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shipping_method_calculator_must_define_its_type()
+    public function shipping_method_calculator_must_define_its_type(): void
     {
         $this->assertPartialConfigurationIsInvalid([['custom' => [['calculator' => null]]]], 'custom.*.calculator');
         $this->assertPartialConfigurationIsInvalid([['custom' => [['calculator' => []]]]], 'custom.*.calculator');
@@ -96,9 +96,17 @@ final class ShippingMethodFixtureTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @test
+     */
+    public function shipping_method_tax_category(): void
+    {
+        $this->assertConfigurationIsValid([['custom' => [['tax_category' => 'BOOKS']]]], 'custom.*.tax_category');
+    }
+
+    /**
      * {@inheritdoc}
      */
-    protected function getConfiguration()
+    protected function getConfiguration(): ShippingMethodFixture
     {
         return new ShippingMethodFixture(
             $this->getMockBuilder(ObjectManager::class)->getMock(),

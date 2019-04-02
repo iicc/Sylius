@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture;
 
 use Doctrine\Common\Persistence\ObjectManager;
@@ -17,29 +19,18 @@ use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 class LocaleFixture extends AbstractFixture
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $localeFactory;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $localeManager;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $baseLocaleCode;
 
     /**
-     * @param FactoryInterface $localeFactory
-     * @param ObjectManager $localeManager
      * @param string $baseLocaleCode
      */
     public function __construct(FactoryInterface $localeFactory, ObjectManager $localeManager, $baseLocaleCode)
@@ -52,16 +43,15 @@ class LocaleFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    public function load(array $options)
+    public function load(array $options): void
     {
-        $localesCodes = array_merge([$this->baseLocaleCode => true], $options['locales']);
+        $localesCodes = array_merge([$this->baseLocaleCode], $options['locales']);
 
-        foreach ($localesCodes as $localeCode => $enabled) {
+        foreach ($localesCodes as $localeCode) {
             /** @var LocaleInterface $locale */
             $locale = $this->localeFactory->createNew();
 
             $locale->setCode($localeCode);
-            $locale->setEnabled($enabled);
 
             $this->localeManager->persist($locale);
         }
@@ -72,7 +62,7 @@ class LocaleFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'locale';
     }
@@ -80,14 +70,12 @@ class LocaleFixture extends AbstractFixture
     /**
      * {@inheritdoc}
      */
-    protected function configureOptionsNode(ArrayNodeDefinition $optionsNode)
+    protected function configureOptionsNode(ArrayNodeDefinition $optionsNode): void
     {
         $optionsNode
             ->children()
                 ->arrayNode('locales')
-                    ->useAttributeAsKey('code')
-                    ->prototype('boolean')
-                        ->defaultTrue()
+                    ->scalarPrototype()
         ;
     }
 }

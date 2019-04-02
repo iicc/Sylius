@@ -18,26 +18,39 @@
         "items": [
             {
                 "id": @integer@,
-                "code": "en",
-                "enabled": true
+                "code": "en_US",
+                "_links": {
+                    "self": {
+                        "href": "\/api\/v1\/locales\/en_US"
+                    }
+                }
             },
             {
-
                 "id": @integer@,
-                "code": "nl",
-                "enabled": true
+                "code": "nl_NL",
+                "_links": {
+                    "self": {
+                        "href": "\/api\/v1\/locales\/nl_NL"
+                    }
+                }
             },
             {
-
                 "id": @integer@,
-                "code": "fr",
-                "enabled": true
+                "code": "fr_FR",
+                "_links": {
+                    "self": {
+                        "href": "\/api\/v1\/locales\/fr_FR"
+                    }
+                }
             },
             {
-
                 "id": @integer@,
-                "code": "de",
-                "enabled": false
+                "code": "de_CH",
+                "_links": {
+                    "self": {
+                        "href": "\/api\/v1\/locales\/de_CH"
+                    }
+                }
             }
         ]
     }

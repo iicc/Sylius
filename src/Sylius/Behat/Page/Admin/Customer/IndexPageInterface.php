@@ -9,20 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Customer;
 
 use Sylius\Behat\Page\Admin\Crud\IndexPageInterface as BaseIndexPageInterface;
 use Sylius\Component\Customer\Model\CustomerInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface IndexPageInterface extends BaseIndexPageInterface
 {
-    /**
-     * @param CustomerInterface $customer
-     *
-     * @return string
-     */
-    public function getCustomerAccountStatus($customer);
+    public function getCustomerAccountStatus(CustomerInterface $customer): string;
 }

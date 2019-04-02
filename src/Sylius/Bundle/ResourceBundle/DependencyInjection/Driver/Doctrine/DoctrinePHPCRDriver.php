@@ -9,42 +9,35 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection\Driver\Doctrine;
 
 use Sylius\Bundle\ResourceBundle\Doctrine\ODM\PHPCR\EventListener\DefaultParentListener;
 use Sylius\Bundle\ResourceBundle\Doctrine\ODM\PHPCR\EventListener\NameFilterListener;
 use Sylius\Bundle\ResourceBundle\Doctrine\ODM\PHPCR\EventListener\NameResolverListener;
-use Sylius\Bundle\ResourceBundle\Doctrine\ODM\PHPCR\Form\Builder\DefaultFormBuilder;
-use Sylius\Bundle\ResourceBundle\Form\Type\DefaultResourceType;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Sylius\Component\Resource\Metadata\MetadataInterface;
-use Sylius\Component\Resource\Repository\TranslatableRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Arnaud Langlade <aRn0D.dev@gmail.com>
- */
+@trigger_error(sprintf('The "%s" class is deprecated since Sylius 1.3. Doctrine MongoDB and PHPCR support will no longer be supported in Sylius 2.0.', DoctrinePHPCRDriver::class), \E_USER_DEPRECATED);
+
 final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
 {
     /**
      * {@inheritdoc}
      */
-    public function load(ContainerBuilder $container, MetadataInterface $metadata)
+    public function load(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         parent::load($container, $metadata);
         $this->addResourceListeners($container, $metadata);
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param MetadataInterface $metadata
-     */
-    protected function addResourceListeners(ContainerBuilder $container, MetadataInterface $metadata)
+    protected function addResourceListeners(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         $defaultOptions = [
                 // if no parent is given default to the parent path given here.
@@ -86,11 +79,11 @@ final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
                 new Reference($metadata->getServiceId('manager')),
                 $options['parent_path_default'],
                 $options['parent_path_autocreate'],
-                $options['parent_path_force']
+                $options['parent_path_force'],
             ]);
             $defaultPath->addTag('kernel.event_listener', [
                 'event' => $createEventName,
-                'method' => 'onPreCreate'
+                'method' => 'onPreCreate',
             ]);
 
             $container->setDefinition(
@@ -106,15 +99,15 @@ final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
         if ($options['name_filter']) {
             $nameFilter = new Definition(NameFilterListener::class);
             $nameFilter->setArguments([
-                new Reference($metadata->getServiceId('manager'))
+                new Reference($metadata->getServiceId('manager')),
             ]);
             $nameFilter->addTag('kernel.event_listener', [
                 'event' => $createEventName,
-                'method' => 'onEvent'
+                'method' => 'onEvent',
             ]);
             $nameFilter->addTag('kernel.event_listener', [
                 'event' => $updateEventName,
-                'method' => 'onEvent'
+                'method' => 'onEvent',
             ]);
 
             $container->setDefinition(
@@ -130,15 +123,15 @@ final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
         if ($options['name_resolver']) {
             $nameResolver = new Definition(NameResolverListener::class);
             $nameResolver->setArguments([
-                new Reference($metadata->getServiceId('manager'))
+                new Reference($metadata->getServiceId('manager')),
             ]);
             $nameResolver->addTag('kernel.event_listener', [
                 'event' => $createEventName,
-                'method' => 'onEvent'
+                'method' => 'onEvent',
             ]);
             $nameResolver->addTag('kernel.event_listener', [
                 'event' => $updateEventName,
-                'method' => 'onEvent'
+                'method' => 'onEvent',
             ]);
 
             $container->setDefinition(
@@ -155,7 +148,7 @@ final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
     /**
      * {@inheritdoc}
      */
-    public function getType()
+    public function getType(): string
     {
         return SyliusResourceBundle::DRIVER_DOCTRINE_PHPCR_ODM;
     }
@@ -163,7 +156,7 @@ final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
     /**
      * {@inheritdoc}
      */
-    protected function addRepository(ContainerBuilder $container, MetadataInterface $metadata)
+    protected function addRepository(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         $repositoryClass = new Parameter('sylius.phpcr_odm.repository.class');
 
@@ -183,7 +176,7 @@ final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
     /**
      * {@inheritdoc}
      */
-    protected function getManagerServiceId(MetadataInterface $metadata)
+    protected function getManagerServiceId(MetadataInterface $metadata): string
     {
         if ($objectManagerName = $this->getObjectManagerName($metadata)) {
             return sprintf('doctrine_phpcr.odm.%s_document_manager', $objectManagerName);
@@ -195,7 +188,7 @@ final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
     /**
      * {@inheritdoc}
      */
-    protected function getClassMetadataClassname()
+    protected function getClassMetadataClassname(): string
     {
         return 'Doctrine\\ODM\\PHPCR\\Mapping\\ClassMetadata';
     }

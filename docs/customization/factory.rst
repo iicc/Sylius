@@ -12,8 +12,8 @@ Why would you customize a Factory?
 Differently configured versions of resources may be needed in various scenarios in your application.
 You may need for instance to:
 
-    * create Product with Supplier(which is your own custom entity)
-    * create a disabled Product(for further modifications)
+    * create a Product with a Supplier (which is your own custom entity)
+    * create a disabled Product (for further modifications)
     * create a ProductReview with predefined description
 
 and many, many more.
@@ -23,32 +23,31 @@ How to customize a Factory?
 
 Let's assume that you would want to have a possibility to create disabled products.
 
-1. Create your own factory class in the ``AppBundle\Factory`` namespace.
-Remember that it has to implement a proper interaface. How can you check that?
+**1.** Create your own factory class in the ``App\Factory`` namespace.
+Remember that it has to implement a proper interface. How can you check that?
 
 For the ``ProductFactory`` run:
 
 .. code-block:: bash
 
-    $ php bin/console sylius:debug:resource sylius.product
+    $ php bin/console debug:container sylius.factory.product
 
-As a result you will get a table od Product related classes. Check the ``classes.factory`` row
-where you will find the ``Sylius\Component\Product\Factory\ProductFactory`` - this is the class that you need to decorate.
+As a result you will get the ``Sylius\Component\Product\Factory\ProductFactory`` - this is the class that you need to decorate.
 Take its interface (``Sylius\Component\Product\Factory\ProductFactoryInterface``) and implement it.
 
 .. code-block:: php
 
     <?php
 
-    namespace AppBundle\Factory;
+    namespace App\Factory;
 
-    use Sylius\Component\Core\Model\ProductInterface;
+    use Sylius\Component\Product\Model\ProductInterface;
     use Sylius\Component\Product\Factory\ProductFactoryInterface;
 
     class ProductFactory implements ProductFactoryInterface
     {
         /**
-         * @var FactoryInterface
+         * @var ProductFactoryInterface
          */
         private $decoratedFactory;
 
@@ -63,7 +62,7 @@ Take its interface (``Sylius\Component\Product\Factory\ProductFactoryInterface``
         /**
          * {@inheritdoc}
          */
-        public function createNew()
+        public function createNew(): ProductInterface
         {
             return $this->decoratedFactory->createNew();
         }
@@ -71,7 +70,7 @@ Take its interface (``Sylius\Component\Product\Factory\ProductFactoryInterface``
         /**
          * {@inheritdoc}
          */
-        public function createWithVariant()
+        public function createWithVariant(): ProductInterface
         {
             return $this->decoratedFactory->createWithVariant();
         }
@@ -79,10 +78,10 @@ Take its interface (``Sylius\Component\Product\Factory\ProductFactoryInterface``
         /**
          * @return ProductInterface
          */
-        public function createDisabled()
+        public function createDisabled(): ProductInterface
         {
             /** @var ProductInterface $product */
-            $product = $this->decoratedFactory->createNew();
+            $product = $this->decoratedFactory->createWithVariant();
 
             $product->setEnabled(false);
 
@@ -90,24 +89,26 @@ Take its interface (``Sylius\Component\Product\Factory\ProductFactoryInterface``
         }
     }
 
-2. In order to decorate the base ProductFactory with your implementation you need to configure it
-as a decorating service in the ``app\Resources\config\services.yml``.
+**2.** In order to decorate the base ProductFactory with your implementation you need to configure it
+as a decorating service in the ``config/services.yaml``.
 
 .. code-block:: yaml
 
     services:
         app.factory.product:
-            class: AppBundle\Factory\ProductFactory
+            class: App\Factory\ProductFactory
             decorates: sylius.factory.product
             arguments: ['@app.factory.product.inner']
             public: false
 
-3.You can use the new method of factory in routing.
+**3.** You can use the new method of the factory in routing.
 
 After the ``sylius.factory.product`` has been decorated it has got the new ``createDisabled()`` method.
+To actually use it overwrite ``sylius_admin_product_create_simple`` route like below in ``config/routes.yaml``:
 
 .. code-block:: yaml
 
+    # config/routes.yaml
     sylius_admin_product_create_simple:
         path: /products/new/simple
         methods: [GET, POST]
@@ -126,7 +127,9 @@ After the ``sylius.factory.product`` has been decorated it has got the new ``cre
                     route:
                         name: sylius_admin_product_create_simple
 
+.. include:: /customization/plugins.rst.inc
+
 Learn more
 ----------
 
-* :doc:`SyliusResourceBundle creating resources </bundles/SyliusResourceBundle/create_resource>`
+* :doc:`SyliusResourceBundle creating resources </components_and_bundles/bundles/SyliusResourceBundle/create_resource>`

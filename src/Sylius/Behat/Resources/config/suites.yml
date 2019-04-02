@@ -2,7 +2,11 @@
 # (c) Paweł Jędrzejewski
 
 imports:
+    - suites/api/taxon/managing_taxons.yml
+    - suites/api/product/managing_product_variants.yml
+
     - suites/cli/installer.yml
+    - suites/cli/showing_available_plugins.yml
 
     - suites/domain/cart/shopping_cart.yml
     - suites/domain/order/managing_orders.yml
@@ -58,6 +62,7 @@ imports:
     - suites/ui/promotion/managing_promotions.yml
     - suites/ui/promotion/receiving_discount.yml
     - suites/ui/shipping/applying_shipping_fee.yml
+    - suites/ui/shipping/managing_shipments.yml
     - suites/ui/shipping/managing_shipping_categories.yml
     - suites/ui/shipping/managing_shipping_methods.yml
     - suites/ui/taxation/applying_taxes.yml

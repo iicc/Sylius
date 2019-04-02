@@ -9,22 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Service\Accessor;
 
-use Sylius\Behat\NotificationType;
+use Behat\Mink\Element\NodeElement;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface NotificationAccessorInterface
 {
     /**
-     * @return string
+     * @return array|NodeElement[]
      */
-    public function getMessage();
-
-    /**
-     * @return NotificationType
-     */
-    public function getType();
+    public function getMessageElements(): array;
 }

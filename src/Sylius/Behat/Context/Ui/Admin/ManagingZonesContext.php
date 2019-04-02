@@ -9,9 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\NotificationType;
 use Sylius\Behat\Page\Admin\Crud\IndexPageInterface;
 use Sylius\Behat\Page\Admin\Zone\CreatePageInterface;
@@ -22,43 +25,23 @@ use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Addressing\Model\ZoneMemberInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class ManagingZonesContext implements Context
 {
-    /**
-     * @var CreatePageInterface
-     */
+    /** @var CreatePageInterface */
     private $createPage;
 
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $updatePage;
 
-    /**
-     * @var CurrentPageResolverInterface
-     */
+    /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
-    /**
-     * @var NotificationCheckerInterface
-     */
+    /** @var NotificationCheckerInterface */
     private $notificationChecker;
 
-    /**
-     * @param CreatePageInterface $createPage
-     * @param IndexPageInterface $indexPage
-     * @param UpdatePageInterface $updatePage
-     * @param CurrentPageResolverInterface $currentPageResolver
-     * @param NotificationCheckerInterface $notificationChecker
-     */
     public function __construct(
         CreatePageInterface $createPage,
         IndexPageInterface $indexPage,
@@ -82,6 +65,7 @@ final class ManagingZonesContext implements Context
     }
 
     /**
+     * @When I browse zones
      * @When I want to see all zones in store
      */
     public function iWantToSeeAllZonesInStore()
@@ -119,7 +103,7 @@ final class ManagingZonesContext implements Context
      */
     public function iRenameItTo($name)
     {
-        $this->updatePage->nameIt($name);
+        $this->updatePage->nameIt($name ?? '');
     }
 
     /**
@@ -127,7 +111,7 @@ final class ManagingZonesContext implements Context
      */
     public function iNameIt($name)
     {
-        $this->createPage->nameIt($name);
+        $this->createPage->nameIt($name ?? '');
     }
 
     /**
@@ -135,7 +119,7 @@ final class ManagingZonesContext implements Context
      */
     public function iSpecifyItsCodeAs($code)
     {
-        $this->createPage->specifyCode($code);
+        $this->createPage->specifyCode($code ?? '');
     }
 
     /**
@@ -197,6 +181,22 @@ final class ManagingZonesContext implements Context
     }
 
     /**
+     * @When I check (also) the :zoneName zone
+     */
+    public function iCheckTheZone(string $zoneName): void
+    {
+        $this->indexPage->checkResourceOnPage(['name' => $zoneName]);
+    }
+
+    /**
+     * @When I delete them
+     */
+    public function iDeleteThem(): void
+    {
+        $this->indexPage->bulkDelete();
+    }
+
+    /**
      * @Then /^the (zone named "[^"]+") with (the "[^"]+" (?:country|province|zone) member) should appear in the registry$/
      */
     public function theZoneWithTheCountryShouldAppearInTheRegistry(ZoneInterface $zone, ZoneMemberInterface $zoneMember)
@@ -209,13 +209,7 @@ final class ManagingZonesContext implements Context
      */
     public function itsScopeShouldBe($scope)
     {
-        $zoneScope = $this->updatePage->getScope();
-
-        Assert::same(
-            $scope,
-            $zoneScope,
-            sprintf('Zone should have scope "%s" but it has "%s".', $scope, $zoneScope)
-        );
+        Assert::same($this->updatePage->getScope(), $scope);
     }
 
     /**
@@ -225,11 +219,7 @@ final class ManagingZonesContext implements Context
     {
         $this->assertZoneAndItsMember($zone, $zoneMember);
 
-        Assert::eq(
-            1,
-            $this->updatePage->countMembers(),
-            sprintf('Zone %s should have only %s zone member', $zone->getName(), $zoneMember->getCode())
-        );
+        Assert::same($this->updatePage->countMembers(), 1);
     }
 
     /**
@@ -237,10 +227,7 @@ final class ManagingZonesContext implements Context
      */
     public function thisZoneNameShouldBe(ZoneInterface $zone, $name)
     {
-        Assert::true(
-            $this->updatePage->hasResourceValues(['code' => $zone->getCode(), 'name' => $name]),
-            sprintf('Zone should be named %s, but is %s', $name, $zone->getName())
-        );
+        Assert::true($this->updatePage->hasResourceValues(['code' => $zone->getCode(), 'name' => $name]));
     }
 
     /**
@@ -248,10 +235,7 @@ final class ManagingZonesContext implements Context
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeDisabled(),
-            'Code field should be disabled but it is not'
-        );
+        Assert::true($this->updatePage->isCodeDisabled());
     }
 
     /**
@@ -272,10 +256,7 @@ final class ManagingZonesContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['code' => $code]),
-            sprintf('Zone with code %s cannot be found.', $code)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['code' => $code]));
     }
 
     /**
@@ -296,10 +277,7 @@ final class ManagingZonesContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage([$element => $value]),
-            sprintf('Zone with %s %s was added, but it should not.', $element, $value)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage([$element => $value]));
     }
 
     /**
@@ -307,10 +285,7 @@ final class ManagingZonesContext implements Context
      */
     public function iShouldBeNotifiedThatAtLeastOneZoneMemberIsRequired()
     {
-        Assert::true(
-            $this->createPage->checkValidationMessageForMembers('Please add at least 1 zone member.'),
-            'I should be notified that zone needs at least one zone member.'
-        );
+        Assert::true($this->createPage->checkValidationMessageForMembers('Please add at least 1 zone member.'));
     }
 
     /**
@@ -318,10 +293,7 @@ final class ManagingZonesContext implements Context
      */
     public function theTypeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->createPage->isTypeFieldDisabled(),
-            'Type field should be disabled but it is not'
-        );
+        Assert::true($this->createPage->isTypeFieldDisabled());
     }
 
     /**
@@ -329,10 +301,7 @@ final class ManagingZonesContext implements Context
      */
     public function itShouldBeOfType($type)
     {
-        Assert::true(
-            $this->createPage->hasType($type),
-            sprintf('Zone should be of %s type', $type)
-        );
+        Assert::true($this->createPage->hasType($type));
     }
 
     /**
@@ -340,24 +309,16 @@ final class ManagingZonesContext implements Context
      */
     public function thisZoneShouldNoLongerExistInTheRegistry($zoneName)
     {
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage(['name' => $zoneName]),
-            sprintf('Zone named %s should no longer exist', $zoneName)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage(['name' => $zoneName]));
     }
 
     /**
-     * @Then /^I should see (\d+) zones in the list$/
+     * @Then I should see a single zone in the list
+     * @Then I should see :amount zones in the list
      */
-    public function iShouldSeeZonesInTheList($number)
+    public function iShouldSeeZonesInTheList(int $amount = 1): void
     {
-        $resourcesOnPage = $this->indexPage->countItems();
-
-        Assert::same(
-            (int) $number,
-            $resourcesOnPage,
-            sprintf('On list should be %d zones but get %d', $number, $resourcesOnPage)
-        );
+        Assert::same($this->indexPage->countItems(), $amount);
     }
 
     /**
@@ -365,10 +326,15 @@ final class ManagingZonesContext implements Context
      */
     public function iShouldSeeTheZoneNamedInTheList(ZoneInterface $zone)
     {
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['code' => $zone->getCode(), 'name' => $zone->getName()]),
-            sprintf('Zone named %s should exist in the registry', $zone->getName())
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['code' => $zone->getCode(), 'name' => $zone->getName()]));
+    }
+
+    /**
+     * @Then I should see the zone :zoneName in the list
+     */
+    public function iShouldSeeTheZoneInTheList(string $zoneName): void
+    {
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $zoneName]));
     }
 
     /**
@@ -380,9 +346,6 @@ final class ManagingZonesContext implements Context
     }
 
     /**
-     * @param ZoneInterface $zone
-     * @param ZoneMemberInterface $zoneMember
-     *
      * @throws \InvalidArgumentException
      */
     private function assertZoneAndItsMember(ZoneInterface $zone, ZoneMemberInterface $zoneMember)
@@ -395,9 +358,20 @@ final class ManagingZonesContext implements Context
             sprintf('Zone %s is not valid', $zone->getName())
         );
 
-        Assert::true(
-            $this->updatePage->hasMember($zoneMember),
-            sprintf('Zone %s has not %s zone member', $zone->getName(), $zoneMember->getCode())
-        );
+        Assert::true($this->updatePage->hasMember($zoneMember));
+    }
+
+    /**
+     * @Then /^I can not add a(?: country| province| zone) "([^"]+)"$/
+     */
+    public function iCanNotAddAZoneMember($name)
+    {
+        $member = null;
+
+        try {
+            $member = $this->createPage->chooseMember($name);
+        } catch (ElementNotFoundException $exception) {
+        }
+        Assert::isEmpty($member);
     }
 }

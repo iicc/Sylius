@@ -7,17 +7,26 @@ sylius:
             main:
                 catalog:
                     association_types: Tipovi poveznica
+                    attributes: Značajke proizvoda
+                    header: Katalog
                     inventory: Skladište
                     options: Opcije
+                    products: Proizvodi
+                    taxons: Taksoni
                 configuration:
+                    admin_users: Administratori
                     channels: Kanali
                     countries: Države
+                    currencies: Valute
+                    exchange_rates: Tečajne liste
                     header: Postavke
                     locales: Lokaliteti
                     payment_methods: Načini plaćanja
+                    shipping_categories: Kategorije pošiljki
                     shipping_methods: Načini slanja
+                    tax_categories: Kategorije poreza
                     tax_rates: Stope poreza
-                    zones: Regije
+                    zones: Područja (Zone)
                 marketing:
                     header: Marketing
                     product_reviews: Recenzije proizvoda
@@ -25,7 +34,7 @@ sylius:
                 customers:
                     customers: Kupci
                     groups: Grupe
-                    header: Kupac
+                    header: Kupci
                 sales:
-                    header: Prodaja
+                    header: Prodaja u trenutnom mjesecu
                     orders: Narudžbe

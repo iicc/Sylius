@@ -9,37 +9,28 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 class Promotion implements PromotionInterface
 {
     use TimestampableTrait;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $code;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $description;
 
     /**
@@ -56,44 +47,28 @@ class Promotion implements PromotionInterface
      */
     protected $exclusive = false;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $usageLimit;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $used = 0;
 
-    /**
-     * @var \DateTime
-     */
+    /** @var \DateTimeInterface */
     protected $startsAt;
 
-    /**
-     * @var \DateTime
-     */
+    /** @var \DateTimeInterface */
     protected $endsAt;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $couponBased = false;
 
-    /**
-     * @var Collection|PromotionCouponInterface[]
-     */
+    /** @var Collection|PromotionCouponInterface[] */
     protected $coupons;
 
-    /**
-     * @var Collection|PromotionRuleInterface[]
-     */
+    /** @var Collection|PromotionRuleInterface[] */
     protected $rules;
 
-    /**
-     * @var Collection|PromotionActionInterface[]
-     */
+    /** @var Collection|PromotionActionInterface[] */
     protected $actions;
 
     public function __construct()
@@ -116,7 +91,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
@@ -124,7 +99,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function setCode($code)
+    public function setCode(?string $code): void
     {
         $this->code = $code;
     }
@@ -132,7 +107,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -140,7 +115,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function setName($name)
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
@@ -148,7 +123,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -156,7 +131,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function setDescription($description)
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }
@@ -164,7 +139,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function getPriority()
+    public function getPriority(): int
     {
         return $this->priority;
     }
@@ -172,15 +147,15 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function setPriority($priority)
+    public function setPriority(?int $priority): void
     {
-        $this->priority = $priority;
+        $this->priority = $priority ?? -1;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isExclusive()
+    public function isExclusive(): bool
     {
         return $this->exclusive;
     }
@@ -188,7 +163,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function setExclusive($exclusive)
+    public function setExclusive(?bool $exclusive): void
     {
         $this->exclusive = $exclusive;
     }
@@ -196,7 +171,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function getUsageLimit()
+    public function getUsageLimit(): ?int
     {
         return $this->usageLimit;
     }
@@ -204,7 +179,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function setUsageLimit($usageLimit)
+    public function setUsageLimit(?int $usageLimit): void
     {
         $this->usageLimit = $usageLimit;
     }
@@ -212,7 +187,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function getUsed()
+    public function getUsed(): int
     {
         return $this->used;
     }
@@ -220,17 +195,17 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function setUsed($used)
+    public function setUsed(?int $used): void
     {
         $this->used = $used;
     }
 
-    public function incrementUsed()
+    public function incrementUsed(): void
     {
         ++$this->used;
     }
 
-    public function decrementUsed()
+    public function decrementUsed(): void
     {
         --$this->used;
     }
@@ -238,7 +213,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function getStartsAt()
+    public function getStartsAt(): ?\DateTimeInterface
     {
         return $this->startsAt;
     }
@@ -246,7 +221,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function setStartsAt(\DateTime $startsAt = null)
+    public function setStartsAt(?\DateTimeInterface $startsAt): void
     {
         $this->startsAt = $startsAt;
     }
@@ -254,7 +229,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function getEndsAt()
+    public function getEndsAt(): ?\DateTimeInterface
     {
         return $this->endsAt;
     }
@@ -262,7 +237,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function setEndsAt(\DateTime $endsAt = null)
+    public function setEndsAt(?\DateTimeInterface $endsAt): void
     {
         $this->endsAt = $endsAt;
     }
@@ -270,7 +245,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function isCouponBased()
+    public function isCouponBased(): bool
     {
         return $this->couponBased;
     }
@@ -278,7 +253,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function setCouponBased($couponBased)
+    public function setCouponBased(?bool $couponBased): void
     {
         $this->couponBased = (bool) $couponBased;
     }
@@ -286,7 +261,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function getCoupons()
+    public function getCoupons(): Collection
     {
         return $this->coupons;
     }
@@ -294,7 +269,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function hasCoupons()
+    public function hasCoupons(): bool
     {
         return !$this->coupons->isEmpty();
     }
@@ -302,7 +277,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function hasCoupon(PromotionCouponInterface $coupon)
+    public function hasCoupon(PromotionCouponInterface $coupon): bool
     {
         return $this->coupons->contains($coupon);
     }
@@ -310,7 +285,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function addCoupon(PromotionCouponInterface $coupon)
+    public function addCoupon(PromotionCouponInterface $coupon): void
     {
         if (!$this->hasCoupon($coupon)) {
             $coupon->setPromotion($this);
@@ -321,7 +296,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function removeCoupon(PromotionCouponInterface $coupon)
+    public function removeCoupon(PromotionCouponInterface $coupon): void
     {
         $coupon->setPromotion(null);
         $this->coupons->removeElement($coupon);
@@ -330,7 +305,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function getRules()
+    public function getRules(): Collection
     {
         return $this->rules;
     }
@@ -338,7 +313,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function hasRules()
+    public function hasRules(): bool
     {
         return !$this->rules->isEmpty();
     }
@@ -346,7 +321,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function hasRule(PromotionRuleInterface $rule)
+    public function hasRule(PromotionRuleInterface $rule): bool
     {
         return $this->rules->contains($rule);
     }
@@ -354,7 +329,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function addRule(PromotionRuleInterface $rule)
+    public function addRule(PromotionRuleInterface $rule): void
     {
         if (!$this->hasRule($rule)) {
             $rule->setPromotion($this);
@@ -365,7 +340,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function removeRule(PromotionRuleInterface $rule)
+    public function removeRule(PromotionRuleInterface $rule): void
     {
         $rule->setPromotion(null);
         $this->rules->removeElement($rule);
@@ -374,7 +349,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function getActions()
+    public function getActions(): Collection
     {
         return $this->actions;
     }
@@ -382,7 +357,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function hasActions()
+    public function hasActions(): bool
     {
         return !$this->actions->isEmpty();
     }
@@ -390,7 +365,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function hasAction(PromotionActionInterface $action)
+    public function hasAction(PromotionActionInterface $action): bool
     {
         return $this->actions->contains($action);
     }
@@ -398,7 +373,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function addAction(PromotionActionInterface $action)
+    public function addAction(PromotionActionInterface $action): void
     {
         if (!$this->hasAction($action)) {
             $action->setPromotion($this);
@@ -409,7 +384,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function removeAction(PromotionActionInterface $action)
+    public function removeAction(PromotionActionInterface $action): void
     {
         $action->setPromotion(null);
         $this->actions->removeElement($action);

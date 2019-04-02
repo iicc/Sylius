@@ -9,82 +9,35 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\ProductVariant;
 
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
-use Sylius\Component\Core\Model\ChannelInterface;
-use Sylius\Component\Currency\Model\CurrencyInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface CreatePageInterface extends BaseCreatePageInterface
 {
-    /**
-     * @param int $price
-     * @param string $channel
-     */
-    public function specifyPrice($price, $channel);
+    public function specifyPrice(string $price, string $channelName): void;
 
-    /**
-     * @param int $height
-     * @param int $width
-     * @param int $depth
-     * @param int $weight
-     */
-    public function specifyHeightWidthDepthAndWeight($height, $width, $depth, $weight);
-    
-    /**
-     * @param string $code
-     */
-    public function specifyCode($code);
+    public function specifyOriginalPrice(string $originalPrice, string $channelName): void;
 
-    /**
-     * @param int $currentStock
-     */
-    public function specifyCurrentStock($currentStock);
+    public function specifyHeightWidthDepthAndWeight(string $height, string $width, string $depth, string $weight): void;
 
-    /**
-     * @param string $name
-     * @param string $language
-     */
-    public function nameItIn($name, $language);
+    public function specifyCode(string $code): void;
 
-    /**
-     * @param string $optionName
-     * @param string $optionValue
-     */
-    public function selectOption($optionName, $optionValue);
+    public function specifyCurrentStock(string $currentStock): void;
 
-    /**
-     * @param string $name
-     */
-    public function choosePricingCalculator($name);
+    public function nameItIn(string $name, string $language): void;
 
-    /**
-     * @param int $price
-     * @param ChannelInterface $channel
-     * @param CurrencyInterface $currency
-     */
-    public function specifyPriceForChannelAndCurrency($price, ChannelInterface $channel, CurrencyInterface $currency);
+    public function selectOption(string $optionName, string $optionValue): void;
 
-    /**
-     * @return string
-     */
-    public function getValidationMessageForForm();
+    public function choosePricingCalculator(string $name): void;
 
-    /**
-     * @param string $shippingCategoryName
-     */
-    public function selectShippingCategory($shippingCategoryName);
+    public function getValidationMessageForForm(): string;
 
-    /**
-     * @return string
-     */
-    public function getPricesValidationMessage();
+    public function selectShippingCategory(string $shippingCategoryName): void;
 
-    /**
-     * @return string
-     */
-    public function getFirstPriceValidationMessage();
+    public function getPricesValidationMessage(): string;
+
+    public function setShippingRequired(bool $isShippingRequired): void;
 }

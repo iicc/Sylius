@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Core\Promotion\Checker\Rule;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -17,38 +19,21 @@ use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\Model\ProductInterface;
-use Sylius\Component\Core\Model\ProductTaxonInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
-use Sylius\Component\Core\Promotion\Checker\Rule\ChannelBasedRuleCheckerInterface;
-use Sylius\Component\Core\Promotion\Checker\Rule\TotalOfItemsFromTaxonRuleChecker;
 use Sylius\Component\Promotion\Checker\Rule\RuleCheckerInterface;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
-use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
 {
-    function let(TaxonRepositoryInterface $taxonRepository)
+    function let(TaxonRepositoryInterface $taxonRepository): void
     {
         $this->beConstructedWith($taxonRepository);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType(TotalOfItemsFromTaxonRuleChecker::class);
-    }
-
-    function it_implements_a_rule_checker_interface()
+    function it_implements_a_rule_checker_interface(): void
     {
         $this->shouldImplement(RuleCheckerInterface::class);
-    }
-
-    function it_implements_channel_aware_rule_checker_interface()
-    {
-        $this->shouldImplement(ChannelBasedRuleCheckerInterface::class);
     }
 
     function it_recognizes_a_subject_as_eligible_if_it_has_items_from_configured_taxon_which_has_required_total(
@@ -61,26 +46,29 @@ final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
         ProductInterface $compositeBow,
         ProductInterface $longsword,
         ProductInterface $reflexBow,
-        ProductTaxonInterface $bowsProductTaxon,
         TaxonInterface $bows
-    ) {
+    ): void {
         $order->getChannel()->willReturn($channel);
         $channel->getCode()->willReturn('WEB_US');
 
-        $order->getItems()->willReturn([$compositeBowItem, $longswordItem, $reflexBowItem]);
+        $order->getItems()->willReturn(new ArrayCollection([
+            $compositeBowItem->getWrappedObject(),
+            $longswordItem->getWrappedObject(),
+            $reflexBowItem->getWrappedObject(),
+        ]));
 
         $taxonRepository->findOneBy(['code' => 'bows'])->willReturn($bows);
 
         $compositeBowItem->getProduct()->willReturn($compositeBow);
-        $compositeBow->filterProductTaxonsByTaxon($bows)->willReturn(new ArrayCollection([$bowsProductTaxon]));
+        $compositeBow->hasTaxon($bows)->willReturn(true);
         $compositeBowItem->getTotal()->willReturn(5000);
 
         $longswordItem->getProduct()->willReturn($longsword);
-        $longsword->filterProductTaxonsByTaxon($bows)->willReturn(new ArrayCollection([]));
+        $longsword->hasTaxon($bows)->willReturn(false);
         $longswordItem->getTotal()->willReturn(4000);
 
         $reflexBowItem->getProduct()->willReturn($reflexBow);
-        $reflexBow->filterProductTaxonsByTaxon($bows)->willReturn(new ArrayCollection([$bowsProductTaxon]));
+        $reflexBow->hasTaxon($bows)->willReturn(true);
         $reflexBowItem->getTotal()->willReturn(9000);
 
         $this->isEligible($order, ['WEB_US' => ['taxon' => 'bows', 'amount' => 10000]])->shouldReturn(true);
@@ -93,23 +81,22 @@ final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
         OrderItemInterface $reflexBowItem,
         ProductInterface $compositeBow,
         ProductInterface $reflexBow,
-        ProductTaxonInterface $bowsProductTaxon,
         TaxonInterface $bows,
         TaxonRepositoryInterface $taxonRepository
-    ) {
+    ): void {
         $order->getChannel()->willReturn($channel);
         $channel->getCode()->willReturn('WEB_US');
 
-        $order->getItems()->willReturn([$compositeBowItem, $reflexBowItem]);
+        $order->getItems()->willReturn(new ArrayCollection([$compositeBowItem->getWrappedObject(), $reflexBowItem->getWrappedObject()]));
 
         $taxonRepository->findOneBy(['code' => 'bows'])->willReturn($bows);
 
         $compositeBowItem->getProduct()->willReturn($compositeBow);
-        $compositeBow->filterProductTaxonsByTaxon($bows)->willReturn(new ArrayCollection([$bowsProductTaxon]));
+        $compositeBow->hasTaxon($bows)->willReturn(true);
         $compositeBowItem->getTotal()->willReturn(5000);
 
         $reflexBowItem->getProduct()->willReturn($reflexBow);
-        $reflexBow->filterProductTaxonsByTaxon($bows)->willReturn(new ArrayCollection([$bowsProductTaxon]));
+        $reflexBow->hasTaxon($bows)->willReturn(true);
         $reflexBowItem->getTotal()->willReturn(5000);
 
         $this->isEligible($order, ['WEB_US' => ['taxon' => 'bows', 'amount' => 10000]])->shouldReturn(true);
@@ -122,23 +109,22 @@ final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
         OrderItemInterface $longswordItem,
         ProductInterface $compositeBow,
         ProductInterface $longsword,
-        ProductTaxonInterface $bowsProductTaxon,
         TaxonInterface $bows,
         TaxonRepositoryInterface $taxonRepository
-    ) {
+    ): void {
         $order->getChannel()->willReturn($channel);
         $channel->getCode()->willReturn('WEB_US');
 
-        $order->getItems()->willReturn([$compositeBowItem, $longswordItem]);
+        $order->getItems()->willReturn(new ArrayCollection([$compositeBowItem->getWrappedObject(), $longswordItem->getWrappedObject()]));
 
         $taxonRepository->findOneBy(['code' => 'bows'])->willReturn($bows);
 
         $compositeBowItem->getProduct()->willReturn($compositeBow);
-        $compositeBow->filterProductTaxonsByTaxon($bows)->willReturn(new ArrayCollection([$bowsProductTaxon]));
+        $compositeBow->hasTaxon($bows)->willReturn(true);
         $compositeBowItem->getTotal()->willReturn(5000);
 
         $longswordItem->getProduct()->willReturn($longsword);
-        $longsword->filterProductTaxonsByTaxon($bows)->willReturn(new ArrayCollection([]));
+        $longsword->hasTaxon($bows)->willReturn(false);
         $longswordItem->getTotal()->willReturn(4000);
 
         $this->isEligible($order, ['WEB_US' => ['taxon' => 'bows', 'amount' => 10000]])->shouldReturn(false);
@@ -147,7 +133,7 @@ final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
     function it_returns_false_if_configuration_is_invalid(
         ChannelInterface $channel,
         OrderInterface $order
-    ) {
+    ): void {
         $order->getChannel()->willReturn($channel);
         $channel->getCode()->willReturn('WEB_US');
 
@@ -158,7 +144,7 @@ final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
     function it_returns_false_if_there_is_no_configuration_for_order_channel(
         ChannelInterface $channel,
         OrderInterface $order
-    ) {
+    ): void {
         $order->getChannel()->willReturn($channel);
         $channel->getCode()->willReturn('WEB_US');
 
@@ -169,7 +155,7 @@ final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
         ChannelInterface $channel,
         OrderInterface $order,
         TaxonRepositoryInterface $taxonRepository
-    ) {
+    ): void {
         $order->getChannel()->willReturn($channel);
         $channel->getCode()->willReturn('WEB_US');
 
@@ -178,7 +164,7 @@ final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
         $this->isEligible($order, ['WEB_US' => ['taxon' => 'sniper_rifles', 'amount' => 1000]])->shouldReturn(false);
     }
 
-    function it_throws_an_exception_if_passed_subject_is_not_order(PromotionSubjectInterface $subject)
+    function it_throws_an_exception_if_passed_subject_is_not_order(PromotionSubjectInterface $subject): void
     {
         $this
             ->shouldThrow(\InvalidArgumentException::class)

@@ -8,7 +8,7 @@ sylius:
             add_attributes: เพิ่มคุณลักษณะ
             choices: ตัวเลือก
             code: รหัส
-            name: ชื่อ
+            name: ชื่อภาษา
             translations: การแปลภาษา
             type: ชนิด
         attribute_type:
@@ -18,6 +18,7 @@ sylius:
             datetime: วันที่และเวลา
             integer: เลขจำนวนเต็ม
             percent: เปอร์เซ็นต์
+            select: เลือก
             text: ข้อความ (Text)
             textarea: กล่องข้อความ (Textarea)
             title: ประเภทของคุณลักษณะ
@@ -27,6 +28,12 @@ sylius:
                 format: รูปแบบ
             date:
                 format: รูปแบบ
+            select:
+                multiple: เลือกได้หลายอย่าง
+                values: ค่า
+                choose: เลือกตัวเลือก
+                min: ต่ำสุด
+                max: สูงสุด
             text:
                 min: ความยาวขั้นต่ำ
                 max: ความยาวสูงสุด

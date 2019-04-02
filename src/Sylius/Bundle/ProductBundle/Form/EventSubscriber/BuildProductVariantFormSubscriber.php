@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ProductBundle\Form\EventSubscriber;
 
 use Sylius\Bundle\ProductBundle\Form\Type\ProductOptionValueCollectionType;
@@ -18,27 +20,15 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormFactoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class BuildProductVariantFormSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var FormFactoryInterface
-     */
+    /** @var FormFactoryInterface */
     private $factory;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $disabled;
 
-    /**
-     * @param FormFactoryInterface $factory
-     * @param bool $disabled
-     */
-    public function __construct(FormFactoryInterface $factory, $disabled = false)
+    public function __construct(FormFactoryInterface $factory, bool $disabled = false)
     {
         $this->factory = $factory;
         $this->disabled = $disabled;
@@ -47,17 +37,14 @@ final class BuildProductVariantFormSubscriber implements EventSubscriberInterfac
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FormEvents::PRE_SET_DATA => 'preSetData',
         ];
     }
 
-    /**
-     * @param FormEvent $event
-     */
-    public function preSetData(FormEvent $event)
+    public function preSetData(FormEvent $event): void
     {
         /** @var ProductVariantInterface $productVariant */
         $productVariant = $event->getData();

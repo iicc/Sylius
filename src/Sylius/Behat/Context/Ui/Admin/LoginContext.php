@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
@@ -17,25 +19,14 @@ use Sylius\Behat\Page\Admin\DashboardPageInterface;
 use Sylius\Component\Core\Model\AdminUserInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class LoginContext implements Context
 {
-    /**
-     * @var DashboardPageInterface
-     */
+    /** @var DashboardPageInterface */
     private $dashboardPage;
 
-    /**
-     * @var LoginPageInterface
-     */
+    /** @var LoginPageInterface */
     private $loginPage;
 
-    /**
-     * @param DashboardPageInterface $dashboardPage
-     * @param LoginPageInterface $loginPage
-     */
     public function __construct(DashboardPageInterface $dashboardPage, LoginPageInterface $loginPage)
     {
         $this->dashboardPage = $dashboardPage;
@@ -80,10 +71,7 @@ final class LoginContext implements Context
      */
     public function iShouldBeLoggedIn()
     {
-        Assert::true(
-            $this->dashboardPage->isOpen(),
-            'I should be on administration dashboard page.'
-        );
+        $this->dashboardPage->verify();
     }
 
     /**
@@ -91,10 +79,15 @@ final class LoginContext implements Context
      */
     public function iShouldNotBeLoggedIn()
     {
-        Assert::false(
-            $this->dashboardPage->isOpen(),
-            'I should not have access to administration dashboard page.'
-        );
+        Assert::false($this->dashboardPage->isOpen());
+    }
+
+    /**
+     * @Given I should be on login page
+     */
+    public function iShouldBeOnLoginPage()
+    {
+        Assert::true($this->loginPage->isOpen());
     }
 
     /**
@@ -102,10 +95,7 @@ final class LoginContext implements Context
      */
     public function iShouldBeNotifiedAboutBadCredentials()
     {
-        Assert::true(
-            $this->loginPage->hasValidationErrorWith('Error Bad credentials.'),
-            'I should see validation error.'
-        );
+        Assert::true($this->loginPage->hasValidationErrorWith('Error Bad credentials.'));
     }
 
     /**
@@ -115,10 +105,7 @@ final class LoginContext implements Context
     {
         $this->logInAgain($username, $password);
 
-        Assert::true(
-            $this->dashboardPage->isOpen(),
-            'I should be able to log in.'
-        );
+        $this->dashboardPage->verify();
     }
 
     /**
@@ -136,15 +123,8 @@ final class LoginContext implements Context
     {
         $this->logInAgain($username, $password);
 
-        Assert::true(
-            $this->loginPage->hasValidationErrorWith('Error Bad credentials.'),
-            'I should see validation error.'
-        );
-
-        Assert::false(
-            $this->dashboardPage->isOpen(),
-            'I should not be able to log in.'
-        );
+        Assert::true($this->loginPage->hasValidationErrorWith('Error Bad credentials.'));
+        Assert::false($this->dashboardPage->isOpen());
     }
 
     /**
@@ -153,7 +133,9 @@ final class LoginContext implements Context
      */
     private function logInAgain($username, $password)
     {
+        $this->dashboardPage->open();
         $this->dashboardPage->logOut();
+
         $this->loginPage->open();
         $this->loginPage->specifyUsername($username);
         $this->loginPage->specifyPassword($password);

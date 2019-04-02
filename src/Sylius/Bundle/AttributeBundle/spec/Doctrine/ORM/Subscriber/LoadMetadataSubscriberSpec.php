@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\AttributeBundle\Doctrine\ORM\Subscriber;
 
 use Doctrine\Common\EventSubscriber;
@@ -20,12 +22,9 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Sylius\Bundle\AttributeBundle\Doctrine\ORM\Subscriber\LoadMetadataSubscriber;
 
-/**
- * @author Adam Elsodaney <adam.elso@gmail.com>
- */
 final class LoadMetadataSubscriberSpec extends ObjectBehavior
 {
-    function let()
+    function let(): void
     {
         $this->beConstructedWith([
             'product' => [
@@ -44,17 +43,17 @@ final class LoadMetadataSubscriberSpec extends ObjectBehavior
         ]);
     }
 
-    function it_is_initializable()
+    function it_is_initializable(): void
     {
         $this->shouldHaveType(LoadMetadataSubscriber::class);
     }
 
-    function it_is_a_doctrine_event_subscriber()
+    function it_is_a_doctrine_event_subscriber(): void
     {
         $this->shouldImplement(EventSubscriber::class);
     }
 
-    function it_subscribes_load_class_metadata_event()
+    function it_subscribes_load_class_metadata_event(): void
     {
         $this->getSubscribedEvents()->shouldReturn(['loadClassMetadata']);
     }
@@ -64,7 +63,7 @@ final class LoadMetadataSubscriberSpec extends ObjectBehavior
         ClassMetadataInfo $metadata,
         EntityManager $entityManager,
         ClassMetadataFactory $classMetadataFactory
-    ) {
+    ): void {
         $eventArgs->getEntityManager()->willReturn($entityManager);
         $entityManager->getMetadataFactory()->willReturn($classMetadataFactory);
 
@@ -82,7 +81,7 @@ final class LoadMetadataSubscriberSpec extends ObjectBehavior
         EntityManager $entityManager,
         ClassMetadataFactory $classMetadataFactory,
         ClassMetadataInfo $classMetadataInfo
-    ) {
+    ): void {
         $eventArgs->getEntityManager()->willReturn($entityManager);
         $entityManager->getMetadataFactory()->willReturn($classMetadataFactory);
         $classMetadataInfo->fieldMappings = [
@@ -111,7 +110,6 @@ final class LoadMetadataSubscriberSpec extends ObjectBehavior
 
         $attributeMapping = [
             'fieldName' => 'attribute',
-            'inversedBy' => 'values',
             'targetEntity' => 'Some\App\Product\Entity\Attribute',
             'joinColumns' => [[
                 'name' => 'attribute_id',
@@ -132,7 +130,7 @@ final class LoadMetadataSubscriberSpec extends ObjectBehavior
         ClassMetadataInfo $metadata,
         EntityManager $entityManager,
         ClassMetadataFactory $classMetadataFactory
-    ) {
+    ): void {
         $eventArgs->getEntityManager()->willReturn($entityManager);
         $entityManager->getMetadataFactory()->willReturn($classMetadataFactory);
 
@@ -140,29 +138,6 @@ final class LoadMetadataSubscriberSpec extends ObjectBehavior
         $metadata->getName()->willReturn('KeepMoving\ThisClass\DoesNot\Concern\You');
 
         $metadata->mapOneToMany(Argument::any())->shouldNotBeCalled();
-
-        $this->loadClassMetadata($eventArgs);
-    }
-
-    function it_maps_values_one_to_many_association_from_the_attribute_model_to_the_attribute_value_model(
-        LoadClassMetadataEventArgs $eventArgs,
-        ClassMetadataInfo $metadata,
-        EntityManager $entityManager,
-        ClassMetadataFactory $classMetadataFactory
-    ) {
-        $eventArgs->getEntityManager()->willReturn($entityManager);
-        $entityManager->getMetadataFactory()->willReturn($classMetadataFactory);
-
-        $eventArgs->getClassMetadata()->willReturn($metadata);
-        $metadata->getName()->willReturn('Some\App\Product\Entity\Attribute');
-
-        $valuesMapping = [
-            'fieldName' => 'values',
-            'targetEntity' => 'Some\App\Product\Entity\AttributeValue',
-            'mappedBy' => 'attribute',
-        ];
-
-        $metadata->mapOneToMany($valuesMapping)->shouldBeCalled();
 
         $this->loadClassMetadata($eventArgs);
     }

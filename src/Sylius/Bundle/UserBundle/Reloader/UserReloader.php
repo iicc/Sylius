@@ -9,24 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UserBundle\Reloader;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Sylius\Component\User\Model\UserInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class UserReloader implements UserReloaderInterface
 {
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $objectManager;
 
-    /**
-     * @param ObjectManager $objectManager
-     */
     public function __construct(ObjectManager $objectManager)
     {
         $this->objectManager = $objectManager;
@@ -35,7 +29,7 @@ final class UserReloader implements UserReloaderInterface
     /**
      * {@inheritdoc}
      */
-    public function reloadUser(UserInterface $user)
+    public function reloadUser(UserInterface $user): void
     {
         $this->objectManager->refresh($user);
     }

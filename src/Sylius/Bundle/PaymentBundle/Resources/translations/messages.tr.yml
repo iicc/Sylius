@@ -29,5 +29,6 @@ sylius:
         payment_method:
             description: Açıklama
             enabled: Etkin?
-            gateway: Ağ Geçidi
+            instructions: Talimatlar
             name: Ad
+            position: Konum

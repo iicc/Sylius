@@ -9,74 +9,37 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxation\Model;
 
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface TaxRateInterface extends CodeAwareInterface, TimestampableInterface, ResourceInterface
 {
-    /**
-     * @return TaxCategoryInterface
-     */
-    public function getCategory();
+    public function getCategory(): ?TaxCategoryInterface;
 
-    /**
-     * @param null|TaxCategoryInterface $category
-     */
-    public function setCategory(TaxCategoryInterface $category = null);
+    public function setCategory(?TaxCategoryInterface $category): void;
 
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getName(): ?string;
 
-    /**
-     * @param string $name
-     */
-    public function setName($name);
+    public function setName(?string $name): void;
 
-    /**
-     * @return float
-     */
-    public function getAmount();
+    public function getAmount(): float;
 
-    /**
-     * @return float
-     */
-    public function getAmountAsPercentage();
+    public function getAmountAsPercentage(): float;
 
-    /**
-     * @param float $amount
-     */
-    public function setAmount($amount);
+    public function setAmount(?float $amount): void;
 
-    /**
-     * @return bool
-     */
-    public function isIncludedInPrice();
+    public function isIncludedInPrice(): bool;
 
-    /**
-     * @param bool $includedInPrice
-     */
-    public function setIncludedInPrice($includedInPrice);
+    public function setIncludedInPrice(?bool $includedInPrice): void;
 
-    /**
-     * @return string
-     */
-    public function getCalculator();
+    public function getCalculator(): ?string;
 
-    /**
-     * @param string $calculator
-     */
-    public function setCalculator($calculator);
+    public function setCalculator(?string $calculator): void;
 
-    /**
-     * @return string
-     */
-    public function getLabel();
+    public function getLabel(): ?string;
 }

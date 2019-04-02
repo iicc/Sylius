@@ -9,20 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Resource\Model;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 interface ArchivableInterface
 {
-    /**
-     * @return \DateTime
-     */
-    public function getArchivedAt();
+    public function getArchivedAt(): ?\DateTimeInterface;
 
-    /**
-     * @param \DateTime $archivedAt
-     */
-    public function setArchivedAt(\DateTime $archivedAt = null);
+    public function setArchivedAt(?\DateTimeInterface $archivedAt): void;
 }

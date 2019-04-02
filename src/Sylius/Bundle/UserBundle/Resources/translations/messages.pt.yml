@@ -4,7 +4,7 @@
 sylius:
     form:
         user:
-            email: Endereço de e-mail
+            email: Endereço de email
             enabled: Ativado
             password:
                 label: Palavra-passe

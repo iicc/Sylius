@@ -9,198 +9,89 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Product;
 
-use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Product\Model\ProductAssociationTypeInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface UpdateSimpleProductPageInterface extends BaseUpdatePageInterface
 {
+    public function isCodeDisabled(): bool;
+
+    public function isSlugReadonlyIn(string $locale): bool;
+
+    public function specifyPrice(string $channelName, string $price): void;
+
+    public function specifyOriginalPrice(string $channelName, string $originalPrice): void;
+
+    public function nameItIn(string $name, string $localeCode): void;
+
+    public function addSelectedAttributes(): void;
+
+    public function removeAttribute(string $attributeName, string $localeCode): void;
+
+    public function getAttributeValue(string $attributeName, string $localeCode): string;
+
+    public function getAttributeValidationErrors(string $attributeName, string $localeCode): string;
+
+    public function getNumberOfAttributes(): int;
+
+    public function hasAttribute(string $attributeName): bool;
+
+    public function isMainTaxonChosen(string $taxonName): bool;
+
+    public function selectMainTaxon(TaxonInterface $taxon): void;
+
+    public function disableTracking(): void;
+
+    public function enableTracking(): void;
+
+    public function isTracked(): bool;
+
+    public function enableSlugModification(string $locale): void;
+
+    public function isImageWithTypeDisplayed(string $type): bool;
+
     /**
-     * @return bool
+     * @param string $type
      */
-    public function isCodeDisabled();
+    public function attachImage(string $path, string $type = null): void;
+
+    public function changeImageWithType(string $type, string $path): void;
+
+    public function removeImageWithType(string $type): void;
+
+    public function removeFirstImage(): void;
+
+    public function modifyFirstImageType(string $type): void;
+
+    public function countImages(): int;
 
     /**
-     * @return bool
-     */
-    public function isSlugReadOnlyIn($locale);
-    
-    /**
-     * @param string $channelName
-     * @param int $price
-     */
-    public function specifyPrice($channelName, $price);
-
-    /**
-     * @param string $name
-     * @param string $localeCode
-     */
-    public function nameItIn($name, $localeCode);
-
-    public function addSelectedAttributes();
-
-    /**
-     * @param string $attributeName
-     * @param string $localeCode
-     */
-    public function removeAttribute($attributeName, $localeCode);
-
-    /**
-     * @param string $attributeName
-     * @param string $localeCode
-     *
-     * @return string
-     */
-    public function getAttributeValue($attributeName, $localeCode);
-
-    /**
-     * @return int
-     */
-    public function getNumberOfAttributes();
-
-    /**
-     * @param string $attributeName
-     *
-     * @return bool
-     */
-    public function hasAttribute($attributeName);
-
-    /**
-     * @param string $taxonName
-     *
-     * @return bool
-     */
-    public function isMainTaxonChosen($taxonName);
-
-    /**
-     * @param TaxonInterface $taxon
-     */
-    public function selectMainTaxon(TaxonInterface $taxon);
-
-    public function disableTracking();
-
-    public function enableTracking();
-
-    /**
-     * @return bool
-     */
-    public function isTracked();
-
-    /**
-     * @param string $locale
-     */
-    public function enableSlugModification($locale);
-
-    /**
-     * @param string $code
-     *
-     * @return bool
-     */
-    public function isImageWithCodeDisplayed($code);
-
-    /**
-     * @param string $path
-     * @param string $code
-     */
-    public function attachImage($path, $code = null);
-
-    /**
-     * @param string $code
-     * @param string $path
-     */
-    public function changeImageWithCode($code, $path);
-
-    /**
-     * @param string $code
-     */
-    public function removeImageWithCode($code);
-
-    public function removeFirstImage();
-
-    /**
-     * @return int
-     */
-    public function countImages();
-
-    /**
-     * @return bool
-     */
-    public function isImageCodeDisabled();
-
-    /**
-     * @return string
-     *
-     * @throws ElementNotFoundException
-     */
-    public function getValidationMessageForImage();
-
-    /**
-     * @param ProductAssociationTypeInterface $productAssociationType
      * @param string[] $productsNames
      */
-    public function associateProducts(ProductAssociationTypeInterface $productAssociationType, array $productsNames);
+    public function associateProducts(ProductAssociationTypeInterface $productAssociationType, array $productsNames): void;
 
-    /**
-     * @param string $productName
-     * @param ProductAssociationTypeInterface $productAssociationType
-     *
-     * @return bool
-     */
-    public function hasAssociatedProduct($productName, ProductAssociationTypeInterface $productAssociationType);
+    public function hasAssociatedProduct(string $productName, ProductAssociationTypeInterface $productAssociationType): bool;
 
-    /**
-     * @param string $productName
-     * @param ProductAssociationTypeInterface $productAssociationType
-     */
-    public function removeAssociatedProduct($productName, ProductAssociationTypeInterface $productAssociationType);
+    public function removeAssociatedProduct(string $productName, ProductAssociationTypeInterface $productAssociationType): void;
 
-    /**
-     * @param ChannelInterface $channel
-     * @param CurrencyInterface $currency
-     *
-     * @return string
-     */
-    public function getPricingConfigurationForChannelAndCurrencyCalculator(ChannelInterface $channel, CurrencyInterface $currency);
+    public function getPricingConfigurationForChannelAndCurrencyCalculator(ChannelInterface $channel, CurrencyInterface $currency): string;
 
-    /**
-     * @param string $locale
-     */
-    public function activateLanguageTab($locale);
+    public function activateLanguageTab(string $locale): void;
 
-    /**
-     * @param string $locale
-     *
-     * @return string
-     */
-    public function getSlug($locale);
+    public function getSlug(string $locale): string;
 
-    /**
-     * @param string $slug
-     * @param string $locale
-     */
-    public function specifySlugIn($slug, $locale);
+    public function specifySlugIn(string $slug, string $locale): void;
 
-    /**
-     * @param string $channelName
-     *
-     * @return string
-     */
-    public function getPriceForChannel($channelName);
+    public function getPriceForChannel(string $channelName): string;
 
-    /**
-     * @param int $position
-     *
-     * @return string
-     *
-     * @throws ElementNotFoundException
-     */
-    public function getValidationMessageForImageAtPosition($position);
+    public function getOriginalPriceForChannel(string $channelName): string;
+
+    public function isShippingRequired(): bool;
 }

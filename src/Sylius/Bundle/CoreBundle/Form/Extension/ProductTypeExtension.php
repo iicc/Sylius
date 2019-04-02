@@ -9,30 +9,29 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\Extension;
 
 use Sylius\Bundle\ChannelBundle\Form\Type\ChannelChoiceType;
 use Sylius\Bundle\CoreBundle\Form\Type\Product\ProductImageType;
 use Sylius\Bundle\CoreBundle\Form\Type\Taxon\ProductTaxonAutocompleteChoiceType;
 use Sylius\Bundle\ProductBundle\Form\Type\ProductType;
-use Sylius\Bundle\ResourceBundle\Form\Type\ResourceAutocompleteChoiceType;
+use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonAutocompleteChoiceType;
 use Sylius\Component\Core\Model\Product;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class ProductTypeExtension extends AbstractTypeExtension
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('channels', ChannelChoiceType::class, [
@@ -40,27 +39,31 @@ final class ProductTypeExtension extends AbstractTypeExtension
                 'expanded' => true,
                 'label' => 'sylius.form.product.channels',
             ])
-            ->add('mainTaxon', ResourceAutocompleteChoiceType::class, [
+            ->add('mainTaxon', TaxonAutocompleteChoiceType::class, [
                 'label' => 'sylius.form.product.main_taxon',
-                'resource' => 'sylius.taxon',
-                'choice_name' => 'name',
-                'choice_value' => 'code',
-                'multiple' => false,
             ])
-            ->add('productTaxons', ProductTaxonAutocompleteChoiceType::class, [
-                'label' => 'sylius.form.product.taxons',
-                'multiple' => true,
-            ])
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+                $product = $event->getData();
+                $form = $event->getForm();
+
+                $form->add('productTaxons', ProductTaxonAutocompleteChoiceType::class, [
+                    'label' => 'sylius.form.product.taxons',
+                    'product' => $product,
+                    'multiple' => true,
+                ]);
+            })
             ->add('variantSelectionMethod', ChoiceType::class, [
                 'choices' => array_flip(Product::getVariantSelectionMethodLabels()),
                 'label' => 'sylius.form.product.variant_selection_method',
             ])
             ->add('images', CollectionType::class, [
                 'entry_type' => ProductImageType::class,
+                'entry_options' => ['product' => $options['data']],
                 'allow_add' => true,
                 'allow_delete' => true,
                 'by_reference' => false,
                 'label' => 'sylius.form.product.images',
+                'block_name' => 'entry',
             ])
         ;
     }
@@ -68,7 +71,7 @@ final class ProductTypeExtension extends AbstractTypeExtension
     /**
      * {@inheritdoc}
      */
-    public function getExtendedType()
+    public function getExtendedType(): string
     {
         return ProductType::class;
     }

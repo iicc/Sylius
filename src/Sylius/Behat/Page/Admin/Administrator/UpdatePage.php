@@ -9,51 +9,35 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Administrator;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function changeUsername($username)
+    public function changeUsername(string $username): void
     {
         $this->getElement('username')->setValue($username);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function changeEmail($email)
+    public function changeEmail(string $email): void
     {
         $this->getElement('email')->setValue($email);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function changePassword($password)
+    public function changePassword(string $password): void
     {
         $this->getElement('password')->setValue($password);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function changeLocale($localeCode)
+    public function changeLocale(string $localeCode): void
     {
         $this->getElement('locale_code')->selectOption($localeCode);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'email' => '#sylius_admin_user_email',

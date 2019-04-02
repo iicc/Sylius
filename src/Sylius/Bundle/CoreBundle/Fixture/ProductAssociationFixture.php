@@ -9,19 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Fixture;
 
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class ProductAssociationFixture extends AbstractResourceFixture
 {
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'product_association';
     }
@@ -29,13 +28,13 @@ class ProductAssociationFixture extends AbstractResourceFixture
     /**
      * {@inheritdoc}
      */
-    protected function configureResourceNode(ArrayNodeDefinition $resourceNode)
+    protected function configureResourceNode(ArrayNodeDefinition $resourceNode): void
     {
         $resourceNode
             ->children()
                 ->scalarNode('type')->cannotBeEmpty()->end()
                 ->scalarNode('owner')->cannotBeEmpty()->end()
-                ->arrayNode('associated_products')->prototype('scalar')->end()->end()
+                ->arrayNode('associated_products')->scalarPrototype()->end()->end()
         ;
     }
 }

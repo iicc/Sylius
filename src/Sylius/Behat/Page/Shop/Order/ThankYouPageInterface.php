@@ -9,15 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Shop\Order;
 
-use Sylius\Behat\Page\SymfonyPageInterface;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface ThankYouPageInterface extends SymfonyPageInterface
 {
+    public function goToOrderDetails();
+
     /**
      * @return bool
      */
@@ -29,14 +30,6 @@ interface ThankYouPageInterface extends SymfonyPageInterface
     public function getInstructions();
 
     /**
-     * @param int $timeout
-     * @param array $parameters
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function waitForResponse($timeout, array $parameters = []);
-
-    /**
      * @return bool
      */
     public function hasInstructions();
@@ -45,4 +38,8 @@ interface ThankYouPageInterface extends SymfonyPageInterface
      * @return bool
      */
     public function hasChangePaymentMethodButton();
+
+    public function hasRegistrationButton(): bool;
+
+    public function createAccount(): void;
 }

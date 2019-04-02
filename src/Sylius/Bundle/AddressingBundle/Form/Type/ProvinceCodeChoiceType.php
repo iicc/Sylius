@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AddressingBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\DataTransformer\ResourceToIdentifierTransformer;
@@ -17,19 +19,11 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\ReversedTransformer;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class ProvinceCodeChoiceType extends AbstractType
 {
-    /**
-     * @var RepositoryInterface
-     */
-    protected $provinceRepository;
+    /** @var RepositoryInterface */
+    private $provinceRepository;
 
-    /**
-     * @param RepositoryInterface $provinceRepository
-     */
     public function __construct(RepositoryInterface $provinceRepository)
     {
         $this->provinceRepository = $provinceRepository;
@@ -38,7 +32,7 @@ final class ProvinceCodeChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addModelTransformer(new ReversedTransformer(new ResourceToIdentifierTransformer($this->provinceRepository, 'code')));
     }
@@ -46,7 +40,7 @@ final class ProvinceCodeChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
         return ProvinceChoiceType::class;
     }
@@ -54,7 +48,7 @@ final class ProvinceCodeChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_province_code_choice';
     }

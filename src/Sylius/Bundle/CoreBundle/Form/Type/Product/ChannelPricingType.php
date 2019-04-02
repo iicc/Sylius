@@ -9,43 +9,81 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\Type\Product;
 
 use Sylius\Bundle\MoneyBundle\Form\Type\MoneyType;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
 use Sylius\Component\Core\Model\ChannelInterface;
+use Sylius\Component\Core\Model\ChannelPricingInterface;
+use Sylius\Component\Core\Model\ProductVariantInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\OptionsResolver\Options;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class ChannelPricingType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-                /** @var ChannelInterface $channel */
-                $channel = $event->getData()->getChannel();
-                $form = $event->getForm();
+            ->add('price', MoneyType::class, [
+                'label' => 'sylius.ui.price',
+                'currency' => $options['channel']->getBaseCurrency()->getCode(),
+            ])
+            ->add('originalPrice', MoneyType::class, [
+                'label' => 'sylius.ui.original_price',
+                'currency' => $options['channel']->getBaseCurrency()->getCode(),
+            ])
+        ;
 
-                $form->add('price', MoneyType::class, [
-                    'label' => $channel->getName(),
-                    'currency' => $channel->getBaseCurrency()->getCode(),
-                ]);
-            })
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($options): void {
+            $channelPricing = $event->getData();
+
+            if (!$channelPricing instanceof $this->dataClass || !$channelPricing instanceof ChannelPricingInterface) {
+                $event->setData(null);
+
+                return;
+            }
+
+            $channelPricing->setChannelCode($options['channel']->getCode());
+            $channelPricing->setProductVariant($options['product_variant']);
+
+            $event->setData($channelPricing);
+        });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        parent::configureOptions($resolver);
+
+        $resolver
+            ->setRequired('channel')
+            ->setAllowedTypes('channel', [ChannelInterface::class])
+
+            ->setDefined('product_variant')
+            ->setAllowedTypes('product_variant', ['null', ProductVariantInterface::class])
+
+            ->setDefaults([
+                'label' => function (Options $options): string {
+                    return $options['channel']->getName();
+                },
+            ])
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_channel_pricing';
     }

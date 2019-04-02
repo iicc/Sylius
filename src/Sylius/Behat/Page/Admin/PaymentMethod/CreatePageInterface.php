@@ -9,58 +9,39 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\PaymentMethod;
 
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 interface CreatePageInterface extends BaseCreatePageInterface
 {
-    public function enable();
-    public function disable();
+    public function enable(): void;
 
-    /**
-     * @param string $name
-     * @param string $languageCode
-     */
-    public function nameIt($name, $languageCode);
+    public function disable(): void;
 
-    /**
-     * @param string $code
-     */
-    public function specifyCode($code);
+    public function nameIt(string $name, string $languageCode): void;
 
-    /**
-     * @param string $gateway
-     */
-    public function chooseGateway($gateway);
+    public function specifyCode(string $code): void;
 
-    /**
-     * @param string $channelName
-     */
-    public function checkChannel($channelName);
+    public function checkChannel(string $channelName): void;
 
-    /**
-     * @param string $description
-     * @param string $languageCode
-     */
-    public function describeIt($description, $languageCode);
+    public function describeIt(string $description, string $languageCode): void;
 
-    /**
-     * @param string $instructions
-     * @param string $languageCode
-     */
-    public function setInstructions($instructions, $languageCode);
+    public function setInstructions(string $instructions, string $languageCode): void;
 
-    /**
-     * @return bool
-     */
-    public function isCodeDisabled();
+    public function setPaypalGatewayUsername(string $username): void;
 
-    /**
-     * @return bool
-     */
-    public function isPaymentMethodEnabled();
+    public function setPaypalGatewayPassword(string $password): void;
+
+    public function setPaypalGatewaySignature(string $signature): void;
+
+    public function setStripeSecretKey(string $secretKey): void;
+
+    public function setStripePublishableKey(string $publishableKey): void;
+
+    public function isCodeDisabled(): bool;
+
+    public function isPaymentMethodEnabled(): bool;
 }

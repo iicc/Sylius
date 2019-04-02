@@ -29,6 +29,6 @@ sylius:
         payment_method:
             description: Aprašymas
             enabled: Įjungtas?
-            gateway: Apmokėjimo kanalas
             instructions: Instrukcijos
             name: Pavadinimas
+            position: Pozicija

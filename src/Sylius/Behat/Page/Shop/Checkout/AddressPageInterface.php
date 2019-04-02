@@ -9,14 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Shop\Checkout;
 
-use Sylius\Behat\Page\SymfonyPageInterface;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
 use Sylius\Component\Core\Model\AddressInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface AddressPageInterface extends SymfonyPageInterface
 {
     /**
@@ -37,9 +36,6 @@ interface AddressPageInterface extends SymfonyPageInterface
      */
     public function checkValidationMessageFor($element, $message);
 
-    /**
-     * @param AddressInterface $billingAddress
-     */
     public function specifyBillingAddress(AddressInterface $billingAddress);
 
     /**
@@ -47,9 +43,6 @@ interface AddressPageInterface extends SymfonyPageInterface
      */
     public function selectBillingAddressProvince($province);
 
-    /**
-     * @param AddressInterface $shippingAddress
-     */
     public function specifyShippingAddress(AddressInterface $shippingAddress);
 
     /**
@@ -68,6 +61,8 @@ interface AddressPageInterface extends SymfonyPageInterface
      * @param string $email
      */
     public function specifyEmail($email);
+
+    public function specifyShippingAddressFullName(string $fullName);
 
     /**
      * @param string $password
@@ -110,14 +105,8 @@ interface AddressPageInterface extends SymfonyPageInterface
      */
     public function hasBillingAddressInput();
 
-    /**
-     * @param AddressInterface $address
-     */
     public function selectShippingAddressFromAddressBook(AddressInterface $address);
 
-    /**
-     * @param AddressInterface $address
-     */
     public function selectBillingAddressFromAddressBook(AddressInterface $address);
 
     /**

@@ -9,42 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Cart\Context;
 
-use Sylius\Component\Core\Model\ChannelInterface;
-use Sylius\Component\Core\Model\CustomerInterface;
-use Sylius\Component\Order\Context\CartContextInterface;
-use Sylius\Component\Order\Context\CartNotFoundException;
 use Sylius\Component\Channel\Context\ChannelNotFoundException;
 use Sylius\Component\Core\Context\ShopperContextInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
+use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Currency\Context\CurrencyNotFoundException;
 use Sylius\Component\Locale\Context\LocaleNotFoundException;
+use Sylius\Component\Order\Context\CartContextInterface;
+use Sylius\Component\Order\Context\CartNotFoundException;
+use Sylius\Component\Order\Model\OrderInterface as BaseOrderInterface;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class ShopBasedCartContext implements CartContextInterface
 {
-    /**
-     * @var CartContextInterface
-     */
+    /** @var CartContextInterface */
     private $cartContext;
 
-    /**
-     * @var ShopperContextInterface
-     */
+    /** @var ShopperContextInterface */
     private $shopperContext;
 
-    /**
-     * @var OrderInterface|null
-     */
+    /** @var OrderInterface|null */
     private $cart;
 
-    /**
-     * @param CartContextInterface $cartContext
-     * @param ShopperContextInterface $shopperContext
-     */
     public function __construct(CartContextInterface $cartContext, ShopperContextInterface $shopperContext)
     {
         $this->cartContext = $cartContext;
@@ -54,7 +45,7 @@ final class ShopBasedCartContext implements CartContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getCart()
+    public function getCart(): BaseOrderInterface
     {
         if (null !== $this->cart) {
             return $this->cart;
@@ -62,6 +53,7 @@ final class ShopBasedCartContext implements CartContextInterface
 
         /** @var OrderInterface $cart */
         $cart = $this->cartContext->getCart();
+        Assert::isInstanceOf($cart, OrderInterface::class);
 
         try {
             /** @var ChannelInterface $channel */
@@ -70,11 +62,7 @@ final class ShopBasedCartContext implements CartContextInterface
             $cart->setChannel($channel);
             $cart->setCurrencyCode($channel->getBaseCurrency()->getCode());
             $cart->setLocaleCode($this->shopperContext->getLocaleCode());
-        } catch (ChannelNotFoundException $exception) {
-            throw new CartNotFoundException('Sylius was not able to prepare the cart.', $exception);
-        } catch (CurrencyNotFoundException $exception) {
-            throw new CartNotFoundException('Sylius was not able to prepare the cart.', $exception);
-        } catch (LocaleNotFoundException $exception) {
+        } catch (ChannelNotFoundException | CurrencyNotFoundException | LocaleNotFoundException $exception) {
             throw new CartNotFoundException('Sylius was not able to prepare the cart.', $exception);
         }
 
@@ -89,17 +77,20 @@ final class ShopBasedCartContext implements CartContextInterface
         return $cart;
     }
 
-    /**
-     * @param OrderInterface $cart
-     * @param CustomerInterface $customer
-     */
-    private function setCustomerAndAddressOnCart(OrderInterface $cart, CustomerInterface $customer)
+    private function setCustomerAndAddressOnCart(OrderInterface $cart, CustomerInterface $customer): void
     {
         $cart->setCustomer($customer);
 
         $defaultAddress = $customer->getDefaultAddress();
         if (null !== $defaultAddress) {
-            $cart->setShippingAddress(clone $defaultAddress);
+            $clonedAddress = clone $defaultAddress;
+            $clonedAddress->setCustomer(null);
+            $cart->setShippingAddress($clonedAddress);
         }
+    }
+
+    public function reset(): void
+    {
+        $this->cart = null;
     }
 }

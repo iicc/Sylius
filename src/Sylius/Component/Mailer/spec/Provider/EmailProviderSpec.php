@@ -9,26 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Mailer\Provider;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Mailer\Factory\EmailFactoryInterface;
 use Sylius\Component\Mailer\Model\EmailInterface;
-use Sylius\Component\Mailer\Provider\EmailProvider;
 use Sylius\Component\Mailer\Provider\EmailProviderInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class EmailProviderSpec extends ObjectBehavior
 {
-    function let(EmailFactoryInterface $emailFactory)
+    function let(EmailFactoryInterface $emailFactory): void
     {
         $emails = [
             'user_confirmation' => [
                 'enabled' => false,
                 'subject' => 'Hello test!',
-                'template' => 'SyliusMailerBundle::default.html.twig',
+                'template' => '@SyliusMailer/default.html.twig',
                 'sender' => [
                     'name' => 'John Doe',
                     'address' => 'john@doe.com',
@@ -37,7 +35,7 @@ final class EmailProviderSpec extends ObjectBehavior
             'order_cancelled' => [
                 'enabled' => false,
                 'subject' => 'Hi test!',
-                'template' => 'SyliusMailerBundle::default.html.twig',
+                'template' => '@SyliusMailer/default.html.twig',
                 'sender' => [
                     'name' => 'Rick Doe',
                     'address' => 'john@doe.com',
@@ -48,12 +46,7 @@ final class EmailProviderSpec extends ObjectBehavior
         $this->beConstructedWith($emailFactory, $emails);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType(EmailProvider::class);
-    }
-
-    function it_implements_email_provider_interface()
+    function it_implements_email_provider_interface(): void
     {
         $this->shouldImplement(EmailProviderInterface::class);
     }
@@ -61,12 +54,12 @@ final class EmailProviderSpec extends ObjectBehavior
     function it_looks_for_an_email_in_configuration_when_it_cannot_be_found_via_repository(
         EmailInterface $email,
         EmailFactoryInterface $emailFactory
-    ) {
+    ): void {
         $emailFactory->createNew()->willReturn($email);
 
         $email->setCode('user_confirmation')->shouldBeCalled();
         $email->setSubject('Hello test!')->shouldBeCalled();
-        $email->setTemplate('SyliusMailerBundle::default.html.twig')->shouldBeCalled();
+        $email->setTemplate('@SyliusMailer/default.html.twig')->shouldBeCalled();
         $email->setSenderName('John Doe')->shouldBeCalled();
         $email->setSenderAddress('john@doe.com')->shouldBeCalled();
         $email->setEnabled(false)->shouldBeCalled();

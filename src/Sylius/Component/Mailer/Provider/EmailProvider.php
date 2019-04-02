@@ -9,32 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Mailer\Provider;
 
 use Sylius\Component\Mailer\Factory\EmailFactoryInterface;
 use Sylius\Component\Mailer\Model\EmailInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Jérémy Leherpeur <jeremy@leherpeur.net>
- */
 final class EmailProvider implements EmailProviderInterface
 {
-    /**
-     * @var EmailFactoryInterface
-     */
-    protected $emailFactory;
+    /** @var EmailFactoryInterface */
+    private $emailFactory;
 
-    /**
-     * @var array
-     */
-    protected $configuration;
+    /** @var array */
+    private $configuration;
 
-    /**
-     * @param EmailFactoryInterface $emailFactory
-     * @param array $configuration
-     */
     public function __construct(
         EmailFactoryInterface $emailFactory,
         array $configuration
@@ -46,17 +36,12 @@ final class EmailProvider implements EmailProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getEmail($code)
+    public function getEmail(string $code): EmailInterface
     {
         return $this->getEmailFromConfiguration($code);
     }
 
-    /**
-     * @param string $code
-     *
-     * @return EmailInterface
-     */
-    private function getEmailFromConfiguration($code)
+    private function getEmailFromConfiguration(string $code): EmailInterface
     {
         Assert::keyExists($this->configuration, $code, sprintf('Email with code "%s" does not exist!', $code));
 

@@ -9,47 +9,36 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Event;
 
 use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @author Jérémy Leherpeur <jeremy@leherpeur.net>
- */
 class ResourceControllerEvent extends GenericEvent
 {
-    const TYPE_ERROR = 'error';
-    const TYPE_WARNING = 'warning';
-    const TYPE_INFO = 'info';
-    const TYPE_SUCCESS = 'success';
+    public const TYPE_ERROR = 'error';
+    public const TYPE_WARNING = 'warning';
+    public const TYPE_INFO = 'info';
+    public const TYPE_SUCCESS = 'success';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $messageType = '';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $message = '';
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $messageParameters = [];
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $errorCode = 500;
 
-    /**
-     * @param string $message
-     * @param string $type
-     * @param array $parameters
-     * @param int $errorCode
-     */
-    public function stop($message, $type = self::TYPE_ERROR, $parameters = [], $errorCode = 500)
+    /** @var Response */
+    private $response;
+
+    public function stop(string $message, string $type = self::TYPE_ERROR, array $parameters = [], int $errorCode = 500)
     {
         $this->messageType = $type;
         $this->message = $message;
@@ -59,18 +48,12 @@ class ResourceControllerEvent extends GenericEvent
         $this->stopPropagation();
     }
 
-    /**
-     * @return bool
-     */
-    public function isStopped()
+    public function isStopped(): bool
     {
         return $this->isPropagationStopped();
     }
 
-    /**
-     * @return string
-     */
-    public function getMessageType()
+    public function getMessageType(): string
     {
         return $this->messageType;
     }
@@ -78,56 +61,53 @@ class ResourceControllerEvent extends GenericEvent
     /**
      * @param string $messageType Should be one of ResourceEvent's TYPE constants
      */
-    public function setMessageType($messageType)
+    public function setMessageType($messageType): void
     {
         $this->messageType = $messageType;
     }
 
-    /**
-     * @return string
-     */
-    public function getMessage()
+    public function getMessage(): string
     {
         return $this->message;
     }
 
-    /**
-     * @param string $message
-     */
-    public function setMessage($message)
+    public function setMessage(string $message): void
     {
         $this->message = $message;
     }
 
-    /**
-     * @return array
-     */
-    public function getMessageParameters()
+    public function getMessageParameters(): array
     {
         return $this->messageParameters;
     }
 
-    /**
-     * @param array $messageParameters
-     */
-    public function setMessageParameters(array $messageParameters)
+    public function setMessageParameters(array $messageParameters): void
     {
         $this->messageParameters = $messageParameters;
     }
 
-    /**
-     * @return int
-     */
-    public function getErrorCode()
+    public function getErrorCode(): int
     {
         return $this->errorCode;
     }
 
-    /**
-     * @param int $errorCode
-     */
-    public function setErrorCode($errorCode)
+    public function setErrorCode(int $errorCode): void
     {
         $this->errorCode = $errorCode;
+    }
+
+    public function setResponse(Response $response): void
+    {
+        $this->response = $response;
+    }
+
+    public function hasResponse(): bool
+    {
+        return null !== $this->response;
+    }
+
+    public function getResponse(): ?Response
+    {
+        return $this->response;
     }
 }

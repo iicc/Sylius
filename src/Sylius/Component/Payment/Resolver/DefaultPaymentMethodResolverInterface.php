@@ -9,20 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Payment\Resolver;
 
 use Sylius\Component\Payment\Model\PaymentInterface;
 use Sylius\Component\Payment\Model\PaymentMethodInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface DefaultPaymentMethodResolverInterface
 {
-    /**
-     * @param PaymentInterface $payment
-     *
-     * @return PaymentMethodInterface
-     */
-    public function getDefaultPaymentMethod(PaymentInterface $payment);
+    public function getDefaultPaymentMethod(PaymentInterface $payment): PaymentMethodInterface;
 }

@@ -6,7 +6,8 @@ Feature: Editing promotion
 
     Background:
         Given the store operates on a single channel in "United States"
-        And there is a promotion "Christmas sale"
+        And there is a promotion "Christmas sale" with priority 0
+        And there is a promotion "Holiday sale" with priority 1
         And I am logged in as an administrator
 
     @ui
@@ -47,7 +48,7 @@ Feature: Editing promotion
         And the "Christmas sale" promotion should be applicable for the "United States" channel
 
     @ui
-    Scenario: Adding a promotion with start and end date
+    Scenario: Editing a promotion with start and end date
         Given I want to modify a "Christmas sale" promotion
         When I make it available from "12.12.2017" to "24.12.2017"
         And I save my changes
@@ -59,3 +60,11 @@ Feature: Editing promotion
         Given this promotion gives "$10.00" discount to every order
         When the store also operates on another channel named "EU-WEB"
         Then I should be able to modify a "Christmas sale" promotion
+
+    @ui
+    Scenario: Remove priority from existing promotion
+        Given I want to modify a "Christmas sale" promotion
+        When I remove its priority
+        And I save my changes
+        Then I should be notified that it has been successfully edited
+        And the "Christmas sale" promotion should have priority 1

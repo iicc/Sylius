@@ -9,25 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
 use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class TaxonContext implements Context
 {
-    /**
-     * @var TaxonRepositoryInterface
-     */
+    /** @var TaxonRepositoryInterface */
     private $taxonRepository;
 
-    /**
-     * @param TaxonRepositoryInterface $taxonRepository
-     */
     public function __construct(TaxonRepositoryInterface $taxonRepository)
     {
         $this->taxonRepository = $taxonRepository;
@@ -49,8 +43,8 @@ final class TaxonContext implements Context
         $taxons = $this->taxonRepository->findByName($name, 'en_US');
 
         Assert::eq(
-            1,
             count($taxons),
+            1,
             sprintf('%d taxons has been found with name "%s".', count($taxons), $name)
         );
 
@@ -75,7 +69,7 @@ final class TaxonContext implements Context
     {
         return [
             $this->getTaxonByName($firstTaxon),
-            $this->getTaxonByName($secondTaxon)
+            $this->getTaxonByName($secondTaxon),
         ];
     }
 }

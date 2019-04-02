@@ -9,61 +9,42 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Grid\Definition;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class ActionGroup
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var Action[]
-     */
+    /** @var Action[] */
     private $actions = [];
 
-    /**
-     * @param string $name
-     */
-    private function __construct($name)
+    private function __construct(string $name)
     {
         $this->name = $name;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return self
-     */
-    public static function named($name)
+    public static function named(string $name): self
     {
         return new self($name);
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return array
-     */
-    public function getActions()
+    public function getActions(): array
     {
         return $this->actions;
     }
 
     /**
-     * @param Action $action
+     * @throws \InvalidArgumentException
      */
-    public function addAction(Action $action)
+    public function addAction(Action $action): void
     {
         if ($this->hasAction($name = $action->getName())) {
             throw new \InvalidArgumentException(sprintf('Action "%s" already exists.', $name));
@@ -72,12 +53,7 @@ class ActionGroup
         $this->actions[$name] = $action;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return Action
-     */
-    public function getAction($name)
+    public function getAction(string $name): Action
     {
         if (!$this->hasAction($name)) {
             throw new \InvalidArgumentException(sprintf('Action "%s" does not exist.', $name));
@@ -86,12 +62,7 @@ class ActionGroup
         return $this->actions[$name];
     }
 
-    /**
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasAction($name)
+    public function hasAction(string $name): bool
     {
         return isset($this->actions[$name]);
     }

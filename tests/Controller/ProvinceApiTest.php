@@ -9,19 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Tests\Controller;
 
 use Lakion\ApiTestCase\JsonApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @author Jeroen Thora <jeroen.thora@intracto.com>
- */
-class ProvinceApiTest extends JsonApiTestCase
+final class ProvinceApiTest extends JsonApiTestCase
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithContentType = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'CONTENT_TYPE' => 'application/json',
@@ -46,7 +43,7 @@ class ProvinceApiTest extends JsonApiTestCase
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $countryData = $this->loadFixturesFromFile('resources/countries.yml');
 
-        $this->client->request('GET', '/api/v1/countries/'.$countryData['country_BE']->getCode().'/provinces/'.$countryData['province_BE_limburg']->getCode(), [], [], static::$authorizedHeaderWithContentType);
+        $this->client->request('GET', '/api/v1/countries/' . $countryData['country_BE']->getCode() . '/provinces/' . $countryData['province_BE_limburg']->getCode(), [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'province/show_response', Response::HTTP_OK);
@@ -60,12 +57,12 @@ class ProvinceApiTest extends JsonApiTestCase
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $countryData = $this->loadFixturesFromFile('resources/countries.yml');
 
-        $this->client->request('DELETE', '/api/v1/countries/'.$countryData['country_BE']->getCode().'/provinces/'.$countryData['province_BE_limburg']->getCode(), [], [], static::$authorizedHeaderWithContentType);
+        $this->client->request('DELETE', '/api/v1/countries/' . $countryData['country_BE']->getCode() . '/provinces/' . $countryData['province_BE_limburg']->getCode(), [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
         $this->assertResponseCode($response, Response::HTTP_NO_CONTENT);
 
-        $this->client->request('GET', '/api/v1/countries/'.$countryData['country_BE']->getCode().'/provinces/'.$countryData['province_BE_limburg']->getCode(), [], [], static::$authorizedHeaderWithContentType);
+        $this->client->request('GET', '/api/v1/countries/' . $countryData['country_BE']->getCode() . '/provinces/' . $countryData['province_BE_limburg']->getCode(), [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'error/not_found_response', Response::HTTP_NOT_FOUND);

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PayumBundle\Extension;
 
 use Payum\Core\Extension\Context;
@@ -20,17 +22,14 @@ use SM\Factory\FactoryInterface;
 use Sylius\Bundle\PayumBundle\Request\GetStatus;
 use Sylius\Component\Payment\Model\PaymentInterface;
 use Sylius\Component\Payment\PaymentTransitions;
+use Sylius\Component\Resource\StateMachine\StateMachineInterface;
+use Webmozart\Assert\Assert;
 
 final class UpdatePaymentStateExtension implements ExtensionInterface
 {
-    /**
-     * @var FactoryInterface
-     */
-    protected $factory;
+    /** @var FactoryInterface */
+    private $factory;
 
-    /**
-     * @param FactoryInterface $factory
-     */
     public function __construct(FactoryInterface $factory)
     {
         $this->factory = $factory;
@@ -39,24 +38,34 @@ final class UpdatePaymentStateExtension implements ExtensionInterface
     /**
      * {@inheritdoc}
      */
-    public function onPreExecute(Context $context)
+    public function onPreExecute(Context $context): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function onExecute(Context $context)
+    public function onExecute(Context $context): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function onPostExecute(Context $context)
+    public function onPostExecute(Context $context): void
     {
-        if ($context->getPrevious()) {
+        $previousStack = $context->getPrevious();
+        $previousStackSize = count($previousStack);
+
+        if ($previousStackSize > 1) {
             return;
+        }
+
+        if ($previousStackSize === 1) {
+            $previousActionClassName = get_class($previousStack[0]->getAction());
+            if (false === stripos($previousActionClassName, 'NotifyNullAction')) {
+                return;
+            }
         }
 
         /** @var Generic $request */
@@ -76,18 +85,18 @@ final class UpdatePaymentStateExtension implements ExtensionInterface
         }
 
         $context->getGateway()->execute($status = new GetStatus($payment));
-        if ($payment->getState() !== $status->getValue()) {
-            $this->updatePaymentState($payment, $status->getValue());
+        $value = $status->getValue();
+        if ($payment->getState() !== $value && PaymentInterface::STATE_UNKNOWN !== $value) {
+            $this->updatePaymentState($payment, $value);
         }
     }
 
-    /**
-     * @param PaymentInterface $payment
-     * @param string $nextState
-     */
-    protected function updatePaymentState(PaymentInterface $payment, $nextState)
+    private function updatePaymentState(PaymentInterface $payment, string $nextState): void
     {
+        /** @var StateMachineInterface $stateMachine */
         $stateMachine = $this->factory->get($payment, PaymentTransitions::GRAPH);
+
+        Assert::isInstanceOf($stateMachine, StateMachineInterface::class);
 
         if (null !== $transition = $stateMachine->getTransitionToState($nextState)) {
             $stateMachine->apply($transition);

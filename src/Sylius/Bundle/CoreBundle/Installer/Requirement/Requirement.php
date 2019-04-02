@@ -9,72 +9,48 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Installer\Requirement;
 
 final class Requirement
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $label;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $fulfilled;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $required;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $help;
 
-    /**
-     * @param string $label
-     * @param bool $fulfilled
-     * @param bool $required
-     * @param string|null $help
-     */
-    public function __construct($label, $fulfilled, $required = true, $help = null)
+    public function __construct(string $label, bool $fulfilled, bool $required = true, ?string $help = null)
     {
         $this->label = $label;
-        $this->fulfilled = (boolean) $fulfilled;
-        $this->required = (boolean) $required;
+        $this->fulfilled = $fulfilled;
+        $this->required = $required;
         $this->help = $help;
     }
 
-    /**
-     * @return string
-     */
-    public function getLabel()
+    public function getLabel(): string
     {
         return $this->label;
     }
 
-    /**
-     * @return bool
-     */
-    public function isFulfilled()
+    public function isFulfilled(): bool
     {
         return $this->fulfilled;
     }
 
-    /**
-     * @return bool
-     */
-    public function isRequired()
+    public function isRequired(): bool
     {
         return $this->required;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getHelp()
+    public function getHelp(): ?string
     {
         return $this->help;
     }

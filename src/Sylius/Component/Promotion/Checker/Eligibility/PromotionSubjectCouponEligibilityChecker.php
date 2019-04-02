@@ -9,25 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Checker\Eligibility;
 
 use Sylius\Component\Promotion\Model\PromotionCouponAwarePromotionSubjectInterface;
 use Sylius\Component\Promotion\Model\PromotionInterface;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class PromotionSubjectCouponEligibilityChecker implements PromotionEligibilityCheckerInterface
 {
-    /**
-     * @var PromotionCouponEligibilityCheckerInterface
-     */
+    /** @var PromotionCouponEligibilityCheckerInterface */
     private $promotionCouponEligibilityChecker;
 
-    /**
-     * @param PromotionCouponEligibilityCheckerInterface $promotionCouponEligibilityChecker
-     */
     public function __construct(PromotionCouponEligibilityCheckerInterface $promotionCouponEligibilityChecker)
     {
         $this->promotionCouponEligibilityChecker = $promotionCouponEligibilityChecker;
@@ -36,7 +30,7 @@ final class PromotionSubjectCouponEligibilityChecker implements PromotionEligibi
     /**
      * {@inheritdoc}
      */
-    public function isEligible(PromotionSubjectInterface $promotionSubject, PromotionInterface $promotion)
+    public function isEligible(PromotionSubjectInterface $promotionSubject, PromotionInterface $promotion): bool
     {
         if (!$promotion->isCouponBased()) {
             return true;

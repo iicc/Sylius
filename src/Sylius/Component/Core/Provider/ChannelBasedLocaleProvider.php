@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Provider;
 
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -17,26 +19,15 @@ use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Locale\Provider\LocaleProviderInterface;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class ChannelBasedLocaleProvider implements LocaleProviderInterface
 {
-    /**
-     * @var ChannelContextInterface
-     */
+    /** @var ChannelContextInterface */
     private $channelContext;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $defaultLocaleCode;
 
-    /**
-     * @param ChannelContextInterface $channelContext
-     * @param string $defaultLocaleCode
-     */
-    public function __construct(ChannelContextInterface $channelContext, $defaultLocaleCode)
+    public function __construct(ChannelContextInterface $channelContext, string $defaultLocaleCode)
     {
         $this->channelContext = $channelContext;
         $this->defaultLocaleCode = $defaultLocaleCode;
@@ -45,7 +36,7 @@ final class ChannelBasedLocaleProvider implements LocaleProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getAvailableLocalesCodes()
+    public function getAvailableLocalesCodes(): array
     {
         try {
             /** @var ChannelInterface $channel */
@@ -53,9 +44,6 @@ final class ChannelBasedLocaleProvider implements LocaleProviderInterface
 
             return $channel
                 ->getLocales()
-                ->filter(function (LocaleInterface $locale) {
-                    return $locale->isEnabled();
-                })
                 ->map(function (LocaleInterface $locale) {
                     return $locale->getCode();
                 })
@@ -69,7 +57,7 @@ final class ChannelBasedLocaleProvider implements LocaleProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getDefaultLocaleCode()
+    public function getDefaultLocaleCode(): string
     {
         try {
             /** @var ChannelInterface $channel */

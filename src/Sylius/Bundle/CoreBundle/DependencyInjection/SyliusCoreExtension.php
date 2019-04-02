@@ -9,24 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\DependencyInjection;
 
+use Sylius\Bundle\CoreBundle\Routing\Matcher\Dumper\PhpMatcherDumper;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\HttpKernel\Kernel;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
-final class SyliusCoreExtension extends AbstractResourceExtension implements PrependExtensionInterface
+final class SyliusCoreExtension extends AbstractResourceExtension implements PrependExtensionInterface, CompilerPassInterface
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $bundles = [
         'sylius_addressing',
         'sylius_attribute',
@@ -51,10 +50,10 @@ final class SyliusCoreExtension extends AbstractResourceExtension implements Pre
     /**
      * {@inheritdoc}
      */
-    public function load(array $config, ContainerBuilder $container)
+    public function load(array $config, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
 
@@ -69,7 +68,7 @@ final class SyliusCoreExtension extends AbstractResourceExtension implements Pre
     /**
      * {@inheritdoc}
      */
-    public function prepend(ContainerBuilder $container)
+    public function prepend(ContainerBuilder $container): void
     {
         $config = $container->getExtensionConfig($this->getAlias());
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
@@ -82,20 +81,30 @@ final class SyliusCoreExtension extends AbstractResourceExtension implements Pre
 
         $container->prependExtensionConfig('sylius_theme', ['context' => 'sylius.theme.context.channel_based']);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $this->prependHwiOauth($container, $loader);
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param LoaderInterface $loader
-     */
-    private function prependHwiOauth(ContainerBuilder $container, LoaderInterface $loader)
+    private function prependHwiOauth(ContainerBuilder $container, LoaderInterface $loader): void
     {
         if (!$container->hasExtension('hwi_oauth')) {
             return;
         }
 
         $loader->load('services/integrations/hwi_oauth.xml');
+    }
+
+    public function process(ContainerBuilder $container): void
+    {
+        // Should be removed after PhpMatcherDumper is fixed in an another Symfony patch release
+        if (!in_array(Kernel::VERSION, ['4.1.8', '4.1.9'], true)) {
+            return;
+        }
+
+        $routerDefinition = $container->findDefinition('router.default');
+        $routerDefinition->replaceArgument(2, array_merge(
+            $routerDefinition->getArgument(2),
+            ['matcher_dumper_class' => PhpMatcherDumper::class]
+        ));
     }
 }

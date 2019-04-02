@@ -9,27 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\Type\Promotion\Filter;
 
-use Sylius\Bundle\ProductBundle\Form\Type\ProductChoiceType;
-use Sylius\Component\Core\Repository\ProductRepositoryInterface;
+use Sylius\Bundle\ProductBundle\Form\Type\ProductAutocompleteChoiceType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class ProductFilterConfigurationType extends AbstractType
 {
-    /**
-     * @var DataTransformerInterface
-     */
+    /** @var DataTransformerInterface */
     private $productsToCodesTransformer;
 
-    /**
-     * @param DataTransformerInterface $productsToCodesTransformer
-     */
     public function __construct(DataTransformerInterface $productsToCodesTransformer)
     {
         $this->productsToCodesTransformer = $productsToCodesTransformer;
@@ -38,13 +31,12 @@ final class ProductFilterConfigurationType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('products', ProductChoiceType::class, [
+            ->add('products', ProductAutocompleteChoiceType::class, [
                 'label' => 'sylius.form.promotion_filter.products',
                 'multiple' => true,
-                'required' => false,
             ])
         ;
 
@@ -54,7 +46,7 @@ final class ProductFilterConfigurationType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_promotion_action_filter_product_configuration';
     }

@@ -9,30 +9,28 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Model;
 
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 use Sylius\Component\Resource\Model\TranslatableInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-/**
- * @author Leszek Prabucki <leszek.prabucki@gmail.com>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface ProductAssociationTypeInterface extends
     CodeAwareInterface,
     TimestampableInterface,
     ResourceInterface,
     TranslatableInterface
 {
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getName(): ?string;
+
+    public function setName(?string $name): void;
 
     /**
-     * @param string $name
+     * @return ProductAssociationTypeTranslationInterface
      */
-    public function setName($name);
+    public function getTranslation(?string $locale = null): TranslationInterface;
 }

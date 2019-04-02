@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Channel;
 
+use Behat\Mink\Element\NodeElement;
 use Sylius\Behat\Behaviour\DescribesIt;
 use Sylius\Behat\Behaviour\NamesIt;
 use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Behaviour\Toggles;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 class CreatePage extends BaseCreatePage implements CreatePageInterface
 {
     use NamesIt;
@@ -27,58 +27,37 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     use DescribesIt;
     use Toggles;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setHostname($hostname)
+    public function setHostname(string $hostname): void
     {
         $this->getDocument()->fillField('Hostname', $hostname);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setContactEmail($contactEmail)
+    public function setContactEmail(string $contactEmail): void
     {
         $this->getDocument()->fillField('Contact email', $contactEmail);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function defineColor($color)
+    public function defineColor(string $color): void
     {
         $this->getDocument()->fillField('Color', $color);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function chooseCurrency($currencyCode)
+    public function chooseCurrency(string $currencyCode): void
     {
         $this->getDocument()->selectFieldOption('Currencies', $currencyCode);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function chooseLocale($language)
+    public function chooseLocale(string $language): void
     {
         $this->getDocument()->selectFieldOption('Locales', $language);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function chooseDefaultTaxZone($taxZone)
+    public function chooseDefaultTaxZone(string $taxZone): void
     {
         $this->getDocument()->selectFieldOption('Default tax zone', $taxZone);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function chooseDefaultLocale($locale)
+    public function chooseDefaultLocale(?string $locale): void
     {
         if (null !== $locale) {
             $this->getElement('locales')->selectOption($locale);
@@ -86,10 +65,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function chooseBaseCurrency($currency)
+    public function chooseBaseCurrency(?string $currency): void
     {
         if (null !== $currency) {
             $this->getElement('currencies')->selectOption($currency);
@@ -97,26 +73,27 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function chooseTaxCalculationStrategy($taxZone)
+    public function chooseTaxCalculationStrategy(string $taxZone): void
     {
         $this->getDocument()->selectFieldOption('Tax calculation strategy', $taxZone);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getToggleableElement()
+    public function allowToSkipShippingStep(): void
+    {
+        $this->getDocument()->checkField('Skip shipping step if only one shipping method is available?');
+    }
+
+    public function allowToSkipPaymentStep(): void
+    {
+        $this->getDocument()->checkField('Skip payment step if only one payment method is available?');
+    }
+
+    protected function getToggleableElement(): NodeElement
     {
         return $this->getElement('enabled');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'code' => '#sylius_channel_code',

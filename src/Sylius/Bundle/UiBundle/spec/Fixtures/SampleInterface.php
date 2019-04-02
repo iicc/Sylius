@@ -9,11 +9,10 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UiBundle\spec\Fixtures;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 interface SampleInterface
 {
     /**
@@ -26,9 +25,6 @@ interface SampleInterface
      */
     public function getString();
 
-    /**
-     * @return mixed
-     */
     public function getBizarrelyNamedProperty();
 
     /**

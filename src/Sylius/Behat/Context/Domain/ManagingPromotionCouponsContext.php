@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Domain;
 
 use Behat\Behat\Context\Context;
@@ -19,25 +21,14 @@ use Sylius\Component\Promotion\Model\PromotionCouponInterface;
 use Sylius\Component\Promotion\Repository\PromotionCouponRepositoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class ManagingPromotionCouponsContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var PromotionCouponRepositoryInterface
-     */
+    /** @var PromotionCouponRepositoryInterface */
     private $couponRepository;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param PromotionCouponRepositoryInterface $couponRepository
-     */
     public function __construct(SharedStorageInterface $sharedStorage, PromotionCouponRepositoryInterface $couponRepository)
     {
         $this->sharedStorage = $sharedStorage;
@@ -71,10 +62,7 @@ final class ManagingPromotionCouponsContext implements Context
      */
     public function couponShouldNotExistInTheRegistry(PromotionCouponInterface $coupon)
     {
-        Assert::null(
-            $this->couponRepository->findOneBy(['code' => $coupon->getCode()]),
-            sprintf('The coupon with code %s should not exist', $coupon->getCode())
-        );
+        Assert::null($this->couponRepository->findOneBy(['code' => $coupon->getCode()]));
     }
 
     /**
@@ -90,9 +78,6 @@ final class ManagingPromotionCouponsContext implements Context
      */
     public function couponShouldStillExistInTheRegistry(PromotionCouponInterface $coupon)
     {
-        Assert::notNull(
-            $this->couponRepository->find($coupon->getId()),
-            sprintf('The coupon with id %s should exist', $coupon->getId())
-        );
+        Assert::notNull($this->couponRepository->find($coupon->getId()));
     }
 }

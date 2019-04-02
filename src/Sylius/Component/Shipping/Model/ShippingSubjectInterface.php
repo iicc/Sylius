@@ -9,37 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Model;
 
 use Doctrine\Common\Collections\Collection;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ShippingSubjectInterface
 {
-    /**
-     * @return int
-     */
-    public function getShippingWeight();
+    public function getShippingWeight(): float;
 
-    /**
-     * @return int
-     */
-    public function getShippingVolume();
+    public function getShippingVolume(): float;
 
-    /**
-     * @return int
-     */
-    public function getShippingUnitCount();
+    public function getShippingUnitCount(): int;
 
-    /**
-     * @return int
-     */
-    public function getShippingUnitTotal();
+    public function getShippingUnitTotal(): int;
 
     /**
      * @return Collection|ShippableInterface[]
      */
-    public function getShippables();
+    public function getShippables(): Collection;
 }

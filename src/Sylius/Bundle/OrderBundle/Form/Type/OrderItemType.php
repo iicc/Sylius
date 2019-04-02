@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\OrderBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
@@ -16,23 +18,13 @@ use Symfony\Component\Form\DataMapperInterface;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class OrderItemType extends AbstractResourceType
 {
-    /**
-     * @var DataMapperInterface
-     */
-    protected $dataMapper;
+    /** @var DataMapperInterface */
+    private $dataMapper;
 
-    /**
-     * @param string $dataClass
-     * @param array $validationGroups
-     * @param DataMapperInterface $dataMapper
-     */
     public function __construct(
-        $dataClass,
+        string $dataClass,
         array $validationGroups = [],
         DataMapperInterface $dataMapper
     ) {
@@ -44,7 +36,7 @@ final class OrderItemType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('quantity', IntegerType::class, [
@@ -58,7 +50,7 @@ final class OrderItemType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_order_item';
     }

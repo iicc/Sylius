@@ -9,36 +9,26 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Checker\Rule;
 
-use Sylius\Bundle\PromotionBundle\Form\Type\Rule\CartQuantityConfigurationType;
 use Sylius\Component\Promotion\Model\CountablePromotionSubjectInterface;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 final class CartQuantityRuleChecker implements RuleCheckerInterface
 {
-    const TYPE = 'cart_quantity';
+    public const TYPE = 'cart_quantity';
 
     /**
      * {@inheritdoc}
      */
-    public function isEligible(PromotionSubjectInterface $subject, array $configuration)
+    public function isEligible(PromotionSubjectInterface $subject, array $configuration): bool
     {
         if (!$subject instanceof CountablePromotionSubjectInterface) {
             return false;
         }
 
         return $subject->getPromotionSubjectCount() >= $configuration['count'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return CartQuantityConfigurationType::class;
     }
 }

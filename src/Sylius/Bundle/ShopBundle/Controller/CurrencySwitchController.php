@@ -9,87 +9,70 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ShopBundle\Controller;
 
-use Sylius\Component\Core\Currency\Handler\CurrencyChangeHandlerInterface;
+use Sylius\Component\Channel\Context\ChannelContextInterface;
+use Sylius\Component\Core\Currency\CurrencyStorageInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Currency\Context\CurrencyContextInterface;
-use Sylius\Component\Currency\Provider\CurrencyProviderInterface;
+use Sylius\Component\Currency\Model\CurrencyInterface;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class CurrencySwitchController
 {
-    /**
-     * @var EngineInterface
-     */
+    /** @var EngineInterface */
     private $templatingEngine;
 
-    /**
-     * @var CurrencyContextInterface
-     */
+    /** @var CurrencyContextInterface */
     private $currencyContext;
 
-    /**
-     * @var CurrencyProviderInterface
-     */
-    private $currencyProvider;
+    /** @var CurrencyStorageInterface */
+    private $currencyStorage;
 
-    /**
-     * @var CurrencyChangeHandlerInterface
-     */
-    private $currencyChangeHandler;
+    /** @var ChannelContextInterface */
+    private $channelContext;
 
-    /**
-     * @param EngineInterface $templatingEngine
-     * @param CurrencyContextInterface $currencyContext
-     * @param CurrencyProviderInterface $currencyProvider
-     * @param CurrencyChangeHandlerInterface $currencyChangeHandler
-     */
     public function __construct(
         EngineInterface $templatingEngine,
         CurrencyContextInterface $currencyContext,
-        CurrencyProviderInterface $currencyProvider,
-        CurrencyChangeHandlerInterface $currencyChangeHandler
+        CurrencyStorageInterface $currencyStorage,
+        ChannelContextInterface $channelContext
     ) {
         $this->templatingEngine = $templatingEngine;
         $this->currencyContext = $currencyContext;
-        $this->currencyProvider = $currencyProvider;
-        $this->currencyChangeHandler = $currencyChangeHandler;
+        $this->currencyStorage = $currencyStorage;
+        $this->channelContext = $channelContext;
     }
 
-    /**
-     * @return Response
-     */
-    public function renderAction()
+    public function renderAction(): Response
     {
-        return $this->templatingEngine->renderResponse('@SyliusShop/_currencySwitch.html.twig', [
+        /** @var ChannelInterface $channel */
+        $channel = $this->channelContext->getChannel();
+
+        $availableCurrencies = array_map(
+            function (CurrencyInterface $currency) {
+                return $currency->getCode();
+            },
+            $channel->getCurrencies()->toArray()
+        );
+
+        return $this->templatingEngine->renderResponse('@SyliusShop/Menu/_currencySwitch.html.twig', [
             'active' => $this->currencyContext->getCurrencyCode(),
-            'currencies' => $this->currencyProvider->getAvailableCurrenciesCodes(),
+            'currencies' => $availableCurrencies,
         ]);
     }
 
-    /**
-     * @param Request $request
-     * @param string $code
-     *
-     * @return Response
-     */
-    public function switchAction(Request $request, $code)
+    public function switchAction(Request $request, string $code): Response
     {
-        if (!in_array($code, $this->currencyProvider->getAvailableCurrenciesCodes())) {
-            throw new HttpException(
-                Response::HTTP_NOT_ACCEPTABLE,
-                sprintf('The currency code "%s" is invalid.', $code)
-            );
-        }
+        /** @var ChannelInterface $channel */
+        $channel = $this->channelContext->getChannel();
 
-        $this->currencyChangeHandler->handle($code);
+        $this->currencyStorage->set($channel, $code);
 
         return new RedirectResponse($request->headers->get('referer', $request->getSchemeAndHttpHost()));
     }

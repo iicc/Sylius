@@ -16,21 +16,18 @@ sylius_shop_checkout_address:
         _sylius:
             event: address
             flash: false
-            template: SyliusShopBundle:Checkout:address.html.twig
+            template: "@SyliusShop/Checkout/address.html.twig"
             form:
                 type: Sylius\Bundle\CoreBundle\Form\Type\Checkout\AddressType
                 options:
                     customer: expr:service('sylius.context.customer').getCustomer()
             repository:
-                method: find
+                method: findCartForAddressing
                 arguments:
-                    - "expr:service('sylius.context.cart').getCart()"
+                    - "expr:service('sylius.context.cart').getCart().getId()"
             state_machine:
                 graph: sylius_order_checkout
                 transition: address
-            redirect:
-                route: sylius_shop_checkout_select_shipping
-                parameters: []
 
 sylius_shop_checkout_select_shipping:
     path: /select-shipping
@@ -40,18 +37,15 @@ sylius_shop_checkout_select_shipping:
         _sylius:
             event: select_shipping
             flash: false
-            template: SyliusShopBundle:Checkout:selectShipping.html.twig
+            template: "@SyliusShop/Checkout/selectShipping.html.twig"
             form: Sylius\Bundle\CoreBundle\Form\Type\Checkout\SelectShippingType
             repository:
-                method: find
+                method: findCartForSelectingShipping
                 arguments:
-                    - "expr:service('sylius.context.cart').getCart()"
+                    - "expr:service('sylius.context.cart').getCart().getId()"
             state_machine:
                 graph: sylius_order_checkout
                 transition: select_shipping
-            redirect:
-                route: sylius_shop_checkout_select_payment
-                parameters: []
 
 sylius_shop_checkout_select_payment:
     path: /select-payment
@@ -61,18 +55,15 @@ sylius_shop_checkout_select_payment:
         _sylius:
             event: payment
             flash: false
-            template: SyliusShopBundle:Checkout:selectPayment.html.twig
+            template: "@SyliusShop/Checkout/selectPayment.html.twig"
             form: Sylius\Bundle\CoreBundle\Form\Type\Checkout\SelectPaymentType
             repository:
-                method: find
+                method: findCartForSelectingPayment
                 arguments:
-                    - "expr:service('sylius.context.cart').getCart()"
+                    - "expr:service('sylius.context.cart').getCart().getId()"
             state_machine:
                 graph: sylius_order_checkout
                 transition: select_payment
-            redirect:
-                route: sylius_shop_checkout_complete
-                parameters: []
 
 sylius_shop_checkout_complete:
     path: /complete
@@ -82,11 +73,11 @@ sylius_shop_checkout_complete:
         _sylius:
             event: complete
             flash: false
-            template: SyliusShopBundle:Checkout:complete.html.twig
+            template: "@SyliusShop/Checkout/complete.html.twig"
             repository:
-                method: find
+                method: findCartForSummary
                 arguments:
-                    - "expr:service('sylius.context.cart').getCart()"
+                    - "expr:service('sylius.context.cart').getCart().getId()"
             state_machine:
                 graph: sylius_order_checkout
                 transition: complete

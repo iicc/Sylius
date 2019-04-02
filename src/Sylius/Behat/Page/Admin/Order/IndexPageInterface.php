@@ -9,42 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Order;
 
 use Sylius\Behat\Page\Admin\Crud\IndexPageInterface as BaseIndexPageInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 interface IndexPageInterface extends BaseIndexPageInterface
 {
-    /**
-     * @param \DateTime $dateTime
-     */
-    public function specifyFilterDateFrom(\DateTime $dateTime);
+    public function specifyFilterDateFrom(string $dateTime): void;
 
-    /**
-     * @param \DateTime $dateTime
-     */
-    public function specifyFilterDateTo(\DateTime $dateTime);
+    public function specifyFilterDateTo(string $dateTime): void;
 
-    /**
-     * @param string $channelName
-     */
-    public function chooseChannelFilter($channelName);
+    public function chooseChannelFilter(string $channelName): void;
 
-    /**
-     * @param string $currencyName
-     */
-    public function chooseCurrencyFilter($currencyName);
+    public function chooseCurrencyFilter(string $currencyName): void;
 
-    /**
-     * @param string $total
-     */
-    public function specifyFilterTotalGreaterThan($total);
+    public function specifyFilterTotalGreaterThan(string $total): void;
 
-    /**
-     * @param string $total
-     */
-    public function specifyFilterTotalLessThan($total);
+    public function specifyFilterTotalLessThan(string $total): void;
 }

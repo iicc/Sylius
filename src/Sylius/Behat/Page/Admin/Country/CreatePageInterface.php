@@ -9,25 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Country;
 
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- * @author Magdalena Banasiak <magdalena.banasiak@lakion.com>
- */
 interface CreatePageInterface extends BaseCreatePageInterface
 {
-    /**
-     * @param string $name
-     */
-    public function chooseName($name);
+    public function chooseName(string $name): void;
 
-    /**
-     * @param string $name
-     * @param string $code
-     * @param string|null $abbreviation
-     */
-    public function addProvince($name, $code, $abbreviation = null);
+    public function addProvince(string $name, string $code, string $abbreviation = null): void;
 }

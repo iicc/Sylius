@@ -9,9 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Component\Core\Model\ShipmentInterface;
 use Sylius\Component\Core\Repository\ShipmentRepositoryInterface;
 
 class ShipmentRepository extends EntityRepository implements ShipmentRepositoryInterface
@@ -19,14 +23,20 @@ class ShipmentRepository extends EntityRepository implements ShipmentRepositoryI
     /**
      * {@inheritdoc}
      */
-    public function findOneByOrderId($id, $orderId)
+    public function createListQueryBuilder(): QueryBuilder
     {
-        $queryBuilder = $this->createQueryBuilder('o');
+        return $this->createQueryBuilder('o');
+    }
 
-        return $queryBuilder
-            ->andWhere('o.id = :id')
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByOrderId($shipmentId, $orderId): ?ShipmentInterface
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.id = :shipmentId')
             ->andWhere('o.order = :orderId')
-            ->setParameter('id', $id)
+            ->setParameter('shipmentId', $shipmentId)
             ->setParameter('orderId', $orderId)
             ->getQuery()
             ->getOneOrNullResult()
@@ -36,10 +46,10 @@ class ShipmentRepository extends EntityRepository implements ShipmentRepositoryI
     /**
      * {@inheritdoc}
      */
-    public function findByName($name, $locale)
+    public function findByName(string $name, string $locale): array
     {
         return $this->createQueryBuilder('o')
-            ->leftJoin('o.translations', 'translation')
+            ->innerJoin('o.translations', 'translation')
             ->andWhere('translation.name = :name')
             ->andWhere('translation.locale = :locale')
             ->setParameter('name', $name)

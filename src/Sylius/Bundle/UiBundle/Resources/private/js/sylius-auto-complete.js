@@ -7,50 +7,71 @@
  * file that was distributed with this source code.
  */
 
-(function ( $ ) {
-    'use strict';
+import 'semantic-ui-css/components/dropdown';
+import $ from 'jquery';
 
-    $.fn.extend({
-        autoComplete: function () {
-            var element = $(this);
-            var criteriaType = $(this).data('criteria-type');
-            var criteriaName = $(this).data('criteria-name');
+$.fn.extend({
+  autoComplete() {
+    this.each((idx, el) => {
+      const element = $(el);
+      const criteriaName = element.data('criteria-name');
+      const choiceName = element.data('choice-name');
+      const choiceValue = element.data('choice-value');
+      const autocompleteValue = element.find('input.autocomplete').val();
+      const loadForEditUrl = element.data('load-edit-url');
 
-            element.dropdown({
-                delay: {
-                    search: 250
-                },
-                forceSelection: false,
-                apiSettings: {
-                    dataType: 'JSON',
-                    cache: false,
-                    data: {
-                        criteria: {}
-                    },
-                    beforeSend: function(settings) {
-                        settings.data.criteria[criteriaName] = {type: criteriaType, value: ''};
-                        settings.data.criteria[criteriaName].value = settings.urlData.query;
+      element.dropdown({
+        delay: {
+          search: 250,
+        },
+        forceSelection: false,
+        apiSettings: {
+          dataType: 'JSON',
+          cache: false,
+          beforeSend(settings) {
+            /* eslint-disable-next-line no-param-reassign */
+            settings.data[criteriaName] = settings.urlData.query;
 
-                        return settings;
-                    },
-                    onResponse: function (response) {
-                        var choiceName = element.data('choice-name');
-                        var choiceValue = element.data('choice-value');
-                        var myResults = [];
-                        $.each(response._embedded.items, function (index, item) {
-                            myResults.push({
-                                name: item[choiceName],
-                                value: item[choiceValue]
-                            });
-                        });
+            return settings;
+          },
+          onResponse(response) {
+            return {
+              success: true,
+              results: response.map(item => ({
+                name: item[choiceName],
+                value: item[choiceValue],
+              })),
+            };
+          },
+        },
+      });
 
-                        return {
-                            success: true,
-                            results: myResults
-                        };
-                    }
-                }
+      if (autocompleteValue.split(',').filter(String).length > 0) {
+        const menuElement = element.find('div.menu');
+
+        menuElement.api({
+          on: 'now',
+          method: 'GET',
+          url: loadForEditUrl,
+          beforeSend(settings) {
+            /* eslint-disable-next-line no-param-reassign */
+            settings.data[choiceValue] = autocompleteValue.split(',').filter(String);
+
+            return settings;
+          },
+          onSuccess(response) {
+            response.forEach((item) => {
+              menuElement.append((
+                $(`<div class="item" data-value="${item[choiceValue]}">${item[choiceName]}</div>`)
+              ));
             });
-        }
+          },
+        });
+      }
+
+      window.setTimeout(() => {
+        element.dropdown('set selected', element.find('input.autocomplete').val().split(',').filter(String));
+      }, 5000);
     });
-})( jQuery );
+  },
+});

@@ -3,5 +3,16 @@
 
 sylius:
     form:
+        product:
+            name: Име
+            description: Опис
+            attributes: Атрибути
+            options: Опције
         product_variant:
-            available_on: Доступно
+            name: Име
+        association_type:
+            name: Име
+        variant:
+            name: Име
+        option:
+            name: Име

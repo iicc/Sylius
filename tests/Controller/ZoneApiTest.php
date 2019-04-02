@@ -9,27 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Tests\Controller;
 
 use Lakion\ApiTestCase\JsonApiTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-class ZoneApiTest extends JsonApiTestCase
+final class ZoneApiTest extends JsonApiTestCase
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithContentType = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'CONTENT_TYPE' => 'application/json',
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithAccept = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'ACCEPT' => 'application/json',
@@ -147,7 +142,7 @@ EOT;
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $zones = $this->loadFixturesFromFile('resources/zones.yml');
 
-        $this->client->request('GET', '/api/v1/zones/'.$zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithAccept);
+        $this->client->request('GET', '/api/v1/zones/' . $zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'zone/show_response', Response::HTTP_OK);
@@ -186,7 +181,7 @@ EOT;
         $this->loadFixturesFromFile('resources/countries.yml');
         $zones = $this->loadFixturesFromFile('resources/zones.yml');
 
-        $this->client->request('PUT', '/api/v1/zones/'.$zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithContentType);
+        $this->client->request('PUT', '/api/v1/zones/' . $zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'zone/update_validation_fail_response', Response::HTTP_BAD_REQUEST);
@@ -214,12 +209,12 @@ EOT;
         }
 EOT;
 
-        $this->client->request('PUT', '/api/v1/zones/'.$zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithContentType, $data);
+        $this->client->request('PUT', '/api/v1/zones/' . $zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithContentType, $data);
 
         $response = $this->client->getResponse();
         $this->assertResponseCode($response, Response::HTTP_NO_CONTENT);
 
-        $this->client->request('GET', '/api/v1/zones/'.$zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithAccept);
+        $this->client->request('GET', '/api/v1/zones/' . $zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'zone/update_response', Response::HTTP_OK);
@@ -265,15 +260,15 @@ EOT;
         }
 EOT;
 
-        $this->client->request('PATCH', '/api/v1/zones/'.$zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithContentType, $data);
+        $this->client->request('PATCH', '/api/v1/zones/' . $zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithContentType, $data);
 
         $response = $this->client->getResponse();
         $this->assertResponseCode($response, Response::HTTP_NO_CONTENT);
 
-        $this->client->request('GET', '/api/v1/zones/'.$zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithAccept);
+        $this->client->request('GET', '/api/v1/zones/' . $zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
-        $this->assertResponse($response, 'zone/update_response', Response::HTTP_OK);
+        $this->assertResponse($response, 'zone/update_partially_response', Response::HTTP_OK);
     }
 
     /**
@@ -308,12 +303,12 @@ EOT;
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $zones = $this->loadFixturesFromFile('resources/zones.yml');
 
-        $this->client->request('DELETE', '/api/v1/zones/'.$zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithContentType);
+        $this->client->request('DELETE', '/api/v1/zones/' . $zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
         $this->assertResponseCode($response, Response::HTTP_NO_CONTENT);
 
-        $this->client->request('GET', '/api/v1/zones/'.$zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithAccept);
+        $this->client->request('GET', '/api/v1/zones/' . $zones['zone_eu']->getCode(), [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponseCode($response, Response::HTTP_NOT_FOUND);

@@ -9,19 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Channel\Context\RequestBased;
 
+use Sylius\Component\Channel\Model\ChannelInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Zend\Stdlib\PriorityQueue;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class CompositeRequestResolver implements RequestResolverInterface
 {
-    /**
-     * @var PriorityQueue|RequestResolverInterface[]
-     */
+    /** @var PriorityQueue|RequestResolverInterface[] */
     private $requestResolvers;
 
     public function __construct()
@@ -29,11 +27,7 @@ final class CompositeRequestResolver implements RequestResolverInterface
         $this->requestResolvers = new PriorityQueue();
     }
 
-    /**
-     * @param RequestResolverInterface $requestResolver
-     * @param int $priority
-     */
-    public function addResolver(RequestResolverInterface $requestResolver, $priority = 0)
+    public function addResolver(RequestResolverInterface $requestResolver, int $priority = 0): void
     {
         $this->requestResolvers->insert($requestResolver, $priority);
     }
@@ -41,7 +35,7 @@ final class CompositeRequestResolver implements RequestResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function findChannel(Request $request)
+    public function findChannel(Request $request): ?ChannelInterface
     {
         foreach ($this->requestResolvers as $requestResolver) {
             $channel = $requestResolver->findChannel($request);

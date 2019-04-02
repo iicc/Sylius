@@ -9,27 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ProductBundle\Validator;
 
+use Sylius\Bundle\ProductBundle\Validator\Constraint\ProductVariantCombination;
 use Sylius\Component\Product\Checker\ProductVariantsParityCheckerInterface;
 use Sylius\Component\Product\Model\ProductVariantInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class ProductVariantCombinationValidator extends ConstraintValidator
+final class ProductVariantCombinationValidator extends ConstraintValidator
 {
-    /**
-     * @var ProductVariantsParityCheckerInterface
-     */
+    /** @var ProductVariantsParityCheckerInterface */
     private $variantsParityChecker;
 
-    /**
-     * @param ProductVariantsParityCheckerInterface $variantsParityChecker
-     */
     public function __construct(ProductVariantsParityCheckerInterface $variantsParityChecker)
     {
         $this->variantsParityChecker = $variantsParityChecker;
@@ -38,8 +34,11 @@ class ProductVariantCombinationValidator extends ConstraintValidator
     /**
      * {@inheritdoc}
      */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
+        /** @var ProductVariantCombination $constraint */
+        Assert::isInstanceOf($constraint, ProductVariantCombination::class);
+
         if (!$value instanceof ProductVariantInterface) {
             throw new UnexpectedTypeException($value, ProductVariantInterface::class);
         }

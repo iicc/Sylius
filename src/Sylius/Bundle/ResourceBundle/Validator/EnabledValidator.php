@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Validator;
 
 use Sylius\Component\Resource\Model\ToggleableInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class EnabledValidator extends ConstraintValidator
 {
     /**
@@ -26,8 +26,11 @@ final class EnabledValidator extends ConstraintValidator
      * @param ToggleableInterface $value
      * @param Constraints\Enabled $constraint
      */
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
+        /** @var Constraints\Enabled $constraint */
+        Assert::isInstanceOf($constraint, Constraints\Enabled::class);
+
         if (null === $value) {
             return;
         }
@@ -39,10 +42,7 @@ final class EnabledValidator extends ConstraintValidator
         }
     }
 
-    /**
-     * @param mixed $value
-     */
-    private function ensureValueImplementsToggleableInterface($value)
+    private function ensureValueImplementsToggleableInterface($value): void
     {
         if (!($value instanceof ToggleableInterface)) {
             throw new \InvalidArgumentException(sprintf(

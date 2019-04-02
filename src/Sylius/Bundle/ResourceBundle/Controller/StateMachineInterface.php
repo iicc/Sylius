@@ -9,26 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface StateMachineInterface
 {
-    /**
-     * @param RequestConfiguration $configuration
-     * @param ResourceInterface $resource
-     *
-     * @return bool
-     */
-    public function can(RequestConfiguration $configuration, ResourceInterface $resource);
+    public function can(RequestConfiguration $configuration, ResourceInterface $resource): bool;
 
-    /**
-     * @param RequestConfiguration $configuration
-     * @param ResourceInterface $resource
-     */
-    public function apply(RequestConfiguration $configuration, ResourceInterface $resource);
+    public function apply(RequestConfiguration $configuration, ResourceInterface $resource): void;
 }

@@ -9,95 +9,43 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Product;
 
-use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface UpdateConfigurableProductPageInterface extends UpdatePageInterface
 {
-    /**
-     * @return bool
-     */
-    public function isCodeDisabled();
+    public function isCodeDisabled(): bool;
+
+    public function nameItIn(string $name, string $localeCode): void;
+
+    public function isProductOptionChosen(string $option): bool;
+
+    public function isProductOptionsDisabled(): bool;
+
+    public function isMainTaxonChosen(string $taxonName): bool;
+
+    public function selectMainTaxon(TaxonInterface $taxon): void;
+
+    public function checkChannel(string $channelName): void;
+
+    public function isImageWithTypeDisplayed(string $type): bool;
 
     /**
-     * @param string $name
-     * @param string $localeCode
+     * @param string $type
      */
-    public function nameItIn($name, $localeCode);
+    public function attachImage(string $path, string $type = null): void;
 
-    /**
-     * @param string $option
-     */
-    public function isProductOptionChosen($option);
-    
-    /**
-     * @return bool
-     */
-    public function isProductOptionsDisabled();
-    
-    /**
-     * @param string $taxonName
-     *
-     * @return bool
-     */
-    public function isMainTaxonChosen($taxonName);
-    
-    /**
-     * @param TaxonInterface $taxon
-     */
-    public function selectMainTaxon(TaxonInterface $taxon);
+    public function changeImageWithType(string $type, string $path): void;
 
-    /**
-     * @param string $channelName
-     */
-    public function checkChannel($channelName);
+    public function removeImageWithType(string $type): void;
 
-    /**
-     * @param string $code
-     *
-     * @return bool
-     */
-    public function isImageWithCodeDisplayed($code);
+    public function removeFirstImage(): void;
 
-    /**
-     * @param string $path
-     * @param string $code
-     */
-    public function attachImage($path, $code = null);
+    public function modifyFirstImageType(string $type): void;
 
-    /**
-     * @param string $code
-     * @param string $path
-     */
-    public function changeImageWithCode($code, $path);
-
-    /**
-     * @param string $code
-     */
-    public function removeImageWithCode($code);
-
-    public function removeFirstImage();
-
-    /**
-     * @return int
-     */
-    public function countImages();
-
-    /**
-     * @return bool
-     */
-    public function isImageCodeDisabled();
-
-    /**
-     * @return string
-     *
-     * @throws ElementNotFoundException
-     */
-    public function getValidationMessageForImage();
+    public function countImages(): int;
 }

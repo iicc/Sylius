@@ -9,38 +9,49 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping;
 use Sylius\Bundle\PromotionBundle\Doctrine\ORM\PromotionRepository as BasePromotionRepository;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Core\Repository\PromotionRepositoryInterface;
+use SyliusLabs\AssociationHydrator\AssociationHydrator;
 
-/**
- * @author Kristian Loevstroem <kristian@loevstroem.dk>
- */
 class PromotionRepository extends BasePromotionRepository implements PromotionRepositoryInterface
 {
+    /** @var AssociationHydrator */
+    private $associationHydrator;
+
     /**
      * {@inheritdoc}
      */
-    public function findActiveByChannel(ChannelInterface $channel)
+    public function __construct(EntityManager $entityManager, Mapping\ClassMetadata $class)
     {
-        $queryBuilder = $this
-            ->createQueryBuilder('o')
-            ->orderBy('o.priority', 'desc')
-        ;
+        parent::__construct($entityManager, $class);
 
-        $this->filterByActive($queryBuilder);
+        $this->associationHydrator = new AssociationHydrator($entityManager, $class);
+    }
 
-        $queryBuilder
-            ->innerJoin('o.channels', 'channel')
-            ->andWhere($queryBuilder->expr()->eq('channel', ':channel'))
+    /**
+     * {@inheritdoc}
+     */
+    public function findActiveByChannel(ChannelInterface $channel): array
+    {
+        $promotions = $this->filterByActive($this->createQueryBuilder('o'))
+            ->andWhere(':channel MEMBER OF o.channels')
             ->setParameter('channel', $channel)
-        ;
-
-        return $queryBuilder
+            ->addOrderBy('o.priority', 'DESC')
             ->getQuery()
             ->getResult()
         ;
+
+        $this->associationHydrator->hydrateAssociations($promotions, [
+            'rules',
+        ]);
+
+        return $promotions;
     }
 }

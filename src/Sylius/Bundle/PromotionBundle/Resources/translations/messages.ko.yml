@@ -3,7 +3,11 @@
 
 sylius:
     form:
+        promotion:
+            name: 이름
         promotion_action:
             type: 타입
         promotion_rule:
+            shipping_country_configuration:
+                country: 국가
             type: 타입

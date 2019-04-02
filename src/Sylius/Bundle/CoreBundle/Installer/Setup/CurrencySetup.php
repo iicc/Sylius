@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Installer\Setup;
 
 use Sylius\Component\Currency\Model\CurrencyInterface;
@@ -20,25 +22,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Intl\Intl;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class CurrencySetup implements CurrencySetupInterface
 {
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $currencyRepository;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $currencyFactory;
 
-    /**
-     * @param RepositoryInterface $currencyRepository
-     * @param FactoryInterface $currencyFactory
-     */
     public function __construct(RepositoryInterface $currencyRepository, FactoryInterface $currencyFactory)
     {
         $this->currencyRepository = $currencyRepository;
@@ -48,10 +39,11 @@ final class CurrencySetup implements CurrencySetupInterface
     /**
      * {@inheritdoc}
      */
-    public function setup(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper)
+    public function setup(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper): CurrencyInterface
     {
         $code = $this->getCurrencyCodeFromUser($input, $output, $questionHelper);
 
+        /** @var CurrencyInterface $existingCurrency */
         $existingCurrency = $this->currencyRepository->findOneBy(['code' => $code]);
         if (null !== $existingCurrency) {
             return $existingCurrency;
@@ -66,14 +58,7 @@ final class CurrencySetup implements CurrencySetupInterface
         return $currency;
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @param QuestionHelper $questionHelper
-     *
-     * @return string
-     */
-    private function getCurrencyCodeFromUser(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper)
+    private function getCurrencyCodeFromUser(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper): string
     {
         $code = $this->getNewCurrencyCode($input, $output, $questionHelper);
         $name = $this->getCurrencyName($code);
@@ -92,26 +77,14 @@ final class CurrencySetup implements CurrencySetupInterface
         return $code;
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @param QuestionHelper $questionHelper
-     *
-     * @return string
-     */
-    private function getNewCurrencyCode(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper)
+    private function getNewCurrencyCode(InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper): string
     {
         $question = new Question('Currency (press enter to use USD): ', 'USD');
 
         return trim($questionHelper->ask($input, $output, $question));
     }
 
-    /**
-     * @param string $code
-     *
-     * @return string|null
-     */
-    private function getCurrencyName($code)
+    private function getCurrencyName(string $code): ?string
     {
         return Intl::getCurrencyBundle()->getCurrencyName($code);
     }

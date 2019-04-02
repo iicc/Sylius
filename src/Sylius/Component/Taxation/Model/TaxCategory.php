@@ -9,41 +9,30 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxation\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class TaxCategory implements TaxCategoryInterface
 {
     use TimestampableTrait;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $code;
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $description;
 
-    /**
-     * @var Collection|TaxRateInterface[]
-     */
+    /** @var Collection|TaxRateInterface[] */
     protected $rates;
 
     public function __construct()
@@ -52,12 +41,9 @@ class TaxCategory implements TaxCategoryInterface
         $this->createdAt = new \DateTime();
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->getName();
+        return (string) $this->getName();
     }
 
     /**
@@ -71,7 +57,7 @@ class TaxCategory implements TaxCategoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
@@ -79,7 +65,7 @@ class TaxCategory implements TaxCategoryInterface
     /**
      * {@inheritdoc}
      */
-    public function setCode($code)
+    public function setCode(?string $code): void
     {
         $this->code = $code;
     }
@@ -87,7 +73,7 @@ class TaxCategory implements TaxCategoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -95,7 +81,7 @@ class TaxCategory implements TaxCategoryInterface
     /**
      * {@inheritdoc}
      */
-    public function setName($name)
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
@@ -103,7 +89,7 @@ class TaxCategory implements TaxCategoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -111,7 +97,7 @@ class TaxCategory implements TaxCategoryInterface
     /**
      * {@inheritdoc}
      */
-    public function setDescription($description)
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
     }
@@ -119,7 +105,7 @@ class TaxCategory implements TaxCategoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getRates()
+    public function getRates(): Collection
     {
         return $this->rates;
     }
@@ -127,7 +113,7 @@ class TaxCategory implements TaxCategoryInterface
     /**
      * {@inheritdoc}
      */
-    public function addRate(TaxRateInterface $rate)
+    public function addRate(TaxRateInterface $rate): void
     {
         if (!$this->hasRate($rate)) {
             $rate->setCategory($this);
@@ -138,7 +124,7 @@ class TaxCategory implements TaxCategoryInterface
     /**
      * {@inheritdoc}
      */
-    public function removeRate(TaxRateInterface $rate)
+    public function removeRate(TaxRateInterface $rate): void
     {
         if ($this->hasRate($rate)) {
             $rate->setCategory(null);
@@ -149,7 +135,7 @@ class TaxCategory implements TaxCategoryInterface
     /**
      * {@inheritdoc}
      */
-    public function hasRate(TaxRateInterface $rate)
+    public function hasRate(TaxRateInterface $rate): bool
     {
         return $this->rates->contains($rate);
     }

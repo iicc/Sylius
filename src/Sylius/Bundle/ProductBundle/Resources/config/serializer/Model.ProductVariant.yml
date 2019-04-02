@@ -6,8 +6,24 @@ Sylius\Component\Product\Model\ProductVariant:
             expose: true
             type: integer
             xml_attribute: true
-        presentation:
+            groups: [Default, Detailed, DetailedCart, Autocomplete]
+        code:
             expose: true
             type: string
-        options:
+            groups: [Default, Detailed, DetailedCart, Autocomplete]
+        position:
             expose: true
+            type: integer
+            groups: [Default, Detailed, DetailedCart]
+        optionValues:
+            expose: true
+            type: array
+            groups: [Default, Detailed, DetailedCart]
+        translations:
+            expose: true
+            type: array
+            groups: [Default, Detailed, DetailedCart]
+    virtual_properties:
+        getDescriptor:
+            serialized_name: descriptor
+            groups: [Autocomplete]

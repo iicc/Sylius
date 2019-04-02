@@ -9,45 +9,56 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\OrderBundle\Doctrine\ORM;
 
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
-use Sylius\Component\Core\OrderCheckoutStates;
-use Sylius\Component\Core\OrderPaymentStates;
 use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Order\Repository\OrderRepositoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class OrderRepository extends EntityRepository implements OrderRepositoryInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function countPlacedOrders(): int
     {
-        $count = $this->createQueryBuilder('o')
+        return (int) $this->createQueryBuilder('o')
             ->select('COUNT(o.id)')
             ->andWhere('o.state != :state')
             ->setParameter('state', OrderInterface::STATE_CART)
             ->getQuery()
             ->getSingleScalarResult()
         ;
-
-        return (int) $count;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function findLatest($count)
+    public function createCartQueryBuilder(): QueryBuilder
+    {
+        return $this->createQueryBuilder('o')
+            ->addSelect('channel')
+            ->addSelect('customer')
+            ->innerJoin('o.channel', 'channel')
+            ->leftJoin('o.customer', 'customer')
+            ->andWhere('o.state = :state')
+            ->setParameter('state', OrderInterface::STATE_CART)
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findLatest(int $count): array
     {
         return $this->createQueryBuilder('o')
             ->andWhere('o.state != :state')
-            ->setMaxResults($count)
-            ->orderBy('o.checkoutCompletedAt', 'desc')
             ->setParameter('state', OrderInterface::STATE_CART)
+            ->addOrderBy('o.checkoutCompletedAt', 'DESC')
+            ->setMaxResults($count)
             ->getQuery()
             ->getResult()
         ;
@@ -56,7 +67,7 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
     /**
      * {@inheritdoc}
      */
-    public function findOneByNumber($number)
+    public function findOneByNumber(string $number): ?OrderInterface
     {
         return $this->createQueryBuilder('o')
             ->andWhere('o.state != :state')
@@ -71,7 +82,7 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
     /**
      * {@inheritdoc}
      */
-    public function findOneByTokenValue($tokenValue)
+    public function findOneByTokenValue(string $tokenValue): ?OrderInterface
     {
         return $this->createQueryBuilder('o')
             ->andWhere('o.state != :state')
@@ -86,10 +97,10 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
     /**
      * {@inheritdoc}
      */
-    public function findCartById($id)
+    public function findCartById($id): ?OrderInterface
     {
         return $this->createQueryBuilder('o')
-            ->where('o.id = :id')
+            ->andWhere('o.id = :id')
             ->andWhere('o.state = :state')
             ->setParameter('state', OrderInterface::STATE_CART)
             ->setParameter('id', $id)
@@ -101,31 +112,12 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
     /**
      * {@inheritdoc}
      */
-    public function findCartsNotModifiedSince(\DateTime $terminalDate)
+    public function findCartsNotModifiedSince(\DateTimeInterface $terminalDate): array
     {
         return $this->createQueryBuilder('o')
-            ->where('o.state = :state')
+            ->andWhere('o.state = :state')
             ->andWhere('o.updatedAt < :terminalDate')
             ->setParameter('state', OrderInterface::STATE_CART)
-            ->setParameter('terminalDate', $terminalDate)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findOrdersUnpaidSince(\DateTime $terminalDate)
-    {
-        return $this->createQueryBuilder('o')
-            ->where('o.checkoutState = :checkoutState')
-            ->andWhere('o.paymentState != :paymentState')
-            ->andWhere('o.state = :orderState')
-            ->andWhere('o.checkoutCompletedAt < :terminalDate')
-            ->setParameter('checkoutState', OrderCheckoutStates::STATE_COMPLETED)
-            ->setParameter('paymentState', OrderPaymentStates::STATE_PAID)
-            ->setParameter('orderState', OrderInterface::STATE_NEW)
             ->setParameter('terminalDate', $terminalDate)
             ->getQuery()
             ->getResult()

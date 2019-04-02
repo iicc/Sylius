@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\DataTransformer\CollectionToStringTransformer;
@@ -20,21 +22,14 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class ResourceAutocompleteChoiceType extends AbstractType
 {
-    /**
-     * @var ServiceRegistryInterface
-     */
+    /** @var ServiceRegistryInterface */
     protected $resourceRepositoryRegistry;
 
-    /**
-     * @param ServiceRegistryInterface $resourceRepositoryRegistry
-     */
     public function __construct(ServiceRegistryInterface $resourceRepositoryRegistry)
     {
         $this->resourceRepositoryRegistry = $resourceRepositoryRegistry;
@@ -43,12 +38,12 @@ class ResourceAutocompleteChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if (!$options['multiple']) {
             $builder->addModelTransformer(
                 new ResourceToIdentifierTransformer(
-                    $this->resourceRepositoryRegistry->get($options['resource']),
+                    $options['repository'],
                     $options['choice_value']
                 )
             );
@@ -59,7 +54,7 @@ class ResourceAutocompleteChoiceType extends AbstractType
                 ->addModelTransformer(
                     new RecursiveTransformer(
                         new ResourceToIdentifierTransformer(
-                            $this->resourceRepositoryRegistry->get($options['resource']),
+                            $options['repository'],
                             $options['choice_value']
                         )
                     )
@@ -72,7 +67,7 @@ class ResourceAutocompleteChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildView(FormView $view, FormInterface $form, array $options)
+    public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         $view->vars['multiple'] = $options['multiple'];
         $view->vars['choice_name'] = $options['choice_name'];
@@ -83,7 +78,7 @@ class ResourceAutocompleteChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setRequired([
@@ -93,7 +88,11 @@ class ResourceAutocompleteChoiceType extends AbstractType
             ])
             ->setDefaults([
                 'multiple' => false,
+                'error_bubbling' => false,
                 'placeholder' => '',
+                'repository' => function (Options $options) {
+                    return $this->resourceRepositoryRegistry->get($options['resource']);
+                },
             ])
             ->setAllowedTypes('resource', ['string'])
             ->setAllowedTypes('multiple', ['bool'])
@@ -106,7 +105,7 @@ class ResourceAutocompleteChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
         return HiddenType::class;
     }
@@ -114,7 +113,7 @@ class ResourceAutocompleteChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_resource_autocomplete_choice';
     }

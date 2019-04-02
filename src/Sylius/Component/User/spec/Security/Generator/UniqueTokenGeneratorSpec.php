@@ -9,71 +9,63 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\User\Security\Generator;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
+use Sylius\Component\Resource\Generator\RandomnessGeneratorInterface;
 use Sylius\Component\User\Security\Checker\UniquenessCheckerInterface;
 use Sylius\Component\User\Security\Generator\GeneratorInterface;
-use Sylius\Component\User\Security\Generator\UniqueTokenGenerator;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class UniqueTokenGeneratorSpec extends ObjectBehavior
 {
-    function let(UniquenessCheckerInterface $checker)
+    function let(RandomnessGeneratorInterface $generator, UniquenessCheckerInterface $checker): void
     {
-        $this->beConstructedWith($checker, 12);
+        $this->beConstructedWith($generator, $checker, 12);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType(UniqueTokenGenerator::class);
-    }
-
-    function it_implements_generator_interface()
+    function it_implements_generator_interface(): void
     {
         $this->shouldImplement(GeneratorInterface::class);
     }
 
-    function it_throws_invalid_argument_exception_on_instantiation_with_non_integer_length(UniquenessCheckerInterface $checker)
-    {
-        $this->beConstructedWith($checker, 'a string');
+    function it_throws_invalid_argument_exception_on_instantiation_with_an_out_of_range_length(
+        RandomnessGeneratorInterface $generator,
+        UniquenessCheckerInterface $checker
+    ): void {
+        $this->beConstructedWith($generator, $checker, -1);
         $this->shouldThrow(\InvalidArgumentException::class)->duringInstantiation();
-        $this->beConstructedWith($checker, '12');
-        $this->shouldThrow(\InvalidArgumentException::class)->duringInstantiation();
-        $this->beConstructedWith($checker, []);
-        $this->shouldThrow(\InvalidArgumentException::class)->duringInstantiation();
-        $this->beConstructedWith($checker, new \StdClass());
+        $this->beConstructedWith($generator, $checker, 0);
         $this->shouldThrow(\InvalidArgumentException::class)->duringInstantiation();
     }
 
-    function it_throws_invalid_argument_exception_on_instantiation_with_an_out_of_range_length(UniquenessCheckerInterface $checker)
-    {
-        $this->beConstructedWith($checker, -1);
-        $this->shouldThrow(\InvalidArgumentException::class)->duringInstantiation();
-        $this->beConstructedWith($checker, 0);
-        $this->shouldThrow(\InvalidArgumentException::class)->duringInstantiation();
-        $this->beConstructedWith($checker, 41);
-        $this->shouldThrow(\InvalidArgumentException::class)->duringInstantiation();
-    }
+    function it_generates_tokens_with_length_stated_on_instantiation(
+        RandomnessGeneratorInterface $generator,
+        UniquenessCheckerInterface $checker
+    ): void {
+        $token = 'vanquishable';
 
-    function it_generates_tokens_with_length_stated_on_instantiation(UniquenessCheckerInterface $checker)
-    {
-        $checker->isUnique(Argument::any())->willReturn(true);
+        $generator->generateUriSafeString(12)->willReturn($token);
+        $checker->isUnique($token)->willReturn(true);
 
         $this->generate()->shouldHaveLength(12);
     }
 
-    function it_generates_string_tokens(UniquenessCheckerInterface $checker)
+    function it_generates_string_tokens(RandomnessGeneratorInterface $generator, UniquenessCheckerInterface $checker): void
     {
-        $checker->isUnique(Argument::any())->willReturn(true);
+        $token = 'vanquishable';
+
+        $generator->generateUriSafeString(12)->willReturn($token);
+        $checker->isUnique($token)->willReturn(true);
 
         $this->generate()->shouldBeString();
     }
 
-    public function getMatchers()
+    /**
+     * {@inheritdoc}
+     */
+    public function getMatchers(): array
     {
         return [
             'haveLength' => function ($subject, $key) {

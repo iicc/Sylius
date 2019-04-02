@@ -10,8 +10,8 @@ It represents an order that can be either placed or in progress (cart).
 **Order** holds a collection of **OrderItem** instances, which represent products from the shop,
 as its physical copies, with chosen variants and quantities.
 
-Each Order is **assigned to the channel** in which it has been created. Moreover the **language** the customer was using
-and the **currency with its exchange rate** at the moment of creation are saved.
+Each Order is **assigned to the channel** in which it has been created as well as the **language** the customer was using
+while placing the order. The order currency code will be the base currency of the current channel by default.
 
 How to create an Order programmatically?
 ----------------------------------------
@@ -112,6 +112,10 @@ Order has also its own state, which can have the following values:
 * ``fulfilled`` - when the order payments and shipments are completed,
 * ``cancelled`` - when the order was cancelled.
 
+.. image:: ../../_images/sylius_order.png
+    :align: center
+    :scale: 70%
+
 .. tip::
 
     The state machine of order is an obvious extension to the :doc:`state machine of checkout </book/orders/checkout>`.
@@ -120,11 +124,18 @@ Shipments of an Order
 ---------------------
 
 An **Order** in Sylius holds a collection of Shipments on it. Each shipment in that collection has its own shipping method and has its own state machine.
-This lets you to divide an order into several different shipments that have own shipping states (like sending physical objects via DHL and sending a link to downloadable files via e-mail).
+This lets you divide an order into several different shipments that have own shipping states (like sending physical objects via DHL and sending a link to downloadable files via e-mail).
 
 .. tip::
 
     If you are not familiar with the shipments concept :doc:`check the documentation</book/orders/shipments>`.
+
+State machine of Shipping in an Order
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../_images/sylius_order_shipping.png
+    :align: center
+    :scale: 70%
 
 How to add a Shipment to an Order?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -178,6 +189,13 @@ It lets you to divide paying for an order into several different methods that ha
 
     If you are not familiar with the Payments concept :doc:`check the documentation</book/orders/payments>`.
 
+State machine of Payment in an Order
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../_images/sylius_order_payment.png
+    :align: center
+    :scale: 70%
+
 How to add a Payment to an Order?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -216,5 +234,5 @@ two transitions ``request_payment`` and ``pay``.
 Learn more
 ----------
 
-* :doc:`Order - Component Documentation </components/Order/index>`
-* :doc:`Order - Bundle Documentation </bundles/SyliusOrderBundle/index>`
+* :doc:`Order - Component Documentation </components_and_bundles/components/Order/index>`
+* :doc:`Order - Bundle Documentation </components_and_bundles/bundles/SyliusOrderBundle/index>`

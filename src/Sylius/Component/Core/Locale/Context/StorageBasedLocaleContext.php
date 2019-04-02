@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Locale\Context;
 
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -18,31 +20,17 @@ use Sylius\Component\Locale\Context\LocaleContextInterface;
 use Sylius\Component\Locale\Context\LocaleNotFoundException;
 use Sylius\Component\Locale\Provider\LocaleProviderInterface;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class StorageBasedLocaleContext implements LocaleContextInterface
 {
-    /**
-     * @var ChannelContextInterface
-     */
+    /** @var ChannelContextInterface */
     private $channelContext;
 
-    /**
-     * @var LocaleStorageInterface
-     */
+    /** @var LocaleStorageInterface */
     private $localeStorage;
 
-    /**
-     * @var LocaleProviderInterface
-     */
+    /** @var LocaleProviderInterface */
     private $localeProvider;
 
-    /**
-     * @param ChannelContextInterface $channelContext
-     * @param LocaleStorageInterface $localeStorage
-     * @param LocaleProviderInterface $localeProvider
-     */
     public function __construct(
         ChannelContextInterface $channelContext,
         LocaleStorageInterface $localeStorage,
@@ -56,7 +44,7 @@ final class StorageBasedLocaleContext implements LocaleContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getLocaleCode()
+    public function getLocaleCode(): string
     {
         $availableLocalesCodes = $this->localeProvider->getAvailableLocalesCodes();
 

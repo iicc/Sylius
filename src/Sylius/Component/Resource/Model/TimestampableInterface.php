@@ -9,30 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Resource\Model;
 
-/**
- * @author Joseph Bielawski <stloyd@gmail.com>
- */
 interface TimestampableInterface
 {
-    /**
-     * @return \DateTime
-     */
-    public function getCreatedAt();
+    public function getCreatedAt(): ?\DateTimeInterface;
 
-    /**
-     * @param \DateTime $createdAt
-     */
-    public function setCreatedAt(\DateTime $createdAt);
+    public function setCreatedAt(?\DateTimeInterface $createdAt);
 
-    /**
-     * @return \DateTime
-     */
-    public function getUpdatedAt();
+    public function getUpdatedAt(): ?\DateTimeInterface;
 
-    /**
-     * @param \DateTime $updatedAt
-     */
-    public function setUpdatedAt(\DateTime $updatedAt);
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt);
 }

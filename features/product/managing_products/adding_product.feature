@@ -21,6 +21,18 @@ Feature: Adding a new product
         And the product "Dice Brewing" should appear in the store
 
     @ui
+    Scenario: Adding a new simple product with discounted price
+        Given I want to create a new simple product
+        When I specify its code as "BOARD_DICE_BREWING"
+        And I name it "Dice Brewing" in "English (United States)"
+        And I set its slug to "dice-brewing" in "English (United States)"
+        And I set its price to "$10.00" for "United States" channel
+        And I set its original price to "$20.00" for "United States" channel
+        And I add it
+        Then I should be notified that it has been successfully created
+        And the product "Dice Brewing" should appear in the store
+
+    @ui
     Scenario: Adding a new simple product with specific shipping category
         Given I want to create a new simple product
         When I specify its code as "BOARD_DICE_BREWING"
@@ -55,3 +67,16 @@ Feature: Adding a new product
         And I add it
         Then I should be notified that it has been successfully created
         And the product "Gentleman Jack" should appear in the store
+
+    @ui
+    Scenario: Adding a new simple product without shipping required
+        Given I want to create a new simple product
+        When I specify its code as "BOARD_DICE_BREWING"
+        And I name it "Dice Brewing" in "English (United States)"
+        And I set its slug to "dice-brewing" in "English (United States)"
+        And I set its price to "$10.00" for "United States" channel
+        And I do not want to have shipping required for this product
+        And I add it
+        Then I should be notified that it has been successfully created
+        And the product "Dice Brewing" should not have shipping required
+        And the product "Dice Brewing" should appear in the store

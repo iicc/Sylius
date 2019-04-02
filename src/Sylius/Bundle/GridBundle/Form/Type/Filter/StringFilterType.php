@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\GridBundle\Form\Type\Filter;
 
 use Sylius\Component\Grid\Filter\StringFilter;
@@ -18,15 +20,12 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class StringFilterType extends AbstractType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if (!isset($options['type'])) {
             $builder
@@ -35,6 +34,7 @@ final class StringFilterType extends AbstractType
                         'sylius.ui.contains' => StringFilter::TYPE_CONTAINS,
                         'sylius.ui.not_contains' => StringFilter::TYPE_NOT_CONTAINS,
                         'sylius.ui.equal' => StringFilter::TYPE_EQUAL,
+                        'sylius.ui.not_equal' => StringFilter::TYPE_NOT_EQUAL,
                         'sylius.ui.empty' => StringFilter::TYPE_EMPTY,
                         'sylius.ui.not_empty' => StringFilter::TYPE_NOT_EMPTY,
                         'sylius.ui.starts_with' => StringFilter::TYPE_STARTS_WITH,
@@ -47,14 +47,17 @@ final class StringFilterType extends AbstractType
         }
 
         $builder
-            ->add('value', TextType::class, ['required' => false])
+            ->add('value', TextType::class, [
+                'required' => false,
+                'label' => 'sylius.ui.value',
+            ])
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setDefaults([
@@ -65,12 +68,13 @@ final class StringFilterType extends AbstractType
                 StringFilter::TYPE_CONTAINS,
                 StringFilter::TYPE_NOT_CONTAINS,
                 StringFilter::TYPE_EQUAL,
+                StringFilter::TYPE_NOT_EQUAL,
                 StringFilter::TYPE_EMPTY,
                 StringFilter::TYPE_NOT_EMPTY,
                 StringFilter::TYPE_STARTS_WITH,
                 StringFilter::TYPE_ENDS_WITH,
                 StringFilter::TYPE_IN,
-                StringFilter::TYPE_NOT_IN
+                StringFilter::TYPE_NOT_IN,
             ])
         ;
     }
@@ -78,7 +82,7 @@ final class StringFilterType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_grid_filter_string';
     }

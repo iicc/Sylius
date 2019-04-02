@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Core\StateResolver;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -17,28 +19,17 @@ use SM\Factory\FactoryInterface;
 use SM\StateMachine\StateMachineInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
-use Sylius\Component\Core\OrderPaymentStates;
 use Sylius\Component\Core\OrderPaymentTransitions;
-use Sylius\Component\Core\StateResolver\OrderPaymentStateResolver;
 use Sylius\Component\Order\StateResolver\StateResolverInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class OrderPaymentStateResolverSpec extends ObjectBehavior
 {
-    function let(FactoryInterface $stateMachineFactory)
+    function let(FactoryInterface $stateMachineFactory): void
     {
         $this->beConstructedWith($stateMachineFactory);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType(OrderPaymentStateResolver::class);
-    }
-
-    function it_implements_an_order_state_resolver_interface()
+    function it_implements_an_order_state_resolver_interface(): void
     {
         $this->shouldImplement(StateResolverInterface::class);
     }
@@ -49,7 +40,7 @@ final class OrderPaymentStateResolverSpec extends ObjectBehavior
         OrderInterface $order,
         PaymentInterface $firstPayment,
         PaymentInterface $secondPayment
-    ) {
+    ): void {
         $firstPayment->getAmount()->willReturn(6000);
         $firstPayment->getState()->willReturn(PaymentInterface::STATE_REFUNDED);
         $secondPayment->getAmount()->willReturn(4000);
@@ -74,7 +65,7 @@ final class OrderPaymentStateResolverSpec extends ObjectBehavior
         OrderInterface $order,
         PaymentInterface $firstPayment,
         PaymentInterface $secondPayment
-    ) {
+    ): void {
         $firstPayment->getAmount()->willReturn(10000);
         $firstPayment->getState()->willReturn(PaymentInterface::STATE_FAILED);
         $secondPayment->getAmount()->willReturn(10000);
@@ -98,7 +89,7 @@ final class OrderPaymentStateResolverSpec extends ObjectBehavior
         StateMachineInterface $stateMachine,
         OrderInterface $order,
         PaymentInterface $payment
-    ) {
+    ): void {
         $payment->getAmount()->willReturn(10000);
         $payment->getState()->willReturn(PaymentInterface::STATE_COMPLETED);
 
@@ -114,13 +105,28 @@ final class OrderPaymentStateResolverSpec extends ObjectBehavior
         $this->resolve($order);
     }
 
+    function it_marks_an_order_as_paid_if_it_does_not_have_any_payments(
+        FactoryInterface $stateMachineFactory,
+        StateMachineInterface $stateMachine,
+        OrderInterface $order
+    ) {
+        $order->getPayments()->willReturn(new ArrayCollection([]));
+        $order->getTotal()->willReturn(0);
+
+        $stateMachineFactory->get($order, OrderPaymentTransitions::GRAPH)->willReturn($stateMachine);
+        $stateMachine->can(OrderPaymentTransitions::TRANSITION_PAY)->willReturn(true);
+        $stateMachine->apply(OrderPaymentTransitions::TRANSITION_PAY)->shouldBeCalled();
+
+        $this->resolve($order);
+    }
+
     function it_marks_an_order_as_paid_if_fully_paid_even_if_previous_payment_was_failed(
         FactoryInterface $stateMachineFactory,
         StateMachineInterface $stateMachine,
         OrderInterface $order,
         PaymentInterface $firstPayment,
         PaymentInterface $secondPayment
-    ) {
+    ): void {
         $firstPayment->getAmount()->willReturn(10000);
         $firstPayment->getState()->willReturn(PaymentInterface::STATE_FAILED);
         $secondPayment->getAmount()->willReturn(10000);
@@ -138,13 +144,13 @@ final class OrderPaymentStateResolverSpec extends ObjectBehavior
         $this->resolve($order);
     }
 
-    function it_marks_an_order_as_partially_refunded_if_one_of_the_payment_is_completed(
+    function it_marks_an_order_as_partially_refunded_if_one_of_the_payment_is_refunded(
         FactoryInterface $stateMachineFactory,
         StateMachineInterface $stateMachine,
         OrderInterface $order,
         PaymentInterface $firstPayment,
         PaymentInterface $secondPayment
-    ) {
+    ): void {
         $firstPayment->getAmount()->willReturn(6000);
         $firstPayment->getState()->willReturn(PaymentInterface::STATE_COMPLETED);
         $secondPayment->getAmount()->willReturn(4000);
@@ -169,7 +175,7 @@ final class OrderPaymentStateResolverSpec extends ObjectBehavior
         OrderInterface $order,
         PaymentInterface $firstPayment,
         PaymentInterface $secondPayment
-    ) {
+    ): void {
         $firstPayment->getAmount()->willReturn(6000);
         $firstPayment->getState()->willReturn(PaymentInterface::STATE_COMPLETED);
         $secondPayment->getAmount()->willReturn(4000);
@@ -194,7 +200,7 @@ final class OrderPaymentStateResolverSpec extends ObjectBehavior
         OrderInterface $order,
         PaymentInterface $firstPayment,
         PaymentInterface $secondPayment
-    ) {
+    ): void {
         $firstPayment->getAmount()->willReturn(6000);
         $firstPayment->getState()->willReturn(PaymentInterface::STATE_PROCESSING);
         $secondPayment->getAmount()->willReturn(4000);
@@ -209,6 +215,56 @@ final class OrderPaymentStateResolverSpec extends ObjectBehavior
         $stateMachineFactory->get($order, OrderPaymentTransitions::GRAPH)->willReturn($stateMachine);
         $stateMachine->can(OrderPaymentTransitions::TRANSITION_PARTIALLY_PAY)->willReturn(true);
         $stateMachine->apply(OrderPaymentTransitions::TRANSITION_PARTIALLY_PAY)->shouldBeCalled();
+
+        $this->resolve($order);
+    }
+
+    function it_marks_an_order_as_authorized_if_all_its_payments_are_authorized(
+        FactoryInterface $stateMachineFactory,
+        StateMachineInterface $stateMachine,
+        OrderInterface $order,
+        PaymentInterface $firstPayment,
+        PaymentInterface $secondPayment
+    ): void {
+        $firstPayment->getAmount()->willReturn(6000);
+        $firstPayment->getState()->willReturn(PaymentInterface::STATE_AUTHORIZED);
+        $secondPayment->getAmount()->willReturn(4000);
+        $secondPayment->getState()->willReturn(PaymentInterface::STATE_AUTHORIZED);
+
+        $order
+            ->getPayments()
+            ->willReturn(new ArrayCollection([$firstPayment->getWrappedObject(), $secondPayment->getWrappedObject()]))
+        ;
+        $order->getTotal()->willReturn(10000);
+
+        $stateMachineFactory->get($order, OrderPaymentTransitions::GRAPH)->willReturn($stateMachine);
+        $stateMachine->can(OrderPaymentTransitions::TRANSITION_AUTHORIZE)->willReturn(true);
+        $stateMachine->apply(OrderPaymentTransitions::TRANSITION_AUTHORIZE)->shouldBeCalled();
+
+        $this->resolve($order);
+    }
+
+    function it_marks_an_order_as_partially_authorized_if_one_of_the_payments_is_processing_and_one_of_the_payments_is_authorized(
+        FactoryInterface $stateMachineFactory,
+        StateMachineInterface $stateMachine,
+        OrderInterface $order,
+        PaymentInterface $firstPayment,
+        PaymentInterface $secondPayment
+    ): void {
+        $firstPayment->getAmount()->willReturn(6000);
+        $firstPayment->getState()->willReturn(PaymentInterface::STATE_PROCESSING);
+        $secondPayment->getAmount()->willReturn(4000);
+        $secondPayment->getState()->willReturn(PaymentInterface::STATE_AUTHORIZED);
+
+        $order
+            ->getPayments()
+            ->willReturn(new ArrayCollection([$firstPayment->getWrappedObject(), $secondPayment->getWrappedObject()]))
+        ;
+        $order->getTotal()->willReturn(10000);
+
+        $stateMachineFactory->get($order, OrderPaymentTransitions::GRAPH)->willReturn($stateMachine);
+        $stateMachine->can(OrderPaymentTransitions::TRANSITION_PARTIALLY_AUTHORIZE)->willReturn(true);
+        $stateMachine->apply(OrderPaymentTransitions::TRANSITION_PARTIALLY_AUTHORIZE)->shouldBeCalled();
 
         $this->resolve($order);
     }

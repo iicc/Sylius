@@ -9,21 +9,32 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Installer\Requirement;
 
 use Symfony\Component\Translation\TranslatorInterface;
 
 final class FilesystemRequirements extends RequirementCollection
 {
-    public function __construct(TranslatorInterface $translator, $root, $cacheDir, $logDir)
+    /**
+     * @param string $rootDir Deprecated.
+     */
+    public function __construct(TranslatorInterface $translator, string $cacheDir, string $logsDir, string $rootDir = null)
     {
         parent::__construct($translator->trans('sylius.installer.filesystem.header', []));
 
+        if (func_num_args() >= 4) {
+            @trigger_error(sprintf(
+                'Passing root directory to "%s" constructor as the second argument is deprecated since 1.2 ' .
+                'and this argument will be removed in 2.0.',
+                self::class
+            ), \E_USER_DEPRECATED);
+
+            [$rootDir, $cacheDir, $logsDir] = [$cacheDir, $logsDir, $rootDir];
+        }
+
         $this
-            ->add(new Requirement(
-                $translator->trans('sylius.installer.filesystem.vendors', []),
-                is_dir($root.'/../vendor')
-            ))
             ->add(new Requirement(
                 $translator->trans('sylius.installer.filesystem.cache.header', []),
                 is_writable($cacheDir),
@@ -32,15 +43,9 @@ final class FilesystemRequirements extends RequirementCollection
             ))
             ->add(new Requirement(
                 $translator->trans('sylius.installer.filesystem.logs.header', []),
-                is_writable($logDir),
+                is_writable($logsDir),
                 true,
-                $translator->trans('sylius.installer.filesystem.logs.help', ['%path%' => $logDir])
-            ))
-            ->add(new Requirement(
-                $translator->trans('sylius.installer.filesystem.parameters.header', []),
-                is_writable($root.'/config/parameters.yml'),
-                true,
-                $translator->trans('sylius.installer.filesystem.parameters.help', ['%path%' => $root.'/config/parameters.yml'])
+                $translator->trans('sylius.installer.filesystem.logs.help', ['%path%' => $logsDir])
             ))
         ;
     }

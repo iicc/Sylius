@@ -9,69 +9,51 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ShopBundle\Controller;
 
-use Sylius\Bundle\CoreBundle\EmailManager\ContactEmailManager;
 use Sylius\Bundle\CoreBundle\Form\Type\ContactType;
+use Sylius\Bundle\ShopBundle\EmailManager\ContactEmailManagerInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Customer\Context\CustomerContextInterface;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
-class ContactController
+final class ContactController
 {
-    /**
-     * @var RouterInterface
-     */
+    /** @var RouterInterface */
     private $router;
 
-    /**
-     * @var FormFactoryInterface
-     */
+    /** @var FormFactoryInterface */
     private $formFactory;
 
-    /**
-     * @var EngineInterface
-     */
+    /** @var EngineInterface */
     private $templatingEngine;
 
-    /**
-     * @var ChannelContextInterface
-     */
+    /** @var ChannelContextInterface */
     private $channelContext;
 
-    /**
-     * @var CustomerContextInterface
-     */
+    /** @var CustomerContextInterface */
     private $customerContext;
 
-    /**
-     * @var ContactEmailManager
-     */
+    /** @var ContactEmailManagerInterface */
     private $contactEmailManager;
 
-    /**
-     * @param RouterInterface $router
-     * @param FormFactoryInterface $formFactory
-     * @param EngineInterface $templatingEngine
-     * @param ChannelContextInterface $channelContext
-     * @param CustomerContextInterface $customerContext
-     * @param ContactEmailManager $contactEmailManager
-     */
     public function __construct(
         RouterInterface $router,
         FormFactoryInterface $formFactory,
         EngineInterface $templatingEngine,
         ChannelContextInterface $channelContext,
         CustomerContextInterface $customerContext,
-        ContactEmailManager $contactEmailManager
+        ContactEmailManagerInterface $contactEmailManager
     ) {
         $this->router = $router;
         $this->formFactory = $formFactory;
@@ -81,19 +63,18 @@ class ContactController
         $this->contactEmailManager = $contactEmailManager;
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function requestAction(Request $request)
+    public function requestAction(Request $request): Response
     {
         $formType = $this->getSyliusAttribute($request, 'form', ContactType::class);
         $form = $this->formFactory->create($formType, null, $this->getFormOptions());
 
         if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
             $data = $form->getData();
+
+            /** @var ChannelInterface $channel */
             $channel = $this->channelContext->getChannel();
+            Assert::isInstanceOf($channel, ChannelInterface::class);
+
             $contactEmail = $channel->getContactEmail();
 
             if (null === $contactEmail) {
@@ -102,7 +83,10 @@ class ContactController
                     'error_flash',
                     'sylius.contact.request_error'
                 );
-                $request->getSession()->getFlashBag()->add('error', $errorMessage);
+
+                /** @var FlashBagInterface $flashBag */
+                $flashBag = $request->getSession()->getBag('flashes');
+                $flashBag->add('error', $errorMessage);
 
                 return new RedirectResponse($request->headers->get('referer'));
             }
@@ -114,36 +98,29 @@ class ContactController
                 'success_flash',
                 'sylius.contact.request_success'
             );
-            $request->getSession()->getFlashBag()->add('success', $successMessage);
+
+            /** @var FlashBagInterface $flashBag */
+            $flashBag = $request->getSession()->getBag('flashes');
+            $flashBag->add('success', $successMessage);
 
             $redirectRoute = $this->getSyliusAttribute($request, 'redirect', 'referer');
 
             return new RedirectResponse($this->router->generate($redirectRoute));
         }
 
-        $template = $this->getSyliusAttribute($request, 'template', "@SyliusShop/Contact/request.html.twig");
+        $template = $this->getSyliusAttribute($request, 'template', '@SyliusShop/Contact/request.html.twig');
 
         return $this->templatingEngine->renderResponse($template, ['form' => $form->createView()]);
     }
 
-    /**
-     * @param Request $request
-     * @param string $attributeName
-     * @param string|null $default
-     *
-     * @return string|null
-     */
-    private function getSyliusAttribute(Request $request, $attributeName, $default = null)
+    private function getSyliusAttribute(Request $request, string $attributeName, ?string $default): ?string
     {
         $attributes = $request->attributes->get('_sylius');
 
-        return isset($attributes[$attributeName]) ? $attributes[$attributeName] : $default;
+        return $attributes[$attributeName] ?? $default;
     }
 
-    /**
-     * @return array
-     */
-    private function getFormOptions()
+    private function getFormOptions(): array
     {
         $customer = $this->customerContext->getCustomer();
 

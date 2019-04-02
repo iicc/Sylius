@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Remover;
 
 use Doctrine\Common\Persistence\ObjectManager;
@@ -18,31 +20,17 @@ use Sylius\Component\Review\Model\ReviewableInterface;
 use Sylius\Component\Review\Model\ReviewerInterface;
 use Sylius\Component\Review\Model\ReviewInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
-class ReviewerReviewsRemover implements ReviewerReviewsRemoverInterface
+final class ReviewerReviewsRemover implements ReviewerReviewsRemoverInterface
 {
-    /**
-     * @var EntityRepository
-     */
+    /** @var EntityRepository */
     private $reviewRepository;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $reviewManager;
 
-    /**
-     * @var ReviewableRatingUpdaterInterface
-     */
+    /** @var ReviewableRatingUpdaterInterface */
     private $averageRatingUpdater;
 
-    /**
-     * @param EntityRepository $reviewRepository
-     * @param ObjectManager $reviewManager
-     * @param ReviewableRatingUpdaterInterface $averageRatingUpdater
-     */
     public function __construct(
         EntityRepository $reviewRepository,
         ObjectManager $reviewManager,
@@ -56,7 +44,7 @@ class ReviewerReviewsRemover implements ReviewerReviewsRemoverInterface
     /**
      * {@inheritdoc}
      */
-    public function removeReviewerReviews(ReviewerInterface $author)
+    public function removeReviewerReviews(ReviewerInterface $author): void
     {
         $reviewSubjectsToRecalculate = [];
 
@@ -71,12 +59,11 @@ class ReviewerReviewsRemover implements ReviewerReviewsRemoverInterface
     }
 
     /**
-     * @param ReviewInterface $review
-     * @param ReviewableInterface[] $reviewSubjectsToRecalculate
+     * @param array|ReviewableInterface[] $reviewSubjectsToRecalculate
      *
-     * @return array
+     * @return array|ReviewableInterface[]
      */
-    private function removeReviewsAndExtractSubject(ReviewInterface $review, array $reviewSubjectsToRecalculate)
+    private function removeReviewsAndExtractSubject(ReviewInterface $review, array $reviewSubjectsToRecalculate): array
     {
         $reviewSubject = $review->getReviewSubject();
 

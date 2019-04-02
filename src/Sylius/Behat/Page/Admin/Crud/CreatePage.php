@@ -9,48 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Crud;
 
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Session;
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class CreatePage extends SymfonyPage implements CreatePageInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $routeName;
 
-    /**
-     * @param Session $session
-     * @param array $parameters
-     * @param RouterInterface $router
-     * @param string $routeName
-     */
-    public function __construct(Session $session, array $parameters, RouterInterface $router, $routeName)
+    public function __construct(Session $session, $minkParameters, RouterInterface $router, string $routeName)
     {
-        parent::__construct($session, $parameters, $router);
+        parent::__construct($session, $minkParameters, $router);
 
         $this->routeName = $routeName;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function create()
+    public function create(): void
     {
         $this->getDocument()->pressButton('Create');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getValidationMessage($element)
+    public function getValidationMessage(string $element): string
     {
         $foundElement = $this->getFieldElement($element);
         if (null === $foundElement) {
@@ -65,22 +50,15 @@ class CreatePage extends SymfonyPage implements CreatePageInterface
         return $validationMessage->getText();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return $this->routeName;
     }
 
     /**
-     * @param string $element
-     *
-     * @return \Behat\Mink\Element\NodeElement|null
-     *
      * @throws ElementNotFoundException
      */
-    private function getFieldElement($element)
+    private function getFieldElement(string $element): ?\Behat\Mink\Element\NodeElement
     {
         $element = $this->getElement($element);
         while (null !== $element && !$element->hasClass('field')) {

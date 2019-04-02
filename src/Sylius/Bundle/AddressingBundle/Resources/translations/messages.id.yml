@@ -7,7 +7,7 @@ sylius:
             city: Kota
             company: Perusahaan
             country: Negara
-            first_name: Nama depan
+            first_name: Nama Depan
             last_name: Nama belakang
             phone_number: Nomor telepon
             postcode: Kode pos
@@ -34,6 +34,8 @@ sylius:
                 province: Provinsi
                 zone: Zona
             scope: Lingkup
+            scopes:
+                all: Semua
             select: Pilih
             select_scope: Pilih lingkup
         zone_member:

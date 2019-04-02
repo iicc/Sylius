@@ -1,5 +1,9 @@
 @import "variables";
 
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
 #wrapper {
   padding: 54px 0 0 0;
 }
@@ -21,6 +25,10 @@ body.pushable {
   .pusher {
     background-color: $color-background;
   }
+}
+.ui.visible.left.sidebar~.fixed.menu,
+.ui.visible.left.sidebar~.pusher {
+  padding-right: 260px;
 }
 
 body.centered {
@@ -90,4 +98,56 @@ th {
 .field.loading.transition {
   top: auto;
   left: auto;
+}
+
+.ui.floated.dividing.empty {
+  top: 100%;
+  bottom: auto;
+  padding: 0;
+  margin: 0;
+}
+.ui.left.floated.dividing.empty ~ .ui.dropdown > .menu {
+  right: auto;
+  left: 0;
+}
+.ui.right.floated.dividing.empty ~ .ui.dropdown > .menu {
+  right: 0;
+  left: auto;
+}
+.sylius-grid-wrapper {
+    .sylius-grid-nav {
+        .sylius-grid-nav__pagination,
+        .sylius-grid-nav__perpage {
+            padding-bottom: 1rem;
+        }
+    }
+    .sylius-grid-table-wrapper {
+        overflow-x: auto;
+        margin-bottom: 1rem;
+
+        .ui.buttons, .ui.label {
+            white-space: nowrap;
+        }
+    }
+}
+@media only screen and (min-width: 768px) {
+    .sylius-grid-wrapper {
+        .sylius-grid-nav {
+            display: flex;
+            flex-wrap: wrap;
+            margin-left: -1rem;
+            margin-right: -1rem;
+
+            .sylius-grid-nav__pagination,
+            .sylius-grid-nav__perpage {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .sylius-grid-nav__pagination {
+                flex-grow: 1;
+            }
+        }
+        .pagination { flex-wrap: wrap; }
+    }
 }

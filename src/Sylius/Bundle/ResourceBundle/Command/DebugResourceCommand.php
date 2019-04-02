@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Command;
 
 use Sylius\Component\Resource\Metadata\MetadataInterface;
@@ -19,22 +21,15 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @author Daniel Leech <daniel@dantleech.com>
- */
 final class DebugResourceCommand extends Command
 {
-    /**
-     * @var RegistryInterface
-     */
+    /** @var RegistryInterface */
     private $registry;
 
-    /**
-     * @param RegistryInterface $registry
-     */
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct();
+
         $this->registry = $registry;
     }
 
@@ -78,10 +73,7 @@ EOT
         $this->debugResource($metadata, $output);
     }
 
-    /**
-     * @param OutputInterface $output
-     */
-    private function listResources(OutputInterface $output)
+    private function listResources(OutputInterface $output): void
     {
         $resources = $this->registry->getAll();
         ksort($resources);
@@ -96,11 +88,7 @@ EOT
         $table->render();
     }
 
-    /**
-     * @param MetadataInterface $metadata
-     * @param OutputInterface $output
-     */
-    private function debugResource(MetadataInterface $metadata, OutputInterface $output)
+    private function debugResource(MetadataInterface $metadata, OutputInterface $output): void
     {
         $table = new Table($output);
         $information = [
@@ -123,21 +111,18 @@ EOT
     }
 
     /**
-     * @param array $parameters
-     * @param array $flattened
      * @param string $prefix
-     *
-     * @return array
      */
-    private function flattenParameters(array $parameters, array $flattened = [], $prefix = '')
+    private function flattenParameters(array $parameters, array $flattened = [], $prefix = ''): array
     {
         foreach ($parameters as $key => $value) {
             if (is_array($value)) {
-                $flattened = $this->flattenParameters($value, $flattened, $prefix.$key.'.');
+                $flattened = $this->flattenParameters($value, $flattened, $prefix . $key . '.');
+
                 continue;
             }
 
-            $flattened[$prefix.$key] = $value;
+            $flattened[$prefix . $key] = $value;
         }
 
         return $flattened;

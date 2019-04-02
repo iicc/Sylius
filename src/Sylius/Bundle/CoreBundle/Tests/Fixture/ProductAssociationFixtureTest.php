@@ -9,24 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Tests\Fixture;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Matthias\SymfonyConfigTest\PhpUnit\ConfigurationTestCaseTrait;
+use PHPUnit\Framework\TestCase;
 use Sylius\Bundle\CoreBundle\Fixture\Factory\ExampleFactoryInterface;
 use Sylius\Bundle\CoreBundle\Fixture\ProductAssociationFixture;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
-final class ProductAssociationFixtureTest extends \PHPUnit_Framework_TestCase
+final class ProductAssociationFixtureTest extends TestCase
 {
     use ConfigurationTestCaseTrait;
 
     /**
      * @test
      */
-    public function product_assoiations_are_optional()
+    public function product_assoiations_are_optional(): void
     {
         $this->assertConfigurationIsValid([[]], 'custom');
     }
@@ -34,7 +34,7 @@ final class ProductAssociationFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function product_associations_can_be_generated_randomly()
+    public function product_associations_can_be_generated_randomly(): void
     {
         $this->assertConfigurationIsValid([['random' => 4]], 'random');
         $this->assertPartialConfigurationIsInvalid([['random' => -1]], 'random');
@@ -43,7 +43,7 @@ final class ProductAssociationFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function product_association_type_is_optional()
+    public function product_association_type_is_optional(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['type' => 'type']]]], 'custom.*.type');
     }
@@ -51,7 +51,7 @@ final class ProductAssociationFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function product_association_owner_is_optional()
+    public function product_association_owner_is_optional(): void
     {
         $this->assertConfigurationIsValid([['custom' => [['owner' => 'product']]]], 'custom.*.owner');
     }
@@ -59,11 +59,11 @@ final class ProductAssociationFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function product_association_associated_products_are_optional()
+    public function product_association_associated_products_are_optional(): void
     {
         $this->assertConfigurationIsValid(
             [[
-                'custom' => [['associated_products' => ['product-1', 'product-2']]]
+                'custom' => [['associated_products' => ['product-1', 'product-2']]],
             ]],
             'custom.*.associated_products')
         ;
@@ -72,7 +72,7 @@ final class ProductAssociationFixtureTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    protected function getConfiguration()
+    protected function getConfiguration(): ProductAssociationFixture
     {
         return new ProductAssociationFixture(
             $this->getMockBuilder(ObjectManager::class)->getMock(),

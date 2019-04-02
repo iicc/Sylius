@@ -9,20 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Addressing\Comparator;
 
 use Sylius\Component\Addressing\Model\AddressInterface;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 interface AddressComparatorInterface
 {
-    /**
-     * @param AddressInterface $firstAddress
-     * @param AddressInterface $secondAddress
-     *
-     * @return bool
-     */
-    public function equal(AddressInterface $firstAddress, AddressInterface $secondAddress);
+    public function equal(AddressInterface $firstAddress, AddressInterface $secondAddress): bool;
 }

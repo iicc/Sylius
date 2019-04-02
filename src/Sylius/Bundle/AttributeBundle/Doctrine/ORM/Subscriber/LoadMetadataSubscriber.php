@@ -9,46 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AttributeBundle\Doctrine\ORM\Subscriber;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class LoadMetadataSubscriber implements EventSubscriber
 {
-    /**
-     * @var array
-     */
-    protected $subjects;
+    /** @var array */
+    private $subjects;
 
-    /**
-     * @param array $subjects
-     */
     public function __construct(array $subjects)
     {
         $this->subjects = $subjects;
     }
 
-    /**
-     * @return array
-     */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             'loadClassMetadata',
         ];
     }
 
-    /**
-     * @param LoadClassMetadataEventArgs $eventArgs
-     */
-    public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
+    public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs): void
     {
         $metadata = $eventArgs->getClassMetadata();
         $metadataFactory = $eventArgs->getEntityManager()->getMetadataFactory();
@@ -58,32 +45,23 @@ final class LoadMetadataSubscriber implements EventSubscriber
                 $this->mapSubjectOnAttributeValue($subject, $class['subject'], $metadata, $metadataFactory);
                 $this->mapAttributeOnAttributeValue($class['attribute']['classes']['model'], $metadata, $metadataFactory);
             }
-
-            if ($class['attribute']['classes']['model'] === $metadata->getName()) {
-                $this->mapValuesOnAttribute($class['attribute_value']['classes']['model'], $metadata);
-            }
         }
     }
 
-    /**
-     * @param string $subject
-     * @param string $subjectClass
-     * @param ClassMetadataInfo $metadata
-     * @param ClassMetadataFactory $metadataFactory
-     */
     private function mapSubjectOnAttributeValue(
-        $subject,
-        $subjectClass,
+        string $subject,
+        string $subjectClass,
         ClassMetadataInfo $metadata,
         ClassMetadataFactory $metadataFactory
-    ) {
+    ): void {
+        /** @var ClassMetadataInfo $targetEntityMetadata */
         $targetEntityMetadata = $metadataFactory->getMetadataFor($subjectClass);
         $subjectMapping = [
             'fieldName' => 'subject',
             'targetEntity' => $subjectClass,
             'inversedBy' => 'attributes',
             'joinColumns' => [[
-                'name' => $subject.'_id',
+                'name' => $subject . '_id',
                 'referencedColumnName' => $targetEntityMetadata->fieldMappings['id']['columnName'],
                 'nullable' => false,
                 'onDelete' => 'CASCADE',
@@ -93,21 +71,16 @@ final class LoadMetadataSubscriber implements EventSubscriber
         $this->mapManyToOne($metadata, $subjectMapping);
     }
 
-    /**
-     * @param string $attributeClass
-     * @param ClassMetadataInfo $metadata
-     * @param ClassMetadataFactory $metadataFactory
-     */
     private function mapAttributeOnAttributeValue(
-        $attributeClass,
+        string $attributeClass,
         ClassMetadataInfo $metadata,
         ClassMetadataFactory $metadataFactory
-    ) {
+    ): void {
+        /** @var ClassMetadataInfo $attributeMetadata */
         $attributeMetadata = $metadataFactory->getMetadataFor($attributeClass);
         $attributeMapping = [
             'fieldName' => 'attribute',
             'targetEntity' => $attributeClass,
-            'inversedBy' => 'values',
             'joinColumns' => [[
                 'name' => 'attribute_id',
                 'referencedColumnName' => $attributeMetadata->fieldMappings['id']['columnName'],
@@ -119,28 +92,7 @@ final class LoadMetadataSubscriber implements EventSubscriber
         $this->mapManyToOne($metadata, $attributeMapping);
     }
 
-    /**
-     * @param string $attributeValueClass
-     * @param ClassMetadataInfo $metadata
-     */
-    private function mapValuesOnAttribute(
-        $attributeValueClass,
-        ClassMetadataInfo $metadata
-    ) {
-        $valuesMapping = [
-            'fieldName' => 'values',
-            'targetEntity' => $attributeValueClass,
-            'mappedBy' => 'attribute',
-        ];
-
-        $metadata->mapOneToMany($valuesMapping);
-    }
-
-    /**
-     * @param ClassMetadataInfo|ClassMetadata $metadata
-     * @param array $subjectMapping
-     */
-    private function mapManyToOne(ClassMetadataInfo $metadata, array $subjectMapping)
+    private function mapManyToOne(ClassMetadataInfo $metadata, array $subjectMapping): void
     {
         $metadata->mapManyToOne($subjectMapping);
     }

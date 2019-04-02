@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UiBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * This bundle provides generic UI for Sylius bundles and platform.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class SyliusUiBundle extends Bundle
+final class SyliusUiBundle extends Bundle
 {
 }

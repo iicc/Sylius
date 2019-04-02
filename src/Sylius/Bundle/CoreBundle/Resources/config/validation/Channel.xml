@@ -29,7 +29,9 @@
             </constraint>
         </property>
         <property name="taxCalculationStrategy">
-            <constraint name="NotBlank" />
+            <constraint name="NotBlank">
+                <option name="groups">sylius</option>
+            </constraint>
         </property>
         <property name="contactEmail">
             <constraint name="Length">
@@ -43,6 +45,7 @@
             </constraint>
             <constraint name="Email">
                 <option name="message">sylius.channel.contact_email.invalid</option>
+                <option name="strict">true</option>
                 <option name="groups">
                     <value>sylius</value>
                 </option>

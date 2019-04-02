@@ -35,6 +35,9 @@ sylius:
     order:
         currency_code:
             not_valid: Le code de devise que vous avez entré n’est pas valide.
+        payment_method_eligibility: 'Cette méthode de paiement %paymentMethodName% a été désactivée. Veuillez sélectionner une nouvelle fois votre mode de paiement.'
+        product_eligibility: 'Le produit %productName% a été désactivé.'
+        shipping_method_eligibility: 'Ce produit n''est pas éligible au mode de livraison %shippingMethodName%. Veuillez sélectionner une nouvelle fois votre mode de livraison.'
     locale:
         code:
             not_blank: Veuillez saisir le code de la locale.
@@ -47,10 +50,6 @@ sylius:
     product_attribute:
         invalid: La position doit être un entier positif.
     product_image:
-        code:
-            not_blank: Saisissez un code pour l'image.
-            regex: Le code de l'image peut uniquement être composé de lettres, chiffres, tirets et tirets bas.
-            unique: Code de l’image doit être unique au sein de ce produit.
         file:
             max_size: L'image est trop grande - {{ size }}{{ suffix }}. La taille maximum autorisée est de {{ limit }}{{ suffix }}.
             upload_ini_size: L'image est trop grande. La taille maximum autorisée est de {{ limit }}{{ suffix }}.
@@ -79,16 +78,15 @@ sylius:
         short_description:
             max: La description courte ne doit pas dépasser {{ limit }} caractères.
     taxon_image:
-        code:
-            not_blank: Saisissez un code pour l'image.
-            regex: Le code de l'image peut uniquement être composé de lettres, chiffres, tirets et tirets bas.
-            unique: Code de l’image doit être unique au sein de ce taxon.
         file:
             max_size: L'image est trop grande - {{ size }}{{ suffix }}. La taille maximum autorisée est de {{ limit }}{{ suffix }}.
             upload_ini_size: L'image est trop grande. La taille maximum autorisée est de {{ limit }}{{ suffix }}.
     user:
         email:
             unique: Cet e-mail est déjà utilisé.
+            min: L'e-mail doit contenir au moins {{ min }} caractères.
+            max: L'e-mail doit contenir au plus {{ max }} caractères.
+            invalid: Cet e-mail n'est pas valide.
         username:
             unique: Ce nom d'utilisateur est déjà utilisé.
             not_blank: Veuillez entrer un nom d'utilisateur.

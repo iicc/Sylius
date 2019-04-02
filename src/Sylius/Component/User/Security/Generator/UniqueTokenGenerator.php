@@ -9,46 +9,36 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\User\Security\Generator;
 
+use Sylius\Component\Resource\Generator\RandomnessGeneratorInterface;
 use Sylius\Component\User\Security\Checker\UniquenessCheckerInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class UniqueTokenGenerator implements GeneratorInterface
 {
-    /**
-     * @var UniquenessCheckerInterface
-     */
+    /** @var RandomnessGeneratorInterface */
+    private $generator;
+
+    /** @var UniquenessCheckerInterface */
     private $uniquenessChecker;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $tokenLength;
 
     /**
-     * @param UniquenessCheckerInterface $uniquenessChecker
-     * @param int $tokenLength
-     *
      * @throws \InvalidArgumentException
      */
-    public function __construct(UniquenessCheckerInterface $uniquenessChecker, $tokenLength)
-    {
-        Assert::integer(
-            $tokenLength,
-            'The value of token length has to be an integer.'
-        );
-        Assert::range(
-            $tokenLength,
-            1, 40,
-            'The value of token length has to be in range between 1 to 40.'
-        );
+    public function __construct(
+        RandomnessGeneratorInterface $generator,
+        UniquenessCheckerInterface $uniquenessChecker,
+        int $tokenLength
+    ) {
+        Assert::greaterThanEq($tokenLength, 1, 'The value of token length has to be at least 1.');
 
+        $this->generator = $generator;
         $this->tokenLength = $tokenLength;
         $this->uniquenessChecker = $uniquenessChecker;
     }
@@ -56,23 +46,12 @@ final class UniqueTokenGenerator implements GeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function generate()
+    public function generate(): string
     {
         do {
-            $token = $this->getRandomToken();
+            $token = $this->generator->generateUriSafeString($this->tokenLength);
         } while (!$this->uniquenessChecker->isUnique($token));
 
         return $token;
-    }
-
-    /**
-     * @return string
-     */
-    private function getRandomToken()
-    {
-        $hash = sha1(microtime(true));
-        $startPosition = mt_rand(0, 40 - $this->tokenLength);
-
-        return substr($hash, $startPosition, $this->tokenLength);
     }
 }

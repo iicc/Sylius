@@ -9,26 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
 use Sylius\Component\Payment\Repository\PaymentMethodRepositoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class PaymentMethodContext implements Context
 {
-    /**
-     * @var PaymentMethodRepositoryInterface
-     */
+    /** @var PaymentMethodRepositoryInterface */
     private $paymentMethodRepository;
 
-    /**
-     * @param PaymentMethodRepositoryInterface $paymentMethodRepository
-     */
     public function __construct(PaymentMethodRepositoryInterface $paymentMethodRepository)
     {
         $this->paymentMethodRepository = $paymentMethodRepository;
@@ -43,8 +36,8 @@ final class PaymentMethodContext implements Context
         $paymentMethods = $this->paymentMethodRepository->findByName($paymentMethodName, 'en_US');
 
         Assert::eq(
-            1,
             count($paymentMethods),
+            1,
             sprintf('%d payment methods has been found with name "%s".', count($paymentMethods), $paymentMethodName)
         );
 

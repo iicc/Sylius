@@ -2,7 +2,7 @@ sylius_admin_taxon:
     resource: |
         alias: sylius.taxon
         section: admin
-        templates: SyliusAdminBundle:Taxon
+        templates: "@SyliusAdmin\\Taxon"
         except: ['show', 'index']
         redirect: update
         permission: true
@@ -28,12 +28,13 @@ sylius_admin_taxon_create_for_parent:
         _controller: sylius.controller.taxon:createAction
         _sylius:
             section: admin
-            template: 'SyliusAdminBundle:Taxon:create.html.twig'
+            permission: true
+            template: '@SyliusAdmin/Taxon/create.html.twig'
             redirect: sylius_admin_taxon_update
             factory:
                 method: createForParent
-                arguments: ['expr:service("sylius.repository.taxon").find($id)']
+                arguments: ['expr:notFoundOnNull(service("sylius.repository.taxon").find($id))']
             vars:
-                subheader: sylius.ui.manage_categorization_of_your_product
+                subheader: sylius.ui.manage_categorization_of_your_products
                 templates:
                     form: "@SyliusAdmin/Taxon/_form.html.twig"

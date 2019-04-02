@@ -9,27 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Crud;
 
 use Behat\Mink\Exception\ElementNotFoundException;
-use Sylius\Behat\Page\SymfonyPageInterface;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface CreatePageInterface extends SymfonyPageInterface
 {
     /**
-     * @param string $element
-     *
-     * @return string
-     *
      * @throws ElementNotFoundException
      */
-    public function getValidationMessage($element);
+    public function getValidationMessage(string $element): string;
 
     /**
      * @throws ElementNotFoundException
      */
-    public function create();
+    public function create(): void;
 }

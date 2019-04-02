@@ -19,23 +19,35 @@ sylius:
         promotion_action:
             add_product_configuration:
                 product: Produkt
+        promotion_coupon:
+            per_customer_usage_limit: Limit pre použitie jedným zákazníkom
         group:
             name: Názov
             roles: Role
         channel:
-            taxonomies: Triedenia
+            billing_data:
+                city: Mesto
+                company: Spoločnosť
+                country: Krajina
+                postcode: PSČ
+                street: Ulica
+            contact_email: Kontaktný e-mail
+            currencies: Meny
+            currency_base: Základná mena
+            account_verification_required: Je požadované overenie účtu?
+            hostname: Hostname
             locale_default: Predvolený jazyk
             locales: Jazyky
-            currency_base: Základná mena
-            currencies: Meny
-            shipping_methods: Spôsoby doručenia
             payment_methods: Spôsoby platby
+            shipping_methods: Spôsoby doručenia
+            skipping_shipping_step_allowed: Preskočiť výber dopravy, ak je dostupný iba jeden spôsob dopravy?
+            skipping_payment_step_allowed: Preskočiť krok platby ak je dostupná len jedna platobná metóda?
             tax_calculation_strategy: Spôsob výpočtu dane
             tax_zone_default: Predvolené daňové pásmo
+            taxonomies: Triedenia
             theme: Téma
-            hostname: Hostname
         image:
-            code: Kód
+            type: Typ
             file: Obrázok
         locale:
             code: Kód
@@ -104,6 +116,7 @@ sylius:
             on_hand: Položiek na sklade
             price: Cena
             sku: Skladový kód (SKU)
+            shipping_required: Je doprava povinná?
             weight: Hmotnosť
             width: Šírka
         attribute:
@@ -117,11 +130,23 @@ sylius:
             type: Typ priradenia
         product_association_type:
             name: Názov
+        promotion_filter:
+            products: Filter produktov
+            taxons: Filter kategórií
         promotion_rule:
+            customer_group:
+                group: Skupina zákazníkov
+            has_taxon:
+                taxons: Kategórie
+            product:
+                products: Produkty
             total_of_items_from_taxon:
                 taxon: Kategória
+                amount: Suma
         payment_method:
             channels: Kanály
+        product_attribute:
+            position: Pozícia
         zone:
             scopes:
                 shipping: Doručenie
@@ -143,8 +168,8 @@ sylius:
             intl: Intl
             json_encode: JSON
             mbstring: Multibyte String
-            "off": false
-            "on": true
+            off: false
+            on: true
             pcre: PCRE
             pdo: PDO
             php_xml: PHP-XML
@@ -155,13 +180,16 @@ sylius:
             header: súborový systém
             cache:
                 header: cache
+                help: "Pre nastavenie oprávnení spusti: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%"
             exists: existuje
             logs:
                 header: záznamy
+                help: "Pre nastavenie oprávnení spusti: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%"
             not_exists: neexistuje
             not_writable: nie je zapisovateľný
             parameters:
                 header: parameters.yml
+                help: "Pre nastavenie oprávnení spusti: sudo chmod a+w %path%"
             vendors: vendors
             writable: zapisovateľné
         settings:
@@ -170,8 +198,8 @@ sylius:
             detect_unicode: detect_unicode
             magic_quotes_gpc: magic_quotes_gpc
             non_deprecated: nie sú zastarelé
-            "off": false
-            "on": true
+            off: false
+            on: true
             register_globals: register_globals
             session:
                 auto_start: session.auto_start
@@ -179,7 +207,7 @@ sylius:
             timezone: časové pásmo
             timezone_deprecated:
                 header: Zastaralé časové pásmo
-                help: 'Časové pásmo %timezone% je zastaralé. Opravte si Váš súbor php.ini (zoznam zastaralých časových pasiem http://php.net/manual/en/timezones.others.php).'
+                help: Časové pásmo %timezone% je zastaralé. Opravte si Váš súbor php.ini (zoznam zastaralých časových pasiem http://php.net/manual/en/timezones.others.php).
             version: Verzia PHP
             version_recommended: Odporúčaná verzia PHP
     payum_gateway:

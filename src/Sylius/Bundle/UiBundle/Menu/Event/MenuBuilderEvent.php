@@ -9,49 +9,34 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UiBundle\Menu\Event;
 
 use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
 use Symfony\Component\EventDispatcher\Event;
 
-/**
- * @author Patrik Karisch <patrik.karisch@abimus.com>
- */
-final class MenuBuilderEvent extends Event
+class MenuBuilderEvent extends Event
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $factory;
 
-    /**
-     * @var ItemInterface
-     */
+    /** @var ItemInterface */
     private $menu;
 
-    /**
-     * @param FactoryInterface $factory
-     * @param ItemInterface $menu
-     */
     public function __construct(FactoryInterface $factory, ItemInterface $menu)
     {
         $this->factory = $factory;
         $this->menu = $menu;
     }
 
-    /**
-     * @return FactoryInterface
-     */
-    public function getFactory()
+    public function getFactory(): FactoryInterface
     {
         return $this->factory;
     }
 
-    /**
-     * @return ItemInterface
-     */
-    public function getMenu()
+    public function getMenu(): ItemInterface
     {
         return $this->menu;
     }

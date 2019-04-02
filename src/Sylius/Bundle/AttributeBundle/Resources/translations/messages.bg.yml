@@ -4,7 +4,8 @@
 sylius:
     form:
         attribute:
-            add: добавяне
+            add: Добави
+            add_attributes: Добави атрибути
             choices: Избор
             code: Код
             name: Име
@@ -15,15 +16,24 @@ sylius:
             configuration: Конфигурация
             date: Дата
             datetime: Дата и час
-            integer: Целочислено
+            integer: Цяло число
             percent: Процент
+            select: Изберете
             text: Текст
+            textarea: Поле за текст
+            title: Типове атрибути
             validation: Проверка
         attribute_type_configuration:
             datetime:
                 format: Форматиране
             date:
                 format: Форматиране
+            select:
+                multiple: Множество
+                values: Стойности
+                choose: Изберете опция
+                min: Мин. записи
+                max: Макс. записи
             text:
                 min: Минимална дължина
                 max: Макс. дължина

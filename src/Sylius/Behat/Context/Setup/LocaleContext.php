@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
@@ -20,49 +22,26 @@ use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class LocaleContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $localeFactory;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $localeRepository;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $localeManager;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $channelManager;
 
-    /**
-     * @var LocaleConverterInterface
-     */
+    /** @var LocaleConverterInterface */
     private $localeConverter;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param LocaleConverterInterface $localeConverter
-     * @param FactoryInterface $localeFactory
-     * @param RepositoryInterface $localeRepository
-     * @param ObjectManager $localeManager
-     * @param ObjectManager $channelManager
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         LocaleConverterInterface $localeConverter,
@@ -87,19 +66,6 @@ final class LocaleContext implements Context
     public function theStoreHasLocale($localeCode)
     {
         $locale = $this->provideLocale($localeCode);
-
-        $this->saveLocale($locale);
-    }
-
-    /**
-     * @Given the store has disabled locale :localeCode
-     * @Given the locale :localeCode is disabled (as well)
-     * @Given the locale :localeCode gets disabled
-     */
-    public function theStoreHasDisabledLocale($localeCode)
-    {
-        $locale = $this->provideLocale($localeCode);
-        $locale->disable();
 
         $this->saveLocale($locale);
     }
@@ -181,9 +147,6 @@ final class LocaleContext implements Context
         return $locale;
     }
 
-    /**
-     * @param LocaleInterface $locale
-     */
     private function saveLocale(LocaleInterface $locale)
     {
         $this->sharedStorage->set('locale', $locale);

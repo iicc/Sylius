@@ -11,29 +11,31 @@ sylius:
             last_name: Soyad
             phone_number: Telefon numarası
             postcode: Posta kodu
-            street: Sokak
+            street: Adres
             province: Eyalet
             zone: Bölge
         country:
-            add_province: Bölge ekleme
-            name: Ülke adı
+            add_province: Bölge ekle
+            name: Ad
             provinces: İller
             select: Ülke seçin
             enabled: Etkin
         province:
             name: Ad
             abbreviation: Kısaltma
-            select: Seçiniz
+            select: Ülke seçin
         zone:
             add_member: Üye ekle
             members: Üyeler
-            name: Bölge adı
-            type: Türü
+            name: Ad
+            type: Tür
             types:
                 country: Ülke
                 province: Eyalet
                 zone: Bölge
             scope: Kapsam
+            scopes:
+                all: Tümü
             select: Ülke seçin
             select_scope: Ölçek seçiniz
         zone_member:

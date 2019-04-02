@@ -9,52 +9,37 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Installer\Requirement;
 
-use ArrayIterator;
-use IteratorAggregate;
-
-abstract class RequirementCollection implements IteratorAggregate
+abstract class RequirementCollection implements \IteratorAggregate
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $label;
 
-    /**
-     * @var Requirement[]
-     */
+    /** @var Requirement[] */
     protected $requirements = [];
 
-    /**
-     * @param string $label
-     */
-    public function __construct($label)
+    public function __construct(string $label)
     {
         $this->label = $label;
     }
 
-    /**
-     * @return string
-     */
-    public function getLabel()
+    public function getLabel(): string
     {
         return $this->label;
     }
 
-    /**
-     * @return ArrayIterator
-     */
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
-        return new ArrayIterator($this->requirements);
+        return new \ArrayIterator($this->requirements);
     }
 
     /**
-     * @param Requirement $requirement
      * @return RequirementCollection
      */
-    public function add(Requirement $requirement)
+    public function add(Requirement $requirement): self
     {
         $this->requirements[] = $requirement;
 

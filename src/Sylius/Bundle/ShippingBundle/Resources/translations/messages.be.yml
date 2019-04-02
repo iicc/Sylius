@@ -9,8 +9,8 @@ sylius:
         shipment:
             state: Статус
             states:
-                checkout: Афармленне заказа
-                pending: У апрацоўцы
+                checkout: Афрмленне замовы
+                pending: У чаканні
                 ready: Гатова
                 shipped: Дастаўлена
                 returned: Вернута
@@ -18,9 +18,9 @@ sylius:
             tracking_code: Трэкінг-код
         shipping_calculator:
             flat_rate_configuration:
-                amount: Сума
+                amount: Колькасць
             per_unit_rate_configuration:
-                amount: Сума
+                amount: Колькасць
         shipping_category:
             description: Апісанне
             name: Назва
@@ -28,8 +28,11 @@ sylius:
             calculator: Калькулятар
             category: Катэгорыя
             category_requirement: Умовы катэгорыі
+            channels: Каналы
             configuration: Канфігурацыя
             description: Апісанне
             enabled: Уключана
             name: Назва
+            position: Пазіцыя
             tax_category: Катэгорыя падатку
+            translations: Пераклады

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\OAuth;
 
 use Doctrine\Common\Persistence\ObjectManager;
@@ -18,66 +20,49 @@ use HWI\Bundle\OAuthBundle\Security\Core\User\OAuthAwareUserProviderInterface;
 use Sylius\Bundle\UserBundle\Provider\UsernameOrEmailProvider as BaseUserProvider;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\ShopUserInterface as SyliusUserInterface;
+use Sylius\Component\Core\Repository\CustomerRepositoryInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\User\Canonicalizer\CanonicalizerInterface;
 use Sylius\Component\User\Model\UserOAuthInterface;
 use Sylius\Component\User\Repository\UserRepositoryInterface;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * Loading and ad-hoc creation of a user by an OAuth sign-in provider account.
- *
- * @author Fabian Kiss <fabian.kiss@ymc.ch>
- * @author Joseph Bielawski <stloyd@gmail.com>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
 class UserProvider extends BaseUserProvider implements AccountConnectorInterface, OAuthAwareUserProviderInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $oauthFactory;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $oauthRepository;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $customerFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $userFactory;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $userManager;
 
-    /**
-     * @param string $supportedUserClass
-     * @param FactoryInterface $customerFactory
-     * @param FactoryInterface $userFactory
-     * @param UserRepositoryInterface $userRepository
-     * @param FactoryInterface $oauthFactory
-     * @param RepositoryInterface $oauthRepository
-     * @param ObjectManager $userManager
-     * @param CanonicalizerInterface $canonicalizer
-     */
+    /** @var CustomerRepositoryInterface */
+    private $customerRepository;
+
     public function __construct(
-        $supportedUserClass,
+        string $supportedUserClass,
         FactoryInterface $customerFactory,
         FactoryInterface $userFactory,
         UserRepositoryInterface $userRepository,
         FactoryInterface $oauthFactory,
         RepositoryInterface $oauthRepository,
         ObjectManager $userManager,
-        CanonicalizerInterface $canonicalizer
+        CanonicalizerInterface $canonicalizer,
+        CustomerRepositoryInterface $customerRepository
     ) {
         parent::__construct($supportedUserClass, $userRepository, $canonicalizer);
 
@@ -86,12 +71,13 @@ class UserProvider extends BaseUserProvider implements AccountConnectorInterface
         $this->oauthRepository = $oauthRepository;
         $this->userFactory = $userFactory;
         $this->userManager = $userManager;
+        $this->customerRepository = $customerRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function loadUserByOAuthUserResponse(UserResponseInterface $response)
+    public function loadUserByOAuthUserResponse(UserResponseInterface $response): UserInterface
     {
         $oauth = $this->oauthRepository->findOneBy([
             'provider' => $response->getResourceOwner()->getName(),
@@ -107,33 +93,39 @@ class UserProvider extends BaseUserProvider implements AccountConnectorInterface
             if (null !== $user) {
                 return $this->updateUserByOAuthUserResponse($user, $response);
             }
+
+            return $this->createUserByOAuthUserResponse($response);
         }
 
-        return $this->createUserByOAuthUserResponse($response);
+        throw new UsernameNotFoundException('Email is null or not provided');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function connect(UserInterface $user, UserResponseInterface $response)
+    public function connect(UserInterface $user, UserResponseInterface $response): void
     {
-        /* @var $user SyliusUserInterface */
         $this->updateUserByOAuthUserResponse($user, $response);
     }
 
     /**
      * Ad-hoc creation of user.
-     *
-     * @param UserResponseInterface $response
-     *
-     * @return SyliusUserInterface
      */
-    private function createUserByOAuthUserResponse(UserResponseInterface $response)
+    private function createUserByOAuthUserResponse(UserResponseInterface $response): SyliusUserInterface
     {
         /** @var SyliusUserInterface $user */
         $user = $this->userFactory->createNew();
+
+        $canonicalEmail = $this->canonicalizer->canonicalize($response->getEmail());
+
         /** @var CustomerInterface $customer */
-        $customer = $this->customerFactory->createNew();
+        $customer = $this->customerRepository->findOneBy(['emailCanonical' => $canonicalEmail]);
+
+        if (null === $customer) {
+            /** @var CustomerInterface $customer */
+            $customer = $this->customerFactory->createNew();
+        }
+
         $user->setCustomer($customer);
 
         // set default values taken from OAuth sign-in provider account
@@ -141,8 +133,14 @@ class UserProvider extends BaseUserProvider implements AccountConnectorInterface
             $customer->setEmail($email);
         }
 
-        if (null !== $realName = $response->getRealName()) {
+        if (null !== $name = $response->getFirstName()) {
+            $customer->setFirstName($name);
+        } elseif (null !== $realName = $response->getRealName()) {
             $customer->setFirstName($realName);
+        }
+
+        if (null !== $lastName = $response->getLastName()) {
+            $customer->setLastName($lastName);
         }
 
         if (!$user->getUsername()) {
@@ -159,21 +157,19 @@ class UserProvider extends BaseUserProvider implements AccountConnectorInterface
 
     /**
      * Attach OAuth sign-in provider account to existing user.
-     *
-     * @param UserInterface         $user
-     * @param UserResponseInterface $response
-     *
-     * @return UserInterface
      */
-    private function updateUserByOAuthUserResponse(UserInterface $user, UserResponseInterface $response)
+    private function updateUserByOAuthUserResponse(UserInterface $user, UserResponseInterface $response): SyliusUserInterface
     {
+        /** @var SyliusUserInterface $user */
+        Assert::isInstanceOf($user, SyliusUserInterface::class);
+
+        /** @var UserOAuthInterface $oauth */
         $oauth = $this->oauthFactory->createNew();
         $oauth->setIdentifier($response->getUsername());
         $oauth->setProvider($response->getResourceOwner()->getName());
         $oauth->setAccessToken($response->getAccessToken());
         $oauth->setRefreshToken($response->getRefreshToken());
 
-        /* @var $user SyliusUserInterface */
         $user->addOAuthAccount($oauth);
 
         $this->userManager->persist($user);

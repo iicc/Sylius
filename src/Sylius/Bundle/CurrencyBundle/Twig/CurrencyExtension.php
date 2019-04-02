@@ -9,23 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CurrencyBundle\Twig;
 
 use Sylius\Bundle\CurrencyBundle\Templating\Helper\CurrencyHelperInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class CurrencyExtension extends \Twig_Extension
 {
-    /**
-     * @var CurrencyHelperInterface
-     */
+    /** @var CurrencyHelperInterface */
     private $helper;
 
-    /**
-     * @param CurrencyHelperInterface $helper
-     */
     public function __construct(CurrencyHelperInterface $helper)
     {
         $this->helper = $helper;
@@ -34,18 +28,10 @@ final class CurrencyExtension extends \Twig_Extension
     /**
      * {@inheritdoc}
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
-            new \Twig_SimpleFilter('sylius_currency_symbol', [$this->helper, 'convertCurrencyCodeToSymbol']),
+            new \Twig_Filter('sylius_currency_symbol', [$this->helper, 'convertCurrencyCodeToSymbol']),
         ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'sylius_currency';
     }
 }

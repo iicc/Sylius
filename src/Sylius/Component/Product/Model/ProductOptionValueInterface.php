@@ -9,44 +9,31 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Model;
 
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TranslatableInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ProductOptionValueInterface extends ResourceInterface, CodeAwareInterface, TranslatableInterface
 {
-    /**
-     * @return ProductOptionInterface
-     */
-    public function getOption();
+    public function getOption(): ?ProductOptionInterface;
+
+    public function setOption(?ProductOptionInterface $option): void;
+
+    public function getValue(): ?string;
+
+    public function setValue(?string $value): void;
+
+    public function getOptionCode(): ?string;
+
+    public function getName(): ?string;
 
     /**
-     * @param ProductOptionInterface $option
+     * @return ProductOptionValueTranslationInterface
      */
-    public function setOption(ProductOptionInterface $option = null);
-
-    /**
-     * @return string
-     */
-    public function getValue();
-
-    /**
-     * @param string $value
-     */
-    public function setValue($value);
-
-    /**
-     * @return string
-     */
-    public function getOptionCode();
-
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getTranslation(?string $locale = null): TranslationInterface;
 }

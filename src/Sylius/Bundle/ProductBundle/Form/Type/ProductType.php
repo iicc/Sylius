@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ProductBundle\Form\Type;
 
 use Sylius\Bundle\ProductBundle\Form\EventSubscriber\BuildAttributesFormSubscriber;
@@ -24,37 +26,23 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
 final class ProductType extends AbstractResourceType
 {
-    /**
-     * @var ProductVariantResolverInterface
-     */
+    /** @var ProductVariantResolverInterface */
     private $variantResolver;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $attributeValueFactory;
 
-    /**
-     * @var TranslationLocaleProviderInterface
-     */
+    /** @var TranslationLocaleProviderInterface */
     private $localeProvider;
 
     /**
-     * @param string $dataClass
-     * @param string[] $validationGroups
-     * @param ProductVariantResolverInterface $variantResolver
-     * @param FactoryInterface $attributeValueFactory
-     * @param TranslationLocaleProviderInterface $localeProvider
+     * @param array|string[] $validationGroups
      */
     public function __construct(
-        $dataClass,
-        $validationGroups,
+        string $dataClass,
+        array $validationGroups,
         ProductVariantResolverInterface $variantResolver,
         FactoryInterface $attributeValueFactory,
         TranslationLocaleProviderInterface $localeProvider
@@ -69,7 +57,7 @@ final class ProductType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->addEventSubscriber(new AddCodeFormSubscriber())
@@ -102,7 +90,7 @@ final class ProductType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sylius_product';
     }

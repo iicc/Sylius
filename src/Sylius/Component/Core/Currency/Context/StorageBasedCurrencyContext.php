@@ -9,59 +9,42 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Currency\Context;
 
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Core\Currency\CurrencyStorageInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Currency\Context\CurrencyContextInterface;
 use Sylius\Component\Currency\Context\CurrencyNotFoundException;
-use Sylius\Component\Currency\Provider\CurrencyProviderInterface;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class StorageBasedCurrencyContext implements CurrencyContextInterface
 {
-    /**
-     * @var ChannelContextInterface
-     */
+    /** @var ChannelContextInterface */
     private $channelContext;
 
-    /**
-     * @var CurrencyStorageInterface
-     */
+    /** @var CurrencyStorageInterface */
     private $currencyStorage;
 
-    /**
-     * @var CurrencyProviderInterface
-     */
-    private $currencyProvider;
-
-    /**
-     * @param ChannelContextInterface $channelContext
-     * @param CurrencyStorageInterface $currencyStorage
-     * @param CurrencyProviderInterface $currencyProvider
-     */
-    public function __construct(
-        ChannelContextInterface $channelContext,
-        CurrencyStorageInterface $currencyStorage,
-        CurrencyProviderInterface $currencyProvider
-    ) {
+    public function __construct(ChannelContextInterface $channelContext, CurrencyStorageInterface $currencyStorage)
+    {
         $this->channelContext = $channelContext;
         $this->currencyStorage = $currencyStorage;
-        $this->currencyProvider = $currencyProvider;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getCurrencyCode()
+    public function getCurrencyCode(): string
     {
-        $availableCurrenciesCodes = $this->currencyProvider->getAvailableCurrenciesCodes();
-        $currencyCode = $this->currencyStorage->get($this->channelContext->getChannel());
+        /** @var ChannelInterface $channel */
+        $channel = $this->channelContext->getChannel();
 
-        if (!in_array($currencyCode, $availableCurrenciesCodes, true)) {
-            throw CurrencyNotFoundException::notAvailable($currencyCode, $availableCurrenciesCodes);
+        $currencyCode = $this->currencyStorage->get($channel);
+
+        if (null === $currencyCode) {
+            throw new CurrencyNotFoundException();
         }
 
         return $currencyCode;

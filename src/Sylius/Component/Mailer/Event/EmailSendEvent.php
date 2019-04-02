@@ -9,79 +9,64 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Mailer\Event;
 
 use Sylius\Component\Mailer\Model\EmailInterface;
 use Symfony\Component\EventDispatcher\Event;
 
-/**
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
 final class EmailSendEvent extends Event
 {
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $message;
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     protected $recipients;
 
-    /**
-     * @var EmailInterface
-     */
+    /** @var EmailInterface */
     protected $email;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $data;
 
-    /**
-     * @param mixed $message
-     * @param array $recipients
-     * @param EmailInterface $email
-     * @param array $data
-     */
-    public function __construct($message, EmailInterface $email, array $data, array $recipients = [])
+    /** @var string[] */
+    protected $replyTo;
+
+    public function __construct($message, EmailInterface $email, array $data, array $recipients = [], array $replyTo = [])
     {
         $this->message = $message;
         $this->email = $email;
         $this->data = $data;
         $this->recipients = $recipients;
+        $this->replyTo = $replyTo;
     }
 
-    /**
-     * @return array
-     */
-    public function getRecipients()
+    public function getRecipients(): array
     {
         return $this->recipients;
     }
 
-    /**
-     * @return EmailInterface
-     */
-    public function getEmail()
+    public function getEmail(): EmailInterface
     {
         return $this->email;
     }
 
-    /**
-     * @return mixed
-     */
     public function getMessage()
     {
         return $this->message;
     }
 
-    /**
-     * @return array
-     */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getReplyTo(): array
+    {
+        return $this->replyTo;
     }
 }
